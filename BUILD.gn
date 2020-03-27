@@ -1,0 +1,37 @@
+# Copyright 2014 PDFium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//pdfium/build/config/sanitizers/sanitizers.gni")
+import("//pdfium//pdfium.gni")
+
+group("red") {
+  deps = [ ":pdfium_red" ]
+}
+
+config("pdfium_red_config") {
+  cflags = []
+  ldflags = []
+  defines = [
+    "PNG_PREFIX",
+    "PNG_USE_READ_MACROS",
+  ]
+  include_dirs = [ "pdfium", "pdfium/third_party/freetype/src/include" ]
+}
+
+loadable_module("pdfium_red") {
+  include_dirs = []
+  sources = [
+    "red.cc",
+  ]
+
+  # Note: One should write programs that depend on ../:pdfium. Whereas this
+  # sample program does not set a good example, and depends on PDFium internals,
+  # as well as test support code, for convenience.
+  deps = [
+    "//pdfium/:pdfium_public_headers",
+    "//pdfium/fpdfsdk",
+    # "//pdfium/third_party:pdfium_base",
+  ]
+  configs += [ ":pdfium_red_config" ]
+}
