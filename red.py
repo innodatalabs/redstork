@@ -238,8 +238,12 @@ class RED_TextObject(RED_PageObject):
     def __len__(self):
         return so.REDTextObject_CountItems(self._obj)
 
-    def __getitem__(self):
-        return 
+    def __getitem__(self, index):
+        return RED_Char()
+
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]
 
     def __repr__(self):
         return f'<RED_TextObject len={len(self)}, font_size={self.font_size}>'
@@ -273,6 +277,7 @@ class RED_FormObject(RED_PageObject):
     def __repr__(self):
         return '<RED_FormObject>'
 
+
 class RED_Font:
     # Font styles as defined in PDF 1.7 Table 5.20
     FLAGS_NORMAL = 0
@@ -288,7 +293,7 @@ class RED_Font:
 
     def __init__(self, font):
         self._font = font
-        
+
     @property
     def name(self):
         buf = create_string_buffer(512)
