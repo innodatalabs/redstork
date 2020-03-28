@@ -7,6 +7,7 @@ PDF Parsing library, based on `pdfium` project.
 ### Tooling
 
 Build tool-chain from Google includes:
+* gclient
 * ninja
 * gn
 
@@ -14,7 +15,7 @@ Build tool-chain from Google includes:
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 ```
 
-You **must** this directory to your path, best do this in wout `~/.bashrc`
+You **must** add this directory to your path, best do this in your `~/.bashrc`
 ```
 export PATH=$PATH;/home/mike/git/depot_tools
 ```
