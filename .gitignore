@@ -1,3 +1,5 @@
 /pdfium
 /buildtools
 /out
+/*.ppm
+/*.png

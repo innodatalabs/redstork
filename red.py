@@ -82,6 +82,9 @@ so.REDFont_GetFlags.restype = c_int
 so.REDFont_GetWeight.argtypes = [c_void_p]
 so.REDFont_GetWeight.restype = c_int
 
+so.REDPage_Render.argtypes = [c_void_p, c_char_p, c_int, c_float]
+so.REDPage_Render.restype = c_int
+
 class RED_Document:
     RED_InitLibrary()
 
@@ -214,6 +217,12 @@ class RED_Page:
         for i in range(len(self)):
             yield self[i]
 
+    def render(self, file_name, scale=1.0):
+        result = so.REDPage_Render(self._page, c_char_p(file_name.encode()), 1, scale)
+        if result == 0:
+            raise RuntimeError('Failed to render as ' + file_name)
+
+
 class RED_PageObject:
     def __init__(self, obj, index, typ, parent):
         self._obj = obj
@@ -226,6 +235,7 @@ class RED_PageObject:
         rect = FPDF_RECT(0., 0., 0., 0.)
         so.REDPageObject_GetRect(self._obj, pointer(rect))
         return rect.left, rect.top, rect.right, rect.bottom
+
 
 
 class RED_TextObject(RED_PageObject):
@@ -335,6 +345,9 @@ if __name__ == '__main__':
             print(x.rect, x.type, x)
             if x.type == RED_Page.OBJ_TYPE_TEXT:
                 print('\t', x.font)
+    doc[0].render('test_000.ppm')
+    doc[1].render('test_001.ppm', scale=2.0)
+    doc[2].render('test_002.ppm', scale=3.0)
 
     # RED_DestroyLibrary()
     # print('Destroyed')

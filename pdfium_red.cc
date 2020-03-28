@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "public/fpdfview.h"
+#include "public/cpp/fpdf_scopers.h"
 #include "fpdfsdk/cpdfsdk_helpers.h"
 #include "core/fpdfapi/page/cpdf_pageobject.h"
 #include "core/fpdfapi/page/cpdf_textobject.h"
@@ -117,6 +118,122 @@ FPDF_EXPORT extern "C" int REDFont_GetFlags(CPDF_Font *font) {
 FPDF_EXPORT extern "C" int REDFont_GetWeight(CPDF_Font *font) {
   return font->GetFontWeight();
 }
+
+#ifdef PNG_SUPPORT
+int WritePng(const char* file_name,
+    void* buffer,
+    int stride,
+    int width,
+    int height) {
+
+  auto input =
+      pdfium::make_span(static_cast<uint8_t*>(buffer), stride * height);
+  std::vector<uint8_t> png_encoding =
+      image_diff_png::EncodeBGRAPNG(input, width, height, stride, /*discard_transparency=*/ false);
+  if (png_encoding.empty()) {
+    return false;
+  }
+
+  FILE* fp = fopen(file_name, "wb");
+  if (!fp) {
+    return false;
+  }
+
+  size_t bytes_written =
+      fwrite(&png_encoding.front(), 1, png_encoding.size(), fp);
+  if (bytes_written != png_encoding.size()) {
+    fclose(fp);
+    return false;
+  }
+  fclose(fp);
+  return true;
+}
+#endif
+
+bool WritePpm(const char* file_name,
+    void* buffer_void,
+    int stride,
+    int width,
+    int height) {
+
+  int out_len = width * height;
+  if (out_len > INT_MAX / 3)
+    return false;
+
+  out_len *= 3;
+
+  FILE* fp = fopen(file_name, "wb");
+  if (!fp)
+    return false;
+
+  fprintf(fp, "P6\n# PDFium/RED render\n%d %d\n255\n", width, height);
+  // Source data is B, G, R, unused.
+  // Dest data is R, G, B.
+  const uint8_t* buffer = reinterpret_cast<const uint8_t*>(buffer_void);
+  std::vector<uint8_t> result(out_len);
+  for (int h = 0; h < height; ++h) {
+    const uint8_t* src_line = buffer + (stride * h);
+    uint8_t* dest_line = result.data() + (width * h * 3);
+    for (int w = 0; w < width; ++w) {
+      // R
+      dest_line[w * 3] = src_line[(w * 4) + 2];
+      // G
+      dest_line[(w * 3) + 1] = src_line[(w * 4) + 1];
+      // B
+      dest_line[(w * 3) + 2] = src_line[w * 4];
+    }
+  }
+  if (fwrite(result.data(), out_len, 1, fp) != 1) {
+    fclose(fp);
+    return false;
+  }
+
+  fclose(fp);
+  return true;
+}
+
+#define FORMAT_PNG (0)
+#define FORMAT_PPM (1)
+FPDF_EXPORT extern "C" bool REDPage_Render(FPDF_PAGE page, char const *file_name, int format, float scale) {
+  auto width = static_cast<int>(FPDF_GetPageWidthF(page) * scale);
+  auto height = static_cast<int>(FPDF_GetPageHeightF(page) * scale);
+
+  ScopedFPDFBitmap bitmap(FPDFBitmap_Create(width, height, 0));
+  if (!bitmap) {
+    return false;
+  }
+
+  FPDFBitmap_FillRect(bitmap.get(), 0, 0, width, height, 0xFFFFFFFF);
+
+  int flags = 0; // PageRenderFlagsFromOptions(options);
+  FPDF_RenderPageBitmap(bitmap.get(), page, 0, 0, width, height, 0, flags);
+
+  int stride = FPDFBitmap_GetStride(bitmap.get());
+  void* buffer = FPDFBitmap_GetBuffer(bitmap.get());
+
+  switch (format) {
+#ifdef PNG_SUPPORT
+    case FORMAT_PNG:
+      if (!WritePng(file_name, buffer, stride, width, height) ) {
+        return false;
+      }
+      break;
+#endif
+
+    case FORMAT_PPM:
+      if (!WritePpm(file_name, buffer, stride, width, height)) {
+        return false;
+      }
+      break;
+
+    default:
+      return false;
+  }
+
+  return true;
+}
+
+
 
 //     pPage->ParseContent();
 
