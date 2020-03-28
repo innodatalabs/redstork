@@ -13,6 +13,12 @@ so.RED_LoadDocument.restype = c_void_p
 
 so.FPDF_CloseDocument.argtypes = [c_void_p]
 
+so.REDDoc_GetMetaTextKeyCount.argtypes = [c_void_p]
+so.REDDoc_GetMetaTextKeyCount.restype = c_int
+
+so.REDDoc_GetMetaTextKeyAt.argtypes = [c_void_p, c_int]
+so.REDDoc_GetMetaTextKeyAt.restype = c_char_p
+
 so.FPDF_GetPageCount.argtypes = [c_void_p]
 so.FPDF_GetPageCount.restype = c_int
 
@@ -92,9 +98,10 @@ class RED_Document:
         c_fname = create_string_buffer(fname.encode() + b'\0')
         c_password = create_string_buffer(password.encode() + b'\0') if password is not None else None
 
-        self._fname = fname
+        self.fname = fname
         self._doc = so.RED_LoadDocument(c_fname, c_password)
         self.numpages = so.FPDF_GetPageCount(self._doc)
+        self.meta = self._get_meta_dict(self._doc)
 
     def __del__(self):
         so.FPDF_CloseDocument(self._doc)
@@ -109,7 +116,21 @@ class RED_Document:
         l = so.FPDF_GetPageLabel(self._doc, page_index, out, 4096)
         return out.raw[:l].decode('utf-16le')
 
-    def get_meta_text(self, key):
+    @classmethod
+    def _get_meta_dict(cls, doc):
+        out = {}
+        num_keys = so.REDDoc_GetMetaTextKeyCount(doc)
+        for i in range(num_keys):
+            key = so.REDDoc_GetMetaTextKeyAt(doc, i)
+            if key is None:
+                continue
+            key = key.decode()
+            value = cls.get_meta_text(doc, key)
+            out[key] = value
+        return out
+
+    @classmethod
+    def get_meta_text(cls, doc, key):
         '''Valid keys: Title, Author, Subject, Keywords, Creator, Producer,
              CreationDate, or ModDate.
            For detailed explanations of these tags and their respective
@@ -117,8 +138,11 @@ class RED_Document:
            'Document Information Dictionary'.
         '''
         out = create_string_buffer(512)
-        l = so.FPDF_GetMetaText(self._doc, create_string_buffer(key.encode() + b'\0'), out, 512)
-        return out.raw[:l].decode('utf-16le')
+        l = so.FPDF_GetMetaText(doc, create_string_buffer(key.encode() + b'\0'), out, 512)
+        return out.raw[:l-2].decode('utf-16le')
+
+    def __repr__(self):
+        return f'<REDDoc fname={self.fname}, numpages={self.numpages}>'
 
 
 class RED_Page:
@@ -222,6 +246,9 @@ class RED_Page:
         if result == 0:
             raise RuntimeError('Failed to render as ' + file_name)
 
+    def __repr__(self):
+        return f'<REDPage len={len(self)}>'
+
 
 class RED_PageObject:
     def __init__(self, obj, index, typ, parent):
@@ -308,7 +335,7 @@ class RED_Font:
     def name(self):
         buf = create_string_buffer(512)
         length = so.REDFont_GetName(self._font, buf, 512)
-        return buf[:length].decode()
+        return buf[:length-1].decode()
 
     @property
     def flags(self):
@@ -330,11 +357,9 @@ if __name__ == '__main__':
 
     fname = os.path.expanduser('~/REDSync/testResources/izguts/9783642051104.pdf')
 
-    # RED_InitLibrary()
-    # print('Inited')
-
     doc = RED_Document(fname)
-    print(doc.get_meta_text('Creator'))
+    for key, val in doc.meta.items():
+        print(key, val)
 
     print(doc.numpages)
     for page_index in range(doc.numpages):
@@ -349,6 +374,4 @@ if __name__ == '__main__':
     doc[1].render('test_001.ppm', scale=2.0)
     doc[2].render('test_002.ppm', scale=3.0)
 
-    # RED_DestroyLibrary()
-    # print('Destroyed')
 

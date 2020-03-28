@@ -2,6 +2,7 @@
 #include "public/fpdfview.h"
 #include "public/cpp/fpdf_scopers.h"
 #include "fpdfsdk/cpdfsdk_helpers.h"
+#include "core/fpdfapi/parser/cpdf_document.h"
 #include "core/fpdfapi/page/cpdf_pageobject.h"
 #include "core/fpdfapi/page/cpdf_textobject.h"
 #include "core/fpdfapi/font/cpdf_font.h"
@@ -233,38 +234,32 @@ FPDF_EXPORT extern "C" bool REDPage_Render(FPDF_PAGE page, char const *file_name
   return true;
 }
 
+FPDF_EXPORT extern "C" unsigned int REDDoc_GetMetaTextKeyCount(FPDF_DOCUMENT document) {
+  CPDF_Document* pDoc = CPDFDocumentFromFPDFDocument(document);
+  if (!pDoc)
+    return 0;
 
+  const CPDF_Dictionary* pInfo = pDoc->GetInfo();
+  if (!pInfo)
+    return 0;
 
-//     pPage->ParseContent();
+  return pInfo->GetKeys().size();
+}
 
-//     auto count = 0;
-//     for (const auto& pCurObj : *pPage) {
-//         if (!pCurObj)
-//             continue;
+FPDF_EXPORT extern "C" const char * REDDoc_GetMetaTextKeyAt(FPDF_DOCUMENT document, unsigned int index) {
+  CPDF_Document* pDoc = CPDFDocumentFromFPDFDocument(document);
+  if (!pDoc)
+    return nullptr;
 
-//         auto rect = pCurObj->GetRect();
+  const CPDF_Dictionary* pInfo = pDoc->GetInfo();
+  if (!pInfo)
+    return nullptr;
 
-//         fprintf(stderr, "Rect: %lf %lf %lf %lf\t", rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
+  const auto keys = pInfo->GetKeys();
 
-//         if (pCurObj->IsText()) {
-//             auto pTextObj = pCurObj->AsText();
-//             int numItems = pTextObj->CountItems();
-//             fprintf(stderr, "TEXT %d\n", numItems);
-//             RetainPtr<CPDF_Font> font(pTextObj->GetFont());
-//             font.Leak();
-//         } else if (pCurObj->IsPath()) {
-//             fprintf(stderr, "PATH\n");
-//         } else if (pCurObj->IsImage()) {
-//             fprintf(stderr, "IMAGE\n");
-//         } else if (pCurObj->IsShading()) {
-//             fprintf(stderr, "SHADING\n");
-//         } else if (pCurObj->IsForm()) {
-//             fprintf(stderr, "FORM\n");
-//         } else {
-//             fprintf(stderr, "UNKNOWN type\n");
-//         }
+  if (index < 0 || index >= keys.size()) {
+    return nullptr;
+  }
 
-//         count += 1;
-//     }
-//     return count;
-// }
+  return keys[index].c_str();
+}
