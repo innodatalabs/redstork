@@ -4,6 +4,7 @@ from .font import Font
 
 
 class PageObject:
+    '''Common superclass of all page objects'''
     def __init__(self, obj, index, typ, parent):
         self._obj = obj
         self._index = index
@@ -18,6 +19,7 @@ class PageObject:
 
 
 class TextObject(PageObject):
+    '''Represents a string of text on a page'''
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
         f = so.REDTextObject_GetFont(obj)
@@ -25,12 +27,15 @@ class TextObject(PageObject):
         self.font_size = so.REDTextObject_GetFontSize(obj)
 
     def __len__(self):
+        '''Number of items in this string'''
         return so.REDTextObject_CountItems(self._obj)
 
     def __getitem__(self, index):
+        '''Returns item at this index.'''
         return RED_Char()
 
     def __iter__(self):
+        '''Iterates over items.'''
         for i in range(len(self)):
             yield self[i]
 
@@ -39,6 +44,7 @@ class TextObject(PageObject):
 
 
 class PathObject(PageObject):
+    '''Represents vector graphics on a aage.'''
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
 
@@ -46,6 +52,7 @@ class PathObject(PageObject):
         return '<PathObject>'
 
 class ImageObject(PageObject):
+    '''Represents image on a page.'''
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
 
@@ -53,6 +60,7 @@ class ImageObject(PageObject):
         return '<ImageObject>'
 
 class ShadingObject(PageObject):
+    '''Represents a shading object on a page.'''
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
 
@@ -60,6 +68,7 @@ class ShadingObject(PageObject):
         return '<ShadingObject>'
 
 class FormObject(PageObject):
+    '''Represents interactive form on a page.'''
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
 

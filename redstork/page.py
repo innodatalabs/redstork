@@ -10,6 +10,7 @@ from .pageobject import (
 
 
 class Page:
+    '''Represents page of a PDF file.'''
 
     OBJ_TYPE_TEXT    = 1
     OBJ_TYPE_PATH    = 2
@@ -40,7 +41,7 @@ class Page:
 
     @property
     def crop_box(self):
-        '''Page crop box'''
+        '''Page crop box.'''
         l = c_float(0.)
         b = c_float(0.)
         r = c_float(0.)
@@ -58,7 +59,7 @@ class Page:
 
     @property
     def media_box(self):
-        '''Page media box'''
+        '''Page media box.'''
         l = c_float(0.)
         b = c_float(0.)
         r = c_float(0.)
@@ -87,16 +88,18 @@ class Page:
 
     @property
     def label(self):
-        '''Page label'''
+        '''Page label.'''
         self._parent._get_page_label(self._page_index)
 
     def __del__(self):
         so.FPDF_ClosePage(self._page)
 
     def __len__(self):
+        '''Number of objects on this page.'''
         return so.REDPage_GetPageObjectCount(self._page)
 
     def __getitem__(self, index):
+        '''Get object at this index.'''
         obj = so.REDPage_GetPageObjectByIndex(self._page, index)
         typ = so.REDPageObject_GetType(obj)
         if typ == self.OBJ_TYPE_TEXT:
@@ -113,6 +116,7 @@ class Page:
             raise RuntimeError('unexpected page object type %s' % typ)
 
     def __iter__(self):
+        '''Iterates over page objects.'''
         for i in range(len(self)):
             yield self[i]
 
@@ -124,15 +128,11 @@ class Page:
     def render(self, file_name, scale=1.0, rect=None):
         '''Render page (or rectangle on the page) as PPM image file.
 
-        * file_name - the name of the output file
-        * scale - the scale to use (default is 1.0, which will 1pt => 1px)
-            Here is an example of computing scale.
-            - If screen is 72dpi, and we want image to show at "natural" scale (1in on PDF as 1in on screen), then use scale=1.0
-            - if screen is 100dpi, then use scale=100/72
-            - if screen is retina at 300dpi, use scale=300/72
-            - naturally, if you want to "zoom-in" just use higher scale factor.
-        * rect - rectangle on the page 4-tuple of (x0, y0, x1, y1) in PDF coordinates.
-            if None, then page's :attr:`crop_box` will be used for rendering.
+        Args:
+            file_name (str):    name of the output file
+            scale (float):      scale to use (default is 1.0, which will assume that 1pt takes 1px)
+            rect (tuple):       optional rectangle to render. Value is a 4-tuple of (x0, y0, x1, y1) in PDF coordinates.
+                                if None, then page's :attr:`crop_box` will be used for rendering.
         '''
         cx0, cy0, cx1, cy1 = self.crop_box
         x0, y0, x1, y1 = self.crop_box if rect is None else rect
