@@ -7,12 +7,18 @@ from .bindings import so
 class Document:
     '''PDF document.
 
-    A :class:`list`-like container of pages. Extra members are:
-    * :attr:`numpages` - number of pages, same as len(self)
-    * :attr:`meta` - meta info (Author, Title, etc)
+    A :class:`list`-like container of pages. Extra members are
+
+        :attr numpages: - number of pages, same as len(self)
+        :attr meta: - meta info (Author, Title, etc)
     '''
 
-    def __init__(self, file_name, password=None):
+    def __init__(self, file_name: str, password=None : str):
+        '''Create new PDF Document object, from a file.
+
+        :param file_name: Name of PDF file
+        :param password:  File password if any
+        '''
         self._doc = None
         c_fname = create_string_buffer(file_name.encode() + b'\0')
         c_password = create_string_buffer(password.encode() + b'\0') if password is not None else None
@@ -37,7 +43,6 @@ class Document:
         return self.numpages
 
     def _get_page_label(self, page_index):
-        '''Here'''
         out = create_string_buffer(4096)
         l = so.FPDF_GetPageLabel(self._doc, page_index, out, 4096)
         return out.raw[:l].decode('utf-16le')
