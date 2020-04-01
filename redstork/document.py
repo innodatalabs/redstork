@@ -7,10 +7,13 @@ from .bindings import so
 class Document:
     '''PDF document.
 
-    A :class:`list`-like container of pages. Extra members are
+    A :class:`list`-like container of pages. Sample use::
 
-        :attr numpages: - number of pages, same as len(self)
-        :attr meta: - meta info (Author, Title, etc)
+        doc = Document('sample.pdf')
+        print("Number of pages:', len(doc))
+
+        for key, value in doc.meta.items():
+            print('\t', key, ':', value)
     '''
 
     def __init__(self, file_name, password=None):
@@ -36,7 +39,12 @@ class Document:
             so.FPDF_CloseDocument(self._doc)
 
     def __getitem__(self, page_index):
-        '''Returns page at this indes
+        '''Returns page at this index.
+
+        Example::
+            doc = ...
+
+            page = doc[0]  # first page
 
         Args:
             page_index (int): zero-based page index
