@@ -11,9 +11,9 @@ Quick Start
 
 Sample::
 
-    from redstork import PDF_Document
+    from redstork.document import Document
 
-    doc = PDF_Document('sample.pdf')
+    doc = Document('sample.pdf')
     print('Number of pages:', len(doc))
 
 
@@ -22,6 +22,7 @@ Sample::
     :caption: Red Stork manual:
 
     tutorial.rst
+    reference.rst
 
 
 Indices and tables
