@@ -19,7 +19,7 @@ Sample::
 
 .. toctree::
     :maxdepth: 2
-    :caption: Red Stork manual:
+    :caption: Manual:
 
     tutorial.rst
     reference.rst
