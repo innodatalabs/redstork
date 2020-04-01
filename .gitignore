@@ -3,3 +3,11 @@
 /out
 /*.ppm
 /*.png
+.venv
+/build
+/dist
+/red/linux
+/red/win
+*.egg-info
+__pycache__
+*.pyc

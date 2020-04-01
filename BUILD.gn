@@ -8,7 +8,7 @@ import("../pdfium.gni")
 shared_library("pdfium_red") {
   include_dirs = [ "..", "../third_party/freetype/src/include" ]
   sources = [
-    "pdfium_red.cc",
+    "src/pdfium_red.cc",
   ]
   defines = [
     "PNG_PREFIX",

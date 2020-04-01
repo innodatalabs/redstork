@@ -1,0 +1,20 @@
+diff --git toolchain/gcc_solink_wrapper.py toolchain/gcc_solink_wrapper.py
+index 540b1eda3..018317d1e 100755
+--- toolchain/gcc_solink_wrapper.py
++++ toolchain/gcc_solink_wrapper.py
+@@ -24,6 +24,7 @@ def CollectSONAME(args):
+   readelf = subprocess.Popen(wrapper_utils.CommandToRun(
+       [args.readelf, '-d', args.sofile]), stdout=subprocess.PIPE, bufsize=-1)
+   for line in readelf.stdout:
++    line = line.decode()
+     if 'SONAME' in line:
+       toc += line
+   return readelf.wait(), toc
+@@ -36,6 +37,7 @@ def CollectDynSym(args):
+       args.nm, '--format=posix', '-g', '-D', args.sofile]),
+                         stdout=subprocess.PIPE, bufsize=-1)
+   for line in nm.stdout:
++    line = line.decode()
+     toc += ' '.join(line.split(' ', 2)[:2]) + '\n'
+   return nm.wait(), toc
+ 

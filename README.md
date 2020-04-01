@@ -35,9 +35,21 @@ From `pdfium` directory, do:
 git clone github.com/innodatalabs/pdfium_red.git
 ```
 
-### Patch root `BUILD.gn` file
+### Apply patches
+
+Patch root `BUILD.gn` file
 ```bash
-echo 'group("pdfium_red") { deps = [ "//pdfium_red" ] }' >> BUILD.gn
+patch -p0 -i pdfium_red/patches/BUILD.gn.diff
+```
+
+Patch build/toolchain for Python3 compatibility (if using Python3 as build engine)
+```bash
+(cd build; patch -p0 -i ../pdfium_red/patches/gcc_solink_wrapper.py.diff)
+```
+
+Note to myself: how to generate patch files
+```bash
+git diff --no-prefix >> filename.diff
 ```
 
 ### Generate ninja files
@@ -45,10 +57,15 @@ echo 'group("pdfium_red") { deps = [ "//pdfium_red" ] }' >> BUILD.gn
 Use `gn` tool (from Google toolchain) to generate `ninja` files:
 ```
 cd pdfium_red
-gn args out/Debug
+mkdir out out/Debug out/Release
+cp args.Debug.gn out/Debug/args.gn
+cp args.Release.gn out/Release/args.gn
+gn gen out/Debug
+gn gen out/Release
 ```
 
-Use the following settings: (note that you may want to change `is_debug`)
+Note: You can also set arguments interactively using `gn args out/Debug` command.
+If so, use the following settings: (note that you may want to change `is_debug` fo `false`)
 ```gn
 use_goma = false
 is_debug = true
@@ -67,3 +84,19 @@ clang_use_chrome_plugins = false
 ninja -C out/Debug
 ```
 
+# Lazy builds
+
+## Build pre-compiled pdfium docker
+
+```bash
+docker build -t red69 -f docker/Dockerfile .
+```
+
+This takes a long time (downloads all deps and
+compiles 1.5K sources for Debug and Release).
+
+## Develop
+```bash
+docker run -v`pwd`:/pdfium/pdfium_red -it red69
+make wheel
+```

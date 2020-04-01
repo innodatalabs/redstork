@@ -3,6 +3,7 @@
 #include "public/cpp/fpdf_scopers.h"
 #include "fpdfsdk/cpdfsdk_helpers.h"
 #include "core/fpdfapi/parser/cpdf_document.h"
+#include "core/fpdfapi/page/cpdf_page.h"
 #include "core/fpdfapi/page/cpdf_pageobject.h"
 #include "core/fpdfapi/page/cpdf_textobject.h"
 #include "core/fpdfapi/font/cpdf_font.h"
@@ -208,6 +209,52 @@ FPDF_EXPORT extern "C" bool REDPage_Render(FPDF_PAGE page, char const *file_name
 
   int flags = 0; // PageRenderFlagsFromOptions(options);
   FPDF_RenderPageBitmap(bitmap.get(), page, 0, 0, width, height, 0, flags);
+
+  int stride = FPDFBitmap_GetStride(bitmap.get());
+  void* buffer = FPDFBitmap_GetBuffer(bitmap.get());
+
+  switch (format) {
+#ifdef PNG_SUPPORT
+    case FORMAT_PNG:
+      if (!WritePng(file_name, buffer, stride, width, height) ) {
+        return false;
+      }
+      break;
+#endif
+
+    case FORMAT_PPM:
+      if (!WritePpm(file_name, buffer, stride, width, height)) {
+        return false;
+      }
+      break;
+
+    default:
+      return false;
+  }
+
+  return true;
+}
+
+#define FORMAT_PNG (0)
+#define FORMAT_PPM (1)
+FPDF_EXPORT extern "C" bool REDPage_RenderRect(FPDF_PAGE page, char const *file_name, int format, float scale, const FS_MATRIX *matrix, const FS_RECTF *rect) {
+  FS_RECTF clip;
+  if (rect == nullptr) {
+    FPDFPage_GetCropBox(page, &clip.left, &clip.top, &clip.right, &clip.bottom);
+  } else {
+    clip = *rect;
+  }
+  auto width = static_cast<int>((clip.right-clip.left));
+  auto height = static_cast<int>((clip.bottom-clip.top));
+
+  ScopedFPDFBitmap bitmap(FPDFBitmap_Create(width, height, 0));
+  if (!bitmap) {
+    return false;
+  }
+
+  FPDFBitmap_FillRect(bitmap.get(), 0, 0, width, height, 0xFFFFFFFF);
+
+  FPDF_RenderPageBitmapWithMatrix(bitmap.get(), page, matrix, &clip, FPDF_LCD_TEXT);
 
   int stride = FPDFBitmap_GetStride(bitmap.get());
   void* buffer = FPDFBitmap_GetBuffer(bitmap.get());
