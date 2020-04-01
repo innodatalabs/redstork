@@ -13,11 +13,12 @@ class Document:
         :attr meta: - meta info (Author, Title, etc)
     '''
 
-    def __init__(self, file_name: str, password=None : str):
+    def __init__(self, file_name, password=None):
         '''Create new PDF Document object, from a file.
 
-        :param file_name: Name of PDF file
-        :param password:  File password if any
+        Args:
+            file_name (str): Name of PDF file
+            password (str):  File password (optional)
         '''
         self._doc = None
         c_fname = create_string_buffer(file_name.encode() + b'\0')
@@ -35,11 +36,19 @@ class Document:
             so.FPDF_CloseDocument(self._doc)
 
     def __getitem__(self, page_index):
+        '''Returns page at this indes
+
+        Args:
+            page_index (int): zero-based page index
+        Returns:
+            :class:`Page` object
+        '''
         if 0 <= page_index < self.numpages:
             return Page(so.FPDF_LoadPage(self._doc, page_index), page_index, self)
         raise ValueError('Page number %s is out of range: 0..%s' % (page_index, self.numpages))
 
     def __len__(self):
+        '''Returns number of pages in this document'''
         return self.numpages
 
     def _get_page_label(self, page_index):

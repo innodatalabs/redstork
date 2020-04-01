@@ -49,6 +49,7 @@ default_role = "obj"
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.napoleon',
 ]
 
 intersphinx_mapping = {
