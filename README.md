@@ -1,4 +1,5 @@
 # Red Stork
+[![Documentation Status](https://readthedocs.org/projects/red-stork/badge/?version=latest)](https://red-stork.readthedocs.io/en/latest/?badge=latest)
 
 PDF Parsing library, based on `pdfium` project.
 
