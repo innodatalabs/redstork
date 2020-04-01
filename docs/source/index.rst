@@ -1,9 +1,9 @@
 Red Stork
 =========
 
-Yet another PDF parser. This one is based on _PDFium engine.
+Yet another PDF parser. This one is based on PDFium_ engine.
 
-.. _PDFium https://pdfium.googlesource.com/pdfium/
+.. _PDFium: https://pdfium.googlesource.com/pdfium/
 
 
 Quick Start
