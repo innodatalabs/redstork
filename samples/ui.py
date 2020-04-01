@@ -24,7 +24,7 @@ class PdfPageModel(PageModel):
 
 if __name__ == '__main__':
     import os
-    from red import RED_Document
+    from redstork import PDF_Document
     from redwidgets.unhandled_error_presenter import UnhandledErrorPresenter
     from redwidgets.dialogs import Dialogs
 

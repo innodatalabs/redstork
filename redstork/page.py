@@ -1,15 +1,16 @@
 from ctypes import pointer, c_float, c_char_p
-from .bindings import so, FPDF_RECT, FPDF_MATRIX
 from .pageobject import (
-    RED_TextObject,
-    RED_PathObject,
-    RED_ImageObject,
-    RED_ShadingObject,
-    RED_FormObject
+    TextObject,
+    PathObject,
+    ImageObject,
+    ShadingObject,
+    FormObject
 )
 
 
-class RED_Page:
+class Page:
+    from .bindings import so, FPDF_RECT, FPDF_MATRIX
+
     OBJ_TYPE_TEXT    = 1
     OBJ_TYPE_PATH    = 2
     OBJ_TYPE_IMAGE   = 3

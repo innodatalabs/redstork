@@ -4,16 +4,13 @@ from ctypes import CDLL, pointer, POINTER, Structure, create_string_buffer, crea
 from ctypes import c_int, c_long, c_float, c_void_p, c_char_p
 
 if sys.platform == 'linux':
-    so_name = 'linux/libpdfium_red.so'
+    so_name = 'linux/libredstork.so'
 else:
     raise RuntimeError('Unsupported platform: %s' % sys.platform)
 
 so_name = os.path.join(os.path.dirname(__file__), so_name)
 
 so = CDLL(so_name)
-
-RED_InitLibrary = so.RED_InitLibrary
-RED_DestroyLibrary = so.RED_DestroyLibrary
 
 so.RED_LastError.restype = c_char_p
 
@@ -40,32 +37,6 @@ so.FPDF_GetPageWidthF.argtypes = [c_void_p]
 so.FPDF_GetPageWidthF.restype = c_float
 so.FPDF_GetPageHeightF.argtypes = [c_void_p]
 so.FPDF_GetPageHeightF.restype = c_float
-
-class FPDF_RECT(Structure):
-    _fields_ = [
-        ('left', c_float),
-        ('top', c_float),
-        ('right', c_float),
-        ('bottom', c_float),
-    ]
-
-# Matrix for transformation, in the form [a b c d e f], equivalent to:
-#  | a  b  0 |
-#  | c  d  0 |
-#  | e  f  1 |
-#
-#  Translation is performed with [1 0 0 1 tx ty].
-#  Scaling is performed with [sx 0 0 sy 0 0].
-#  See PDF Reference 1.7, 4.2.2 Common Transformations for more.
-class FPDF_MATRIX(Structure):
-    _fields_ = [
-        ('a', c_float),
-        ('b', c_float),
-        ('c', c_float),
-        ('d', c_float),
-        ('e', c_float),
-        ('f', c_float),
-    ]
 
 so.FPDF_GetPageBoundingBox.argtypes = [c_void_p, POINTER(FPDF_RECT)]
 so.FPDF_GetPageBoundingBox.restype = c_int
@@ -122,3 +93,4 @@ so.REDFont_GetFlags.restype = c_int
 so.REDFont_GetWeight.argtypes = [c_void_p]
 so.REDFont_GetWeight.restype = c_int
 
+so.RED_InitLibrary()

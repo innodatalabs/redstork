@@ -1,8 +1,7 @@
 from ctypes import create_string_buffer
-from .bindings import so
 
 
-class RED_Font:
+class Font:
     # Font styles as defined in PDF 1.7 Table 5.20
     FLAGS_NORMAL = 0
     FLAGS_FIXED_PITCH = (1 << 0)
@@ -16,6 +15,7 @@ class RED_Font:
     FLAGS_FORCE_BOLD = (1 << 18)
 
     def __init__(self, font, parent):
+        from .bindings import so
         self._font = font
         self._parent = parent
 

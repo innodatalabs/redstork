@@ -6,8 +6,10 @@
 .venv
 /build
 /dist
-/red/linux
-/red/win
+/redstork/linux
+/redstork/win
 *.egg-info
 __pycache__
 *.pyc
+/docs/build
+.vscode

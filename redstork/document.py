@@ -1,21 +1,20 @@
 import os
 from ctypes import create_string_buffer
+from .page import Page
 from .bindings import so
-from .page import RED_Page
 
 
-class RED_Document:
-    so.RED_InitLibrary()
+class Document:
+    '''PDF document.
 
-    def __init__(self, fname, password=None):
-        self._doc = None
-        if not os.path.isfile(fname):
-            raise ValueError('File not found: ' + fname)
+    A :type:`list`-like container of pages. See also :method:get_page_label
+    '''
 
-        c_fname = create_string_buffer(fname.encode() + b'\0')
+    def __init__(self, file_name, password=None):
+        c_fname = create_string_buffer(file_name.encode() + b'\0')
         c_password = create_string_buffer(password.encode() + b'\0') if password is not None else None
 
-        self.fname = fname
+        self.file_name = file_name
         self._doc = so.RED_LoadDocument(c_fname, c_password)
         if self._doc is None:
             raise RuntimeError('Failed to open document: %s' % fname)
@@ -28,7 +27,7 @@ class RED_Document:
 
     def __getitem__(self, page_index):
         if 0 <= page_index < self.numpages:
-            return RED_Page(so.FPDF_LoadPage(self._doc, page_index), page_index, self)
+            return Page(so.FPDF_LoadPage(self._doc, page_index), page_index, self)
         raise ValueError('Page number %s is out of range: 0..%s' % (page_index, self.numpages))
 
     def __len__(self):

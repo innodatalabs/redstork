@@ -5,10 +5,10 @@
 import("//build/config/sanitizers/sanitizers.gni")
 import("../pdfium.gni")
 
-shared_library("pdfium_red") {
+shared_library("redstork") {
   include_dirs = [ "..", "../third_party/freetype/src/include" ]
   sources = [
-    "src/pdfium_red.cc",
+    "src/redstork.cc",
   ]
   defines = [
     "PNG_PREFIX",

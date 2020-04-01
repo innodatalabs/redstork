@@ -1,11 +1,11 @@
-import red
+import redstork as rs
 
 if __name__ == '__main__':
     import os
 
     fname = os.path.expanduser('~/REDSync/testResources/izguts/9783642051104.pdf')
 
-    doc = red.RED_Document(fname)
+    doc = rs.RED_Document(fname)
     for key, val in doc.meta.items():
         print(key, val)
 

@@ -5,6 +5,6 @@ COPY . /self
 
 RUN bash /self/build_scripts/build.sh
 
-WORKDIR /pdfium/pdfium_red
+WORKDIR /pdfium/redstork
 
 CMD [ "bash" ]

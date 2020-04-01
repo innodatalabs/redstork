@@ -6,4 +6,4 @@ index 9d31dc669..fc0d516af 100644
      ]
    }
  }
-+group("pdfium_red") { deps = [ "//pdfium_red" ] }
++group("redstork") { deps = [ "//redstork" ] }

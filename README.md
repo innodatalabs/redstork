@@ -1,4 +1,4 @@
-# pdfium_red
+# Red Stork
 
 PDF Parsing library, based on `pdfium` project.
 
@@ -28,23 +28,23 @@ gclient config --name pdfium --unmanaged https://pdfium.googlesource.com/pdfium.
 gclient sync
 ```
 
-### Checkout pdfium_red
+### Checkout redstork
 From `pdfium` directory, do:
 
 ```bash
-git clone github.com/innodatalabs/pdfium_red.git
+git clone github.com/innodatalabs/redstork.git
 ```
 
 ### Apply patches
 
 Patch root `BUILD.gn` file
 ```bash
-patch -p0 -i pdfium_red/patches/BUILD.gn.diff
+patch -p0 -i redstork/patches/BUILD.gn.diff
 ```
 
 Patch build/toolchain for Python3 compatibility (if using Python3 as build engine)
 ```bash
-(cd build; patch -p0 -i ../pdfium_red/patches/gcc_solink_wrapper.py.diff)
+(cd build; patch -p0 -i ../redstork/patches/gcc_solink_wrapper.py.diff)
 ```
 
 Note to myself: how to generate patch files
@@ -56,7 +56,7 @@ git diff --no-prefix >> filename.diff
 
 Use `gn` tool (from Google toolchain) to generate `ninja` files:
 ```
-cd pdfium_red
+cd redstork
 mkdir out out/Debug out/Release
 cp args.Debug.gn out/Debug/args.gn
 cp args.Release.gn out/Release/args.gn
@@ -89,7 +89,7 @@ ninja -C out/Debug
 ## Build pre-compiled pdfium docker
 
 ```bash
-docker build -t red69 -f docker/Dockerfile .
+docker build -t redstork:dev -f docker/Dockerfile .
 ```
 
 This takes a long time (downloads all deps and
@@ -97,6 +97,6 @@ compiles 1.5K sources for Debug and Release).
 
 ## Develop
 ```bash
-docker run -v`pwd`:/pdfium/pdfium_red -it red69
+docker run -v`pwd`:/pdfium/redstork -it redstork:dev
 make wheel
 ```
