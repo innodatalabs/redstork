@@ -40,6 +40,7 @@ class Page:
 
     @property
     def crop_box(self):
+        '''Page crop box'''
         l = c_float(0.)
         b = c_float(0.)
         r = c_float(0.)
@@ -57,6 +58,7 @@ class Page:
 
     @property
     def media_box(self):
+        '''Page media box'''
         l = c_float(0.)
         b = c_float(0.)
         r = c_float(0.)
@@ -74,11 +76,19 @@ class Page:
 
     @property
     def rotation(self):
+        '''Page rotation.
+
+        * 0 - no rotation
+        * 1 - rotated 90 degrees clock-wise
+        * 2 - rotated 180 degrees clock-wise
+        * 3 - rotated 270 degrees clock-wise
+        '''
         return so.REDPage_GetPageRotation(self._page)
 
     @property
     def label(self):
-        self._parent.get_page_label(self._page_index)
+        '''Page label'''
+        self._parent._get_page_label(self._page_index)
 
     def __del__(self):
         so.FPDF_ClosePage(self._page)
@@ -117,13 +127,12 @@ class Page:
         * file_name - the name of the output file
         * scale - the scale to use (default is 1.0, which will 1pt => 1px)
             Here is an example of computing scale.
-            - If screen is 72dpi, and we want image to show at "natural" scale (1in on PDF as 1in on screen),
-                then use scale=1.0
+            - If screen is 72dpi, and we want image to show at "natural" scale (1in on PDF as 1in on screen), then use scale=1.0
             - if screen is 100dpi, then use scale=100/72
             - if screen is retina at 300dpi, use scale=300/72
             - naturally, if you want to "zoom-in" just use higher scale factor.
-        * rect - rectangle on the page 4-tuple of (left, top, right, bottom) in PDF coordinates (bottom < top)
-            if None, then page's `cbox` will be used for rendering.
+        * rect - rectangle on the page 4-tuple of (x0, y0, x1, y1) in PDF coordinates.
+            if None, then page's :attr:`crop_box` will be used for rendering.
         '''
         cx0, cy0, cx1, cy1 = self.crop_box
         x0, y0, x1, y1 = self.crop_box if rect is None else rect

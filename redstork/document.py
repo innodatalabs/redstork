@@ -7,7 +7,9 @@ from .bindings import so
 class Document:
     '''PDF document.
 
-    A :type:`list`-like container of pages. See also :method:get_page_label
+    A :class:`list`-like container of pages. Extra members are:
+    * :attr:`numpages` - number of pages, same as len(self)
+    * :attr:`meta` - meta info (Author, Title, etc)
     '''
 
     def __init__(self, file_name, password=None):
@@ -19,8 +21,8 @@ class Document:
         self._doc = so.RED_LoadDocument(c_fname, c_password)
         if self._doc is None:
             raise RuntimeError('Failed to open document: %s' % fname)
-        self.numpages = so.FPDF_GetPageCount(self._doc)
-        self.meta = self._get_meta_dict(self._doc)
+        self.numpages = so.FPDF_GetPageCount(self._doc) #: :class:`int` -- total number of pages
+        self.meta = self._get_meta_dict(self._doc)      #: :class:`dict` -- document meta info (Author, Title, etc)
 
     def __del__(self):
         if self._doc is not None:
@@ -34,7 +36,8 @@ class Document:
     def __len__(self):
         return self.numpages
 
-    def get_page_label(self, page_index):
+    def _get_page_label(self, page_index):
+        '''Here'''
         out = create_string_buffer(4096)
         l = so.FPDF_GetPageLabel(self._doc, page_index, out, 4096)
         return out.raw[:l].decode('utf-16le')
@@ -48,12 +51,12 @@ class Document:
             if key is None:
                 continue
             key = key.decode()
-            value = cls.get_meta_text(doc, key)
+            value = cls._get_meta_text(doc, key)
             out[key] = value
         return out
 
     @classmethod
-    def get_meta_text(cls, doc, key):
+    def _get_meta_text(cls, doc, key):
         '''Valid keys: Title, Author, Subject, Keywords, Creator, Producer,
              CreationDate, or ModDate.
            For detailed explanations of these tags and their respective
