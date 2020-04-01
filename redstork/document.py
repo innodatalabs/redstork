@@ -11,6 +11,7 @@ class Document:
     '''
 
     def __init__(self, file_name, password=None):
+        self._doc = None
         c_fname = create_string_buffer(file_name.encode() + b'\0')
         c_password = create_string_buffer(password.encode() + b'\0') if password is not None else None
 
@@ -64,4 +65,4 @@ class Document:
         return out.raw[:l-2].decode('utf-16le')
 
     def __repr__(self):
-        return f'<REDDoc fname={self.fname}, numpages={self.numpages}>'
+        return f'<Document fname={self.fname}, numpages={self.numpages}>'

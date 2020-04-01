@@ -1,4 +1,5 @@
 from ctypes import create_string_buffer
+from .bindings import so
 
 
 class Font:
@@ -15,7 +16,6 @@ class Font:
     FLAGS_FORCE_BOLD = (1 << 18)
 
     def __init__(self, font, parent):
-        from .bindings import so
         self._font = font
         self._parent = parent
 

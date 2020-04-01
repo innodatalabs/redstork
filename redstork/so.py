@@ -12,6 +12,32 @@ so_name = os.path.join(os.path.dirname(__file__), so_name)
 
 so = CDLL(so_name)
 
+class FPDF_RECT(Structure):
+    _fields_ = [
+        ('left', c_float),
+        ('top', c_float),
+        ('right', c_float),
+        ('bottom', c_float),
+    ]
+
+# Matrix for transformation, in the form [a b c d e f], equivalent to:
+#  | a  b  0 |
+#  | c  d  0 |
+#  | e  f  1 |
+#
+#  Translation is performed with [1 0 0 1 tx ty].
+#  Scaling is performed with [sx 0 0 sy 0 0].
+#  See PDF Reference 1.7, 4.2.2 Common Transformations for more.
+class FPDF_MATRIX(Structure):
+    _fields_ = [
+        ('a', c_float),
+        ('b', c_float),
+        ('c', c_float),
+        ('d', c_float),
+        ('e', c_float),
+        ('f', c_float),
+    ]
+
 so.RED_LastError.restype = c_char_p
 
 so.RED_LoadDocument.argtypes = [c_char_p, c_char_p]

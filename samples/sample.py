@@ -5,7 +5,7 @@ if __name__ == '__main__':
 
     fname = os.path.expanduser('~/REDSync/testResources/izguts/9783642051104.pdf')
 
-    doc = rs.RED_Document(fname)
+    doc = rs.Document(fname)
     for key, val in doc.meta.items():
         print(key, val)
 
@@ -16,10 +16,10 @@ if __name__ == '__main__':
         print(page, page.width, page.height, page.bbox, page.crop_box, page.media_box, page.label, page.rotation, len(page))
         for x in page:
             print(x.rect, x.type, x)
-            if x.type == red.page.RED_Page.OBJ_TYPE_TEXT:
-                print('\t', x.font)
-                page.render('first_text.ppm', scale=5, rect=x.rect)
-                assert False
+            # if x.type == rs.page.Page.OBJ_TYPE_TEXT:
+            #     print('\t', x.font)
+            #     page.render('first_text.ppm', scale=5, rect=x.rect)
+            #     assert False
         break
 
     doc[0].render_('test_000_.ppm')

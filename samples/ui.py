@@ -24,7 +24,7 @@ class PdfPageModel(PageModel):
 
 if __name__ == '__main__':
     import os
-    from redstork import PDF_Document
+    from redstork import Document
     from redwidgets.unhandled_error_presenter import UnhandledErrorPresenter
     from redwidgets.dialogs import Dialogs
 
@@ -48,7 +48,7 @@ if __name__ == '__main__':
         scene.addItem(rect)
 
     fname = os.path.expanduser('~/REDSync/testResources/izguts/9783642049415.pdf')
-    doc = RED_Document(fname)
+    doc = Document(fname)
     assert len(doc) > 0
 
     app = qtx.QApplication([])

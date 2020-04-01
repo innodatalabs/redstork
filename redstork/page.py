@@ -1,4 +1,5 @@
 from ctypes import pointer, c_float, c_char_p
+from .bindings import so, FPDF_RECT, FPDF_MATRIX
 from .pageobject import (
     TextObject,
     PathObject,
@@ -9,7 +10,6 @@ from .pageobject import (
 
 
 class Page:
-    from .bindings import so, FPDF_RECT, FPDF_MATRIX
 
     OBJ_TYPE_TEXT    = 1
     OBJ_TYPE_PATH    = 2
@@ -90,15 +90,15 @@ class Page:
         obj = so.REDPage_GetPageObjectByIndex(self._page, index)
         typ = so.REDPageObject_GetType(obj)
         if typ == self.OBJ_TYPE_TEXT:
-            return RED_TextObject(obj, index, typ, self)
+            return TextObject(obj, index, typ, self)
         elif typ == self.OBJ_TYPE_PATH:
-            return RED_PathObject(obj, index, typ, self)
+            return PathObject(obj, index, typ, self)
         elif typ == self.OBJ_TYPE_IMAGE:
-            return RED_ImageObject(obj, index, typ, self)
+            return ImageObject(obj, index, typ, self)
         elif typ == self.OBJ_TYPE_SHADING:
-            return RED_ShadingObject(obj, index, typ, self)
+            return ShadingObject(obj, index, typ, self)
         elif typ == self.OBJ_TYPE_SHADING:
-            return RED_ShadingObject(obj, index, typ, self)
+            return ShadingObject(obj, index, typ, self)
         else:
             raise RuntimeError('unexpected page object type %s' % typ)
 
@@ -138,5 +138,5 @@ class Page:
             raise RuntimeError('Failed to render as ' + file_name)
 
     def __repr__(self):
-        return f'<REDPage len={len(self)}>'
+        return f'<Page len={len(self)}>'
 

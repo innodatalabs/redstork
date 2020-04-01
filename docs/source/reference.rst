@@ -1,14 +1,18 @@
-Red Stork API Reference
-=======================
+API Reference
+=============
+.. module:: redstork
 
 Document
 ^^^^^^^^
-.. module:: redstork.document
-
 .. autoclass:: Document
+    :members:
 
 Page
 ^^^^
-.. module:: redstork.page
-
 .. autoclass:: Page
+    :members:
+
+Font
+^^^^
+.. autoclass:: Font
+    :members:
