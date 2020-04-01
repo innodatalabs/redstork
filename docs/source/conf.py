@@ -30,7 +30,7 @@ author = 'Mike Kroutikov'
 
 # The full version, including alpha/beta/rc tags
 release = __version__
-
+master_doc = 'index'
 nitpicky = True
 # Except for these ones, which we expect to point to unknown targets:
 nitpick_ignore = [
