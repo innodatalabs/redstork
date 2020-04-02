@@ -42,6 +42,7 @@ class Document:
         '''Returns page at this index.
 
         Example::
+
             doc = ...
 
             page = doc[0]  # first page
