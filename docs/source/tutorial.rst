@@ -36,9 +36,10 @@ Document
 
 As you can see, :class:`Document` resembles standard Python :class:`list`, containing :class:`Page` objects.
 
-PDF file creators can attach arbitraty key-value strings to the document, that we call ``meta``.
-Most commonly these values describe ``Author``, ``Title``, and the name of software that was used. Lets see
-the meta ino our sample::
+PDF file creators can attach arbitraty key-value strings to the document, that we call ``meta`` (official
+PDf specs call it ``Document Information Dictionary``).
+Most commonly these values describe ``Author``, ``Title``, and the name of software that created this
+document. Lets see the meta in our sample::
 
     doc.meta['Title']
     >> 'Red Stork'

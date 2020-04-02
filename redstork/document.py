@@ -39,7 +39,7 @@ class Document:
             so.FPDF_CloseDocument(self._doc)
 
     def __getitem__(self, page_index):
-        '''Returns page at this index.
+        '''Returns :class:`Page` at this index.
 
         Example::
 
@@ -62,6 +62,11 @@ class Document:
         '''Returns number of pages in this document'''
         return self.numpages
 
+    def __iter__(self):
+        '''Iterate over the pages of this document'''
+        for i in range(len(self)):
+            yield self[i]
+
     def _get_page_label(self, page_index):
         out = create_string_buffer(4096)
         l = so.FPDF_GetPageLabel(self._doc, page_index, out, 4096)
@@ -82,12 +87,6 @@ class Document:
 
     @classmethod
     def _get_meta_text(cls, doc, key):
-        '''Valid keys: Title, Author, Subject, Keywords, Creator, Producer,
-             CreationDate, or ModDate.
-           For detailed explanations of these tags and their respective
-           values, please refer to PDF Reference 1.6, section 10.2.1,
-           'Document Information Dictionary'.
-        '''
         out = create_string_buffer(512)
         l = so.FPDF_GetMetaText(doc, create_string_buffer(key.encode() + b'\0'), out, 512)
         return out.raw[:l-2].decode('utf-16le')
