@@ -7,7 +7,7 @@ Tutorial
 The philosophy of **redstork** is to map API to standard and well undersood Python objects, like
 :class:`list` and :class:`dict`.
 
-In this tutorial we will use the following :download:`sample document <_static/sample.pdf>`.
+In this tutorial we will use the following :download:`sample document <../../redstork/test/resources/sample.pdf>`.
 
 Version
 ^^^^^^^
@@ -53,7 +53,7 @@ Page
     page.crop_box
     >> (0.0, 0.0, 612.0, 792.0)
 
-:class:`Page` has :attr:`label`, representing the page label (like ``xxi``, or ``128``)::
+:class:`Page` has :attr:`Page.label`, representing the page label (like ``xxi``, or ``128``)::
 
     doc[2].label  # this is the label of the third page
     >> 'i'
