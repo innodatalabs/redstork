@@ -52,6 +52,8 @@ class Document:
         Returns:
             :class:`Page` object
         '''
+        if page_index < 0:
+            page_index = self.numpages + page_index
         if 0 <= page_index < self.numpages:
             return Page(so.FPDF_LoadPage(self._doc, page_index), page_index, self)
         raise ValueError('Page number %s is out of range: 0..%s' % (page_index, self.numpages))
@@ -63,7 +65,7 @@ class Document:
     def _get_page_label(self, page_index):
         out = create_string_buffer(4096)
         l = so.FPDF_GetPageLabel(self._doc, page_index, out, 4096)
-        return out.raw[:l].decode('utf-16le')
+        return out.raw[:l-2].decode('utf-16le')
 
     @classmethod
     def _get_meta_dict(cls, doc):

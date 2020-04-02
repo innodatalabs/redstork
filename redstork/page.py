@@ -36,7 +36,7 @@ class Page:
         rect = FPDF_RECT(0., 0., 0., 0.)
         if not so.FPDF_GetPageBoundingBox(self._page, pointer(rect)):
             err = so.RED_LastError()
-            raise RuntimeError('internal error: ' + err)
+            raise RuntimeError('internal error: %s' % err)
         return rect.left, rect.top, rect.right, rect.bottom
 
     @property
@@ -46,6 +46,8 @@ class Page:
         b = c_float(0.)
         r = c_float(0.)
         t = c_float(0.)
+
+        # CropBox is optional, should fall back to the required media_box, as per PDF1.7 spec.
         if not so.FPDFPage_GetCropBox(
             self._page,
             pointer(l),
@@ -53,8 +55,7 @@ class Page:
             pointer(r),
             pointer(t),
         ):
-            err = so.RED_LastError()
-            raise RuntimeError('internal error: ' + err)
+            return self.media_box
         return l.value, b.value, r.value, t.value
 
     @property
@@ -72,7 +73,7 @@ class Page:
             pointer(t),
         ):
             err = so.RED_LastError()
-            raise RuntimeError('internal error: ' + err)
+            raise RuntimeError('internal error: %s' % err)
         return l.value, b.value, r.value, t.value
 
     @property
@@ -89,7 +90,7 @@ class Page:
     @property
     def label(self):
         '''Page label.'''
-        self._parent._get_page_label(self._page_index)
+        return self._parent._get_page_label(self._page_index)
 
     def __del__(self):
         so.FPDF_ClosePage(self._page)

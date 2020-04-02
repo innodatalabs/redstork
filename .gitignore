@@ -6,8 +6,9 @@
 .venv
 /build
 /dist
-/redstork/linux
-/redstork/win
+/redstork/linux/*.so
+/redstork/win/*.dll
+/redstork/darwin/*.so
 *.egg-info
 __pycache__
 *.pyc
