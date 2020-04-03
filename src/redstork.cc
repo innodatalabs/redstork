@@ -6,10 +6,9 @@
 #include "core/fpdfapi/page/cpdf_page.h"
 #include "core/fpdfapi/page/cpdf_pageobject.h"
 #include "core/fpdfapi/page/cpdf_textobject.h"
+#include "core/fpdfapi/page/cpdf_imageobject.h"
+#include "core/fpdfapi/page/cpdf_image.h"
 #include "core/fpdfapi/font/cpdf_font.h"
-
-#define DLL_PUBLIC __attribute__ ((visibility ("default")))
-#define DLL_LOCAL  __attribute__ ((visibility ("hidden")))
 
 
 FPDF_EXPORT extern "C" const char *FPDF_ErrorCodeToString(long err) {
@@ -119,6 +118,14 @@ FPDF_EXPORT extern "C" int REDFont_GetFlags(CPDF_Font *font) {
 
 FPDF_EXPORT extern "C" int REDFont_GetWeight(CPDF_Font *font) {
   return font->GetFontWeight();
+}
+
+FPDF_EXPORT extern "C" unsigned int REDImageObject_GetPixelWidth(CPDF_ImageObject *pObj) {
+  return pObj->GetImage()->GetPixelWidth();
+}
+
+FPDF_EXPORT extern "C" unsigned int REDImageObject_GetPixelHeight(CPDF_ImageObject *pObj) {
+  return pObj->GetImage()->GetPixelHeight();
 }
 
 #ifdef PNG_SUPPORT

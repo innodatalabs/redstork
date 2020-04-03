@@ -59,6 +59,14 @@ class ImageObject(PageObject):
     def __repr__(self):
         return '<ImageObject>'
 
+    @property
+    def pixel_width(self):
+        return so.REDImageObject_GetPixelWidth(self._obj)
+
+    @property
+    def pixel_height(self):
+        return so.REDImageObject_GetPixelHeight(self._obj)
+
 class ShadingObject(PageObject):
     '''Represents a shading object on a page.'''
     def __init__(self, obj, index, typ, parent):

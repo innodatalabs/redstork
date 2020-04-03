@@ -120,3 +120,9 @@ so.REDFont_GetWeight.argtypes = [c_void_p]
 so.REDFont_GetWeight.restype = c_int
 
 so.RED_InitLibrary()
+
+so.REDImageObject_GetPixelWidth.argtypes = [c_void_p]
+so.REDImageObject_GetPixelWidth.restype  = c_int
+
+so.REDImageObject_GetPixelHeight.argtypes = [c_void_p]
+so.REDImageObject_GetPixelHeight.restype  = c_int
