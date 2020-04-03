@@ -13,7 +13,22 @@ docker run -v`pwd`:/pdfium/redstork -it mkroutikov/redstork
 make wheel
 ```
 
-## Building developer conttainer
+## Releasing new version to PyPI
+
+Make sure that `redstork/__init__.py` has correct version (bump if needed).
+
+Tag name should match the `__version__` in `redstork/__init__.py` (and hence the version of the PyPI package).
+
+```
+git checkout master
+git pull
+git tag {tag}
+git push origin --tags
+```
+
+Pushing a tag to the `master` branch triggers Travis build and deploy process.
+
+## Building developer container
 Build a container with PDFium sources and dependencies compile, so that `redstork` development
 can be lightweight and fast.
 
