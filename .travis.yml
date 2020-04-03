@@ -9,6 +9,8 @@ services:
 before_script: docker pull mkroutikov/redstork:latest
 
 script:
+    - pwd
+    - ls
     - docker run -v `pwd`:/self mkroutikov/redstork:latest bash -c "make wheel"
     - pip install twine
 
