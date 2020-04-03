@@ -19,9 +19,6 @@ deploy:
     provider: pypi
     distributions: "bdist_wheel"
     skip_cleanup: true
-    on:
-        tags: true
     user: "__token__"
-    password:
-        secure: "Your encrypted token"
+    password: $PYPI_TOKEN
 
