@@ -11,16 +11,7 @@ services:
     - docker
 
 script:
-    - docker run -v `pwd`:/pdfium/redstork mkroutikov/redstork:latest make wheel
-    - pip install pytest
-    - pytest
+    - docker run -v `pwd`:/pdfium/redstork mkroutikov/redstork:latest make so
+    - make test
+    - make maybe_publish
 
-deploy:
-    provider: pypi
-    distributions: "bdist_wheel"
-    skip_cleanup: true
-    user: "__token__"
-    password: $PYPI_TOKEN
-
-notifications:
-    slack: $SLACK_TOKEN

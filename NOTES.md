@@ -23,7 +23,7 @@ Tag name should match the `__version__` in `redstork/__init__.py` (and hence the
 git checkout master
 git pull
 git tag {tag}
-git push origin --tags
+git push --tags
 ```
 
 Pushing a tag to the `master` branch triggers Travis build and deploy process.
