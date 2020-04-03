@@ -22,3 +22,5 @@ deploy:
     user: "__token__"
     password: $PYPI_TOKEN
 
+notifications:
+    slack: $SLACK_TOKEN
