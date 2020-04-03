@@ -30,7 +30,7 @@ class Document:
         self.file_name = file_name
         self._doc = so.RED_LoadDocument(c_fname, c_password)
         if self._doc is None:
-            raise RuntimeError('Failed to open document: %s' % fname)
+            raise RuntimeError('Failed to open document: %s' % file_name)
         self.numpages = so.FPDF_GetPageCount(self._doc) #: :class:`int` -- total number of pages
         self.meta = self._get_meta_dict(self._doc)      #: :class:`dict` -- document meta info (Author, Title, etc)
 

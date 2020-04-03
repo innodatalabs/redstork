@@ -1,103 +1,40 @@
-# Red Stork
+# redstork
+
 [![Documentation Status](https://readthedocs.org/projects/red-stork/badge/?version=latest)](https://red-stork.readthedocs.io/en/latest/?badge=latest)
 
-PDF Parsing library, based on `pdfium` project.
+PDF Parsing library, based on [PDFium](https://pdfium.googlesource.com/pdfium/).
 
-## Preparation
+## Requirements
 
-### Tooling
+* Fairly recent Linux (Ubuntu 18.04 or better). Support for other platforms is in the works.
+* Python 3
 
-Build tool-chain from Google includes:
-* gclient
-* ninja
-* gn
-
+## Installation
 ```bash
-git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+pip install redstork
 ```
 
-You **must** add this directory to your path, best do this in your `~/.bashrc`
-```
-export PATH=$PATH;/home/mike/git/depot_tools
-```
+## Quick start
 
-### PDFium
+Download a sample PDF file from here: https://github.com/innodatalabs/redstork/blob/master/redstork/test/resources/sample.pdf
 
-From this directory, do:
-```bash
-gclient config --name pdfium --unmanaged https://pdfium.googlesource.com/pdfium.git
-gclient sync
-```
+```python
+from redstork import Document
 
-### Checkout redstork
-From `pdfium` directory, do:
+doc = Document('sample.pdf')
 
-```bash
-git clone github.com/innodatalabs/redstork.git
-```
+print('Number of pages:', len(doc))
+>> Number of pages: 15
 
-### Apply patches
+print('MediaBox of the first page is:', doc[0].media_box)
+>> MediaBox of the first page is: (0.0, 0.0, 612.0, 792.0)
 
-Patch root `BUILD.gn` file
-```bash
-patch -p0 -i redstork/patches/BUILD.gn.diff
+print('Rotation of the first page is:', doc[0].rotation)
+>> Rotation of the first page is: 0
+
+doc[0].render('page-0.ppm', scale=2)   # render page #1 as image
 ```
 
-Patch build/toolchain for Python3 compatibility (if using Python3 as build engine)
-```bash
-(cd build; patch -p0 -i ../redstork/patches/gcc_solink_wrapper.py.diff)
-```
+## API docs
 
-Note to myself: how to generate patch files
-```bash
-git diff --no-prefix >> filename.diff
-```
-
-### Generate ninja files
-
-Use `gn` tool (from Google toolchain) to generate `ninja` files:
-```
-cd redstork
-mkdir out out/Debug out/Release
-cp args.Debug.gn out/Debug/args.gn
-cp args.Release.gn out/Release/args.gn
-gn gen out/Debug
-gn gen out/Release
-```
-
-Note: You can also set arguments interactively using `gn args out/Debug` command.
-If so, use the following settings: (note that you may want to change `is_debug` fo `false`)
-```gn
-use_goma = false
-is_debug = true
-
-pdf_use_skia = false
-pdf_use_skia_paths = false
-pdf_enable_xfa = false
-pdf_enable_v8 = false
-is_component_build = true
-
-clang_use_chrome_plugins = false
-```
-
-### Build
-```bash
-ninja -C out/Debug
-```
-
-# Lazy builds
-
-## Build pre-compiled pdfium docker
-
-```bash
-docker build -t redstork:dev -f docker/Dockerfile .
-```
-
-This takes a long time (downloads all deps and
-compiles 1.5K sources for Debug and Release).
-
-## Develop
-```bash
-docker run -v`pwd`:/pdfium/redstork -it redstork:dev
-make wheel
-```
+https://red-stork.readthedocs.io

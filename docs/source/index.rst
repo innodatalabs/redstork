@@ -7,7 +7,7 @@ Yet another PDF parser. This one is based on PDFium_ engine.
 
 
 Quick Start
-^^^^^^^^^^^
+-----------
 
 Sample::
 

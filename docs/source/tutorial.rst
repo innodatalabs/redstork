@@ -2,6 +2,7 @@ Tutorial
 ========
 
 .. module:: redstork
+    :noindex:
 .. Red Stork tutorial
 
 The philosophy of **redstork** is to map API to standard and well undersood Python objects, like
@@ -10,7 +11,7 @@ The philosophy of **redstork** is to map API to standard and well undersood Pyth
 In this tutorial we will use the following :download:`sample document <../../redstork/test/resources/sample.pdf>`.
 
 Version
-^^^^^^^
+-------
 
 There are two version values in :mod:`redstork` module: PDFium build version, and Python package version::
 
@@ -23,7 +24,7 @@ There are two version values in :mod:`redstork` module: PDFium build version, an
     >> '0.0.1'
 
 Document
-^^^^^^^^
+--------
 
 :class:`Document` is the top-level object, and the only object that can be instantiated directly::
 
@@ -45,7 +46,7 @@ document. Lets see the meta in our sample::
     >> 'Red Stork'
 
 Page
-^^^^
+----
 
 :class:`Page` represents PDF page. Get page by indexing a :class:`Document` object, just like a normal list::
 

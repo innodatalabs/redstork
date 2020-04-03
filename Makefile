@@ -21,4 +21,4 @@ docs:
 	(cd docs; make html)
 
 docker:
-	docker build -t redstork:dev -f docker/Dockerfile .
+	docker build -t mkroutikov/redstork -f docker/Dockerfile .

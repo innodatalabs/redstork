@@ -29,5 +29,5 @@ setup(
     ],
     packages=find_packages(),
     package_data = {'': ['linux/*.so', 'win/*.dll', 'pdfium_version.txt']},
-    cmdclass = {'bdist_wheel': bdist_wheel}
+    # cmdclass = {'bdist_wheel': bdist_wheel}
 )
