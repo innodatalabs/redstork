@@ -3,18 +3,18 @@ language: python
 python:
     - "3.8"
 
+branches:
+    only:
+    - master
+
 services:
     - docker
 
-before_script: docker pull mkroutikov/redstork:latest
+#before_script: docker pull mkroutikov/redstork:latest
 
 script:
-    - pwd
-    - ls
-    - cat redstork/__init__.py
-    - set
-    - xx=`pwd`
-    - echo $xx
+    - PWD=`pwd`
+    - echo docker run -v `pwd`:/self mkroutikov/redstork:latest bash -c "make wheel"
     - docker run -v `pwd`:/self mkroutikov/redstork:latest bash -c "make wheel"
     - pip install twine
 
