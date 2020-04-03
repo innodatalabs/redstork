@@ -13,10 +13,8 @@ services:
 #before_script: docker pull mkroutikov/redstork:latest
 
 script:
-    - PWD=`pwd`
-    - echo docker run -v `pwd`:/self mkroutikov/redstork:latest bash -c "make wheel"
-    - docker run -v `pwd`:/self mkroutikov/redstork:latest bash -c "make wheel"
-    - pip install twine
+    - docker run -v `pwd`:/pdfium/redstork mkroutikov/redstork:latest make wheel
+    - ls -l redstork/linux
 
 deploy:
     provider: pypi
