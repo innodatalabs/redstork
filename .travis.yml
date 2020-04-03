@@ -12,12 +12,9 @@ script:
     - docker run -v`pwd`:/self mkroutikov/redstork:latest bash -c "make wheel"
     - pip install twine
 
-after_script:
-    - twine upload dist/*.whl -u __token__
-
 deploy:
     provider: pypi
-    distributions: "bdist_wheel" # Your distributions here
+    distributions: "bdist_wheel"
     skip_cleanup: true
     on:
         tags: true
