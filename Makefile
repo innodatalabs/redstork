@@ -26,7 +26,7 @@ publish: wheel
 maybe_publish: wheel
 ifneq ($(ON_TAG),)
 	pip install twine
-	twine upload wheelhousest/*.whl -u __token__ -p $(PYPI_TOKEN)
+	twine upload wheelhouse/*.whl -u __token__ -p $(PYPI_TOKEN)
 endif
 
 docs:
