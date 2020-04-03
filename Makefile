@@ -3,12 +3,12 @@
 all: wheel
 
 export PATH := $(PATH):/depot_tools
+ON_TAG := $(shell git tag --points-at HEAD)
 
 so: src/*.cc
 	ninja -C /out/Debug
 	ninja -C /out/Release
 	cp /out/Release/lib*.so redstork/linux/
-	chmod 777 redstork/linux/*.so
 
 test:
 	pip install pytest
@@ -24,9 +24,9 @@ publish: wheel
 	twine upload wheelhouse/*.whl -u __token__ -p $(PYPI_TOKEN)
 
 maybe_publish: wheel
-ifeq ($(MYTAG), "")
+ifneq ($(ON_TAG),)
 	pip install twine
-	twine upload diwheelhousest/*.whl -u __token__ -p $(PYPI_TOKEN)
+	twine upload wheelhousest/*.whl -u __token__ -p $(PYPI_TOKEN)
 endif
 
 docs:
