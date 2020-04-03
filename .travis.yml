@@ -11,6 +11,10 @@ before_script: docker pull mkroutikov/redstork:latest
 script:
     - pwd
     - ls
+    - cat redstork/__init__.py
+    - set
+    - xx=`pwd`
+    - echo $xx
     - docker run -v `pwd`:/self mkroutikov/redstork:latest bash -c "make wheel"
     - pip install twine
 
