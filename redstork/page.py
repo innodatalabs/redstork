@@ -111,8 +111,8 @@ class Page:
             return ImageObject(obj, index, typ, self)
         elif typ == self.OBJ_TYPE_SHADING:
             return ShadingObject(obj, index, typ, self)
-        elif typ == self.OBJ_TYPE_SHADING:
-            return ShadingObject(obj, index, typ, self)
+        elif typ == self.OBJ_TYPE_FORM:
+            return FormObject(obj, index, typ, self)
         else:
             raise RuntimeError('unexpected page object type %s' % typ)
 
