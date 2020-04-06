@@ -1,5 +1,5 @@
-from ctypes import pointer
-from .bindings import so, FPDF_RECT
+from ctypes import pointer, c_float
+from .bindings import so, FPDF_RECT, FPDF_MATRIX
 from .font import Font
 
 
@@ -10,6 +10,7 @@ class PageObject:
         self._index = index
         self._parent = parent
         self.type = typ
+        self.matrix = 1., 0., 0., 1., 0., 0.
 
     @property
     def rect(self):
@@ -23,8 +24,16 @@ class TextObject(PageObject):
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
         f = so.REDTextObject_GetFont(obj)
-        self.font = Font(f, self)
-        self.font_size = so.REDTextObject_GetFontSize(obj)
+        self.font = Font(f, self)                           #: :class:Font for this text object
+        self.font_size = so.REDTextObject_GetFontSize(obj)  #: font size of this text object
+
+        matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)
+        so.FPDFTextObj_GetMatrix(obj, pointer(matrix))
+        self.matrix = matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f  #: matrix for this page object
+
+        matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)
+        so.REDTextObject_GetTextMatrix(obj, pointer(matrix))
+        self.text_matrix = matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f  #: text matrix for this page object
 
     def __len__(self):
         '''Number of items in this string'''
@@ -47,6 +56,9 @@ class PathObject(PageObject):
     '''Represents vector graphics on a aage.'''
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
+        matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)
+        so.FPDFPath_GetMatrix(obj, pointer(matrix))
+        self.matrix = matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f  #: matrix for this page object
 
     def __repr__(self):
         return '<PathObject>'
@@ -55,6 +67,17 @@ class ImageObject(PageObject):
     '''Represents image on a page.'''
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
+        a = c_float(1.0)
+        b = c_float(0.0)
+        c = c_float(0.0)
+        d = c_float(1.0)
+        e = c_float(0.0)
+        f = c_float(0.0)
+        so.FPDFImageObj_GetMatrix(
+            obj, pointer(a), pointer(b), pointer(c),
+            pointer(c), pointer(c), pointer(c)
+        )
+        self.matrix = a.value, b.value, c.value, d.value, e.value, f.value  #: matrix for this page object
 
     def __repr__(self):
         return '<ImageObject>'
@@ -79,6 +102,9 @@ class FormObject(PageObject):
     '''Represents interactive form on a page.'''
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
+        matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)
+        so.FPDFFormObj_GetMatrix(obj, pointer(matrix))
+        self.matrix = matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f  #: matrix for this page object
 
     def __repr__(self):
         return '<FormObject>'

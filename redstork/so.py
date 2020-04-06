@@ -82,6 +82,12 @@ so.FPDF_GetPageLabel.restype = c_long
 so.REDPage_GetPageRotation.argtypes = [c_void_p]
 so.REDPage_GetPageRotation.restype = c_int
 
+so.REDPage_GetMediaBox.argtypes = [c_void_p, POINTER(FPDF_RECT)]
+so.REDPage_GetMediaBox.restype = c_int
+
+so.REDPage_GetCropBox.argtypes = [c_void_p, POINTER(FPDF_RECT)]
+so.REDPage_GetCropBox.restype = c_int
+
 so.REDPage_GetPageObjectCount.argtypes = [c_void_p]
 so.REDPage_GetPageObjectCount.restype = c_int
 
@@ -108,6 +114,12 @@ so.REDTextObject_GetFontSize.restype = c_float
 so.REDTextObject_GetFont.argtypes = [c_void_p]
 so.REDTextObject_GetFont.restype = c_void_p
 
+so.FPDFTextObj_GetMatrix.argtypes = [c_void_p, POINTER(FPDF_MATRIX)]
+so.FPDFTextObj_GetMatrix.restype = c_int
+
+so.REDTextObject_GetTextMatrix.argtypes = [c_void_p, POINTER(FPDF_MATRIX)]
+so.REDTextObject_GetTextMatrix.restype = c_int
+
 so.REDFont_Destroy.argtypes = [c_void_p]
 
 so.REDFont_GetName.argtypes = [c_void_p, c_void_p, c_int]
@@ -126,3 +138,15 @@ so.REDImageObject_GetPixelWidth.restype  = c_int
 
 so.REDImageObject_GetPixelHeight.argtypes = [c_void_p]
 so.REDImageObject_GetPixelHeight.restype  = c_int
+
+so.FPDFImageObj_GetMatrix.argtypes = [
+    c_void_p, POINTER(c_float), POINTER(c_float), POINTER(c_float),
+    POINTER(c_float), POINTER(c_float), POINTER(c_float)
+]
+so.FPDFImageObj_GetMatrix.restype = c_int
+
+so.FPDFPath_GetMatrix.argtypes = [c_void_p, POINTER(FPDF_MATRIX)]
+so.FPDFPath_GetMatrix.restype = c_int
+
+so.FPDFFormObj_GetMatrix.argtypes = [c_void_p, POINTER(FPDF_MATRIX)]
+so.FPDFFormObj_GetMatrix.restype = c_int

@@ -10,6 +10,9 @@ so: src/*.cc
 	ninja -C /out/Release
 	cp /out/Release/lib*.so redstork/linux/
 
+sodbg: so
+	cp /out/Debug/lib*.so redstork/linux/
+
 test:
 	pip install pytest
 	pytest

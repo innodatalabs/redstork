@@ -42,39 +42,26 @@ class Page:
     @property
     def crop_box(self):
         '''Page crop box.'''
-        l = c_float(0.)
-        b = c_float(0.)
-        r = c_float(0.)
-        t = c_float(0.)
+        rect = FPDF_RECT(0., 0., 0., 0.)
 
-        # CropBox is optional, should fall back to the required media_box, as per PDF1.7 spec.
-        if not so.FPDFPage_GetCropBox(
+        so.REDPage_GetCropBox(
             self._page,
-            pointer(l),
-            pointer(b),
-            pointer(r),
-            pointer(t),
-        ):
-            return self.media_box
-        return l.value, b.value, r.value, t.value
+            pointer(rect)
+        )
+
+        return rect.left, rect.bottom, rect.right, rect.top
 
     @property
     def media_box(self):
         '''Page media box.'''
-        l = c_float(0.)
-        b = c_float(0.)
-        r = c_float(0.)
-        t = c_float(0.)
-        if not so.FPDFPage_GetMediaBox(
+        rect = FPDF_RECT(0., 0., 0., 0.)
+
+        so.REDPage_GetMediaBox(
             self._page,
-            pointer(l),
-            pointer(b),
-            pointer(r),
-            pointer(t),
-        ):
-            err = so.RED_LastError()
-            raise RuntimeError('internal error: %s' % err)
-        return l.value, b.value, r.value, t.value
+            pointer(rect)
+        )
+
+        return rect.left, rect.bottom, rect.right, rect.top
 
     @property
     def rotation(self):
@@ -139,7 +126,17 @@ class Page:
         x0, y0, x1, y1 = self.crop_box if rect is None else rect
         fs_rect = FPDF_RECT(x0, y1, x1, y0)
 
-        fs_matrix = FPDF_MATRIX(scale, 0., 0., scale, -fs_rect.left * scale, -((cy1-cy0)-y1) * scale)
+        rotation = self.rotation
+        if rotation == 0:
+            fs_matrix = FPDF_MATRIX(scale, 0., 0., scale, 0., -(cy1-y1) * scale)
+        elif rotation == 1:
+            fs_matrix = FPDF_MATRIX(0., -scale, scale, 0., (cx1-x1) * scale, (y1-cy0) * scale)
+        elif rotation == 2:
+            fs_matrix = FPDF_MATRIX(0., scale, scale, 0., 0., 0.)
+        elif rotation == 3:
+            fs_matrix = FPDF_MATRIX(0., scale, -scale, 0., (x1-cx0) * scale, (y0-cy0) * scale)
+        else:
+            raise RuntimeError('Unexpected rotationv alue: %s' % rotation)
 
         cropper = FPDF_RECT(0, 0, (x1-x0) * scale + 0.5, (y1-y0) * scale + 0.5)
         result = so.REDPage_RenderRect(

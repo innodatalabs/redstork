@@ -1,6 +1,8 @@
 FROM python:3.8-buster
 LABEL maintainer='Mike Kroutikov <mkroutikov@innodata.com>'
 
+RUN apt update; apt install -y vim
+
 COPY . /self
 
 RUN bash /self/build_scripts/build.sh

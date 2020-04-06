@@ -9,6 +9,8 @@
 #include "core/fpdfapi/page/cpdf_imageobject.h"
 #include "core/fpdfapi/page/cpdf_image.h"
 #include "core/fpdfapi/font/cpdf_font.h"
+#include "constants/page_object.h"
+#include "core/fpdfapi/parser/cpdf_array.h"
 
 
 FPDF_EXPORT extern "C" const char *FPDF_ErrorCodeToString(long err) {
@@ -61,6 +63,69 @@ FPDF_EXPORT extern "C" int REDPage_GetPageRotation(FPDF_PAGE page) {
     return pPage->GetPageRotation();
 }
 
+static CPDF_Object* GetPageAttr(CPDF_Page const *page, const ByteString& name) {
+  CPDF_Dictionary* pPageDict = page->GetDict();
+  std::set<CPDF_Dictionary*> visited;
+  while (1) {
+    visited.insert(pPageDict);
+    if (CPDF_Object* pObj = pPageDict->GetDirectObjectFor(name))
+      return pObj;
+
+    pPageDict = pPageDict->GetDictFor(pdfium::page_object::kParent);
+    if (!pPageDict || pdfium::ContainsKey(visited, pPageDict))
+      break;
+  }
+  return nullptr;
+}
+
+static CFX_FloatRect GetBox(CPDF_Page const *page, const ByteString& name) {
+  CFX_FloatRect box;
+  CPDF_Array* pBox = ToArray(GetPageAttr(page, name));
+  if (pBox) {
+    box = pBox->GetRect();
+    box.Normalize();
+  }
+  return box;
+}
+
+
+FPDF_EXPORT extern "C" int REDPage_GetMediaBox(FPDF_PAGE page, FS_RECTF *rect) {
+    CPDF_Page const *pPage = CPDFPageFromFPDFPage(page);
+
+    auto mediabox = GetBox(pPage, pdfium::page_object::kMediaBox);
+    if (mediabox.IsEmpty())
+      mediabox = CFX_FloatRect(0, 0, 612, 792);
+
+    rect->left = mediabox.left;
+    rect->top  = mediabox.top;
+    rect->right = mediabox.right;
+    rect->bottom = mediabox.bottom;
+
+    return true;
+}
+
+FPDF_EXPORT extern "C" int REDPage_GetCropBox(FPDF_PAGE page, FS_RECTF *rect) {
+    CPDF_Page const *pPage = CPDFPageFromFPDFPage(page);
+
+    auto mediabox = GetBox(pPage, pdfium::page_object::kMediaBox);
+    if (mediabox.IsEmpty())
+      mediabox = CFX_FloatRect(0, 0, 612, 792);
+
+    auto cropbox = GetBox(pPage, pdfium::page_object::kCropBox);
+    if (cropbox.IsEmpty())
+      cropbox = mediabox;
+
+    cropbox.Intersect(mediabox);
+
+    rect->left = cropbox.left;
+    rect->top  = cropbox.top;
+    rect->right = cropbox.right;
+    rect->bottom = cropbox.bottom;
+
+    return true;
+}
+
+
 FPDF_EXPORT extern "C" int REDPage_GetPageObjectCount(FPDF_PAGE page) {
     CPDF_Page* pPage = CPDFPageFromFPDFPage(page);
     pPage->ParseContent();
@@ -94,6 +159,17 @@ FPDF_EXPORT extern "C" float REDTextObject_GetFontSize(CPDF_TextObject *pObj) {
 
 FPDF_EXPORT extern "C" CPDF_Font * REDTextObject_GetFont(CPDF_TextObject *pObj) {
     return pObj->GetFont().Leak();
+}
+
+FPDF_EXPORT extern "C" int REDTextObject_GetTextMatrix(CPDF_TextObject *pObj, FS_MATRIX *pMatrix) {
+  CFX_Matrix m = pObj->GetTextMatrix();
+  pMatrix->a = m.a;
+  pMatrix->b = m.b;
+  pMatrix->c = m.c;
+  pMatrix->d = m.d;
+  pMatrix->e = m.e;
+  pMatrix->f = m.f;
+  return 1;
 }
 
 FPDF_EXPORT extern "C" void REDFont_Destroy(CPDF_Font *p) {
@@ -247,7 +323,7 @@ FPDF_EXPORT extern "C" bool REDPage_Render(FPDF_PAGE page, char const *file_name
 FPDF_EXPORT extern "C" bool REDPage_RenderRect(FPDF_PAGE page, char const *file_name, int format, float scale, const FS_MATRIX *matrix, const FS_RECTF *rect) {
   FS_RECTF clip;
   if (rect == nullptr) {
-    FPDFPage_GetCropBox(page, &clip.left, &clip.top, &clip.right, &clip.bottom);
+    REDPage_GetCropBox(page, &clip);
   } else {
     clip = *rect;
   }
