@@ -1,0 +1,23 @@
+<svg class="border" height="220" width="110">
+    <style>
+        .stork {
+            fill: #aa0000;
+            stroke: #0a0a0a;
+            stroke-width: 0.26458332px;
+            stroke-linecap: butt;
+            stroke-linejoin: miter;
+        }
+
+        .border {
+            border: 1px solid blue;
+        }
+    </style>
+    <g transform="translate(-70.0, -30.0) scale(1)">
+        <path class="stork"
+            d="m 121,233 -6,3 3,-83 -38,23 c 13,-17 43,-61 48,-79 -2,-17 0,-12 -10,-62 11,38 21,106 9,113 l -8,4 z" />
+        <path class="stork"
+            d="m 170,52 c -22,-8 -35,-10 -59,-10 0,0 0,0 0,0 21,1 42,4 59,10" />
+        <path class="stork"
+            d="m 117,38 c -2,0 -4,2 -4,4 0,2 2,4 4,4 2,0 4,-2 4,-4 0,-2 -2,-4 -4,-4 z" />
+    </g>
+</svg>
