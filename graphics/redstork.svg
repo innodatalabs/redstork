@@ -1,5 +1,31 @@
-<svg class="border" height="220" width="110">
-    <style>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+  <defs
+     id="defs16" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="781"
+     inkscape:window-height="480"
+     id="namedview14"
+     showgrid="false"
+     inkscape:zoom="2.36"
+     inkscape:cx="50"
+     inkscape:cy="50"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg12" />
+  <style
+     id="style2">
         .stork {
             fill: #aa0000;
             stroke: #0a0a0a;
@@ -7,17 +33,21 @@
             stroke-linecap: butt;
             stroke-linejoin: miter;
         }
-
-        .border {
-            border: 1px solid blue;
-        }
     </style>
-    <g transform="translate(-70.0, -30.0) scale(1)">
-        <path class="stork"
-            d="m 121,233 -6,3 3,-83 -38,23 c 13,-17 43,-61 48,-79 -2,-17 0,-12 -10,-62 11,38 21,106 9,113 l -8,4 z" />
-        <path class="stork"
-            d="m 170,52 c -22,-8 -35,-10 -59,-10 0,0 0,0 0,0 21,1 42,4 59,10" />
-        <path class="stork"
-            d="m 117,38 c -2,0 -4,2 -4,4 0,2 2,4 4,4 2,0 4,-2 4,-4 0,-2 -2,-4 -4,-4 z" />
-    </g>
+  <g
+     transform="translate(-70.0, -30.0) scale(1)"
+     id="g10">
+    <path
+       class="stork"
+       d="m 121,233 -6,3 3,-83 -38,23 c 13,-17 43,-61 48,-79 -2,-17 0,-12 -10,-62 11,38 21,106 9,113 l -8,4 z"
+       id="path4" />
+    <path
+       class="stork"
+       d="m 170,52 c -22,-8 -35,-10 -59,-10 0,0 0,0 0,0 21,1 42,4 59,10"
+       id="path6" />
+    <path
+       class="stork"
+       d="m 117,38 c -2,0 -4,2 -4,4 0,2 2,4 4,4 2,0 4,-2 4,-4 0,-2 -2,-4 -4,-4 z"
+       id="path8" />
+  </g>
 </svg>
