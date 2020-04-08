@@ -8,6 +8,8 @@
 #include "core/fpdfapi/page/cpdf_textobject.h"
 #include "core/fpdfapi/page/cpdf_imageobject.h"
 #include "core/fpdfapi/page/cpdf_image.h"
+#include "core/fpdfapi/page/cpdf_formobject.h"
+#include "core/fpdfapi/page/cpdf_form.h"
 #include "core/fpdfapi/font/cpdf_font.h"
 #include "constants/page_object.h"
 #include "core/fpdfapi/parser/cpdf_array.h"
@@ -194,6 +196,21 @@ FPDF_EXPORT extern "C" int REDFont_GetFlags(CPDF_Font *font) {
 
 FPDF_EXPORT extern "C" int REDFont_GetWeight(CPDF_Font *font) {
   return font->GetFontWeight();
+}
+
+FPDF_EXPORT extern "C" bool REDFont_GetId(CPDF_Font *font, unsigned int *pObjNum, unsigned int *pGenNum) {
+  auto pFontDict = font->GetFontDict();
+
+  if (pFontDict == nullptr) return false;
+
+  *pObjNum = pFontDict->GetObjNum();
+  *pGenNum = pFontDict->GetGenNum();
+
+  return true;
+}
+
+FPDF_EXPORT extern "C" bool REDFont_IsVertical(CPDF_Font *pFont) {
+    return pFont->IsVertWriting();
 }
 
 FPDF_EXPORT extern "C" unsigned int REDImageObject_GetPixelWidth(CPDF_ImageObject *pObj) {
@@ -392,4 +409,26 @@ FPDF_EXPORT extern "C" const char * REDDoc_GetMetaTextKeyAt(FPDF_DOCUMENT docume
   }
 
   return keys[index].c_str();
+}
+
+
+FPDF_EXPORT extern "C" unsigned int REDFormObject_GetObjectCount(CPDF_FormObject const *pFormObj) {
+  return pFormObj->form()->GetPageObjectCount();
+}
+
+FPDF_EXPORT extern "C" CPDF_PageObject *REDFormObject_GetObjectAt(CPDF_FormObject const *pFormObj, unsigned int index) {
+  return pFormObj->form()->GetPageObjectByIndex(index);
+}
+
+FPDF_EXPORT extern "C" bool REDFormObject_GetFormMatrix(CPDF_FormObject const *pFormObj, FS_MATRIX *m) {
+  CFX_Matrix matrix = pFormObj->form_matrix();
+
+  m->a = matrix.a;
+  m->b = matrix.b;
+  m->c = matrix.c;
+  m->d = matrix.d;
+  m->e = matrix.e;
+  m->f = matrix.f;
+
+  return true;
 }

@@ -1,22 +1,10 @@
 from ctypes import pointer, c_float, c_char_p
 from .bindings import so, FPDF_RECT, FPDF_MATRIX
-from .pageobject import (
-    TextObject,
-    PathObject,
-    ImageObject,
-    ShadingObject,
-    FormObject
-)
+from .pageobject import PageObject
 
 
 class Page:
     '''Represents page of a PDF file.'''
-
-    OBJ_TYPE_TEXT    = 1
-    OBJ_TYPE_PATH    = 2
-    OBJ_TYPE_IMAGE   = 3
-    OBJ_TYPE_SHADING = 4
-    OBJ_TYPE_FORM    = 5
 
     def __init__(self, page, page_index, parent):
         self._page = page
@@ -90,23 +78,20 @@ class Page:
         '''Get object at this index.'''
         obj = so.REDPage_GetPageObjectByIndex(self._page, index)
         typ = so.REDPageObject_GetType(obj)
-        if typ == self.OBJ_TYPE_TEXT:
-            return TextObject(obj, index, typ, self)
-        elif typ == self.OBJ_TYPE_PATH:
-            return PathObject(obj, index, typ, self)
-        elif typ == self.OBJ_TYPE_IMAGE:
-            return ImageObject(obj, index, typ, self)
-        elif typ == self.OBJ_TYPE_SHADING:
-            return ShadingObject(obj, index, typ, self)
-        elif typ == self.OBJ_TYPE_FORM:
-            return FormObject(obj, index, typ, self)
-        else:
-            raise RuntimeError('unexpected page object type %s' % typ)
+        return PageObject.new(obj, index, typ, self)
 
     def __iter__(self):
         '''Iterates over page objects.'''
         for i in range(len(self)):
             yield self[i]
+
+    def flat_iter(self):
+        '''Iterates over all non-container objects (Text, Image, Path).'''
+        for obj in self:
+            if obj.type == PageObject.OBJ_TYPE_FORM:
+                yield from obj.flat_iter()
+            else:
+                yield obj
 
     def render_(self, file_name, scale=1.0):
         result = so.REDPage_Render(self._page, c_char_p(file_name.encode()), 1, scale)

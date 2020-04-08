@@ -1,4 +1,5 @@
-from ctypes import create_string_buffer
+import re
+from ctypes import create_string_buffer, c_int, pointer
 from .bindings import so
 
 
@@ -29,6 +30,15 @@ class Font:
         return buf[:length-1].decode()
 
     @property
+    def simple_name(self):
+        '''Font name without PDF-specific prefix.'''
+        name =self.name
+        mtc = re.match(r'(.*?)\+(.*)$', name)
+        if mtc is not None:
+            return mtc.group(2)
+        return name
+
+    @property
     def flags(self):
         '''Font flags.'''
         return so.REDFont_GetFlags(self._font)
@@ -37,6 +47,22 @@ class Font:
     def weight(self):
         '''Font weight.'''
         return so.REDFont_GetWeight(self._font)
+
+    @property
+    def is_vertical(self):
+        '''True for vertical writing systems (CJK)'''
+        return so.REDFont_IsVertical(self._font) != 0
+
+    @property
+    def id(self):
+        '''Tuple of (Object_id, Generation_id), identifying underlaying stream in PDF file'''
+        obj_id = c_int(0)
+        gen_id = c_int(0)
+
+        if not so.REDFont_GetId(self._font, pointer(obj_id), pointer(gen_id)):
+            raise RuntimeError('unexpected error: font id not found')
+
+        return obj_id.value, gen_id.value
 
     def __del__(self):
         so.REDFont_Destroy(self._font)

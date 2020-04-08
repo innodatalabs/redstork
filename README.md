@@ -2,7 +2,7 @@
 [![PyPI version](https://badge.fury.io/py/redstork.svg)](https://badge.fury.io/py/redstork)
 [![Documentation Status](https://readthedocs.org/projects/red-stork/badge/?version=latest)](https://red-stork.readthedocs.io/en/latest/?badge=latest)
 
-<p align="center"><img width="110" height="160" src="graphics/redstork.svg"></p>
+<p align="center"><img width="100" height="250" src="graphics/redstork.svg"></p>
 
 PDF Parsing library, based on [PDFium](https://pdfium.googlesource.com/pdfium/).
 

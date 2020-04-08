@@ -4,6 +4,12 @@ from .font import Font
 
 
 class PageObject:
+    OBJ_TYPE_TEXT    = 1
+    OBJ_TYPE_PATH    = 2
+    OBJ_TYPE_IMAGE   = 3
+    OBJ_TYPE_SHADING = 4
+    OBJ_TYPE_FORM    = 5
+
     '''Common superclass of all page objects'''
     def __init__(self, obj, index, typ, parent):
         self._obj = obj
@@ -17,6 +23,21 @@ class PageObject:
         rect = FPDF_RECT(0., 0., 0., 0.)
         so.REDPageObject_GetRect(self._obj, pointer(rect))
         return rect.left, rect.bottom, rect.right, rect.top
+
+    @classmethod
+    def new(cls, obj, index, typ, parent):
+        if typ == cls.OBJ_TYPE_TEXT:
+            return TextObject(obj, index, typ, parent)
+        elif typ == cls.OBJ_TYPE_PATH:
+            return PathObject(obj, index, typ, parent)
+        elif typ == cls.OBJ_TYPE_IMAGE:
+            return ImageObject(obj, index, typ, parent)
+        elif typ == cls.OBJ_TYPE_SHADING:
+            return ShadingObject(obj, index, typ, parent)
+        elif typ == cls.OBJ_TYPE_FORM:
+            return FormObject(obj, index, typ, parent)
+        else:
+            raise RuntimeError('unexpected page object type %s' % typ)
 
 
 class TextObject(PageObject):
@@ -99,14 +120,46 @@ class ShadingObject(PageObject):
         return '<ShadingObject>'
 
 class FormObject(PageObject):
-    '''Represents interactive form on a page.'''
+    '''Represents a form (XObject) on a page - a container of other page objects.'''
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
         matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)
         so.FPDFFormObj_GetMatrix(obj, pointer(matrix))
-        self.matrix = matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f  #: matrix for this page object
+        self.matrix = (
+            matrix.a, matrix.b, matrix.c,
+            matrix.d, matrix.e, matrix.f
+        )  #: matrix for this page object
+        form_matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)
+        so.REDFormObject_GetFormMatrix(obj, pointer(matrix))
+        self.form_matrix = (
+            form_matrix.a, form_matrix.b, form_matrix.c,
+            form_matrix.d, form_matrix.e, form_matrix.f
+        )  #: transformation matrix for contained objects
+
+    def __len__(self):
+        return so.REDFormObject_GetObjectCount(self._obj)
+
+    def __getitem__(self, index):
+        if index < 0:
+            index = len(self) + index
+
+        subobj = so.REDFormObject_GetObjectAt(self._obj, index)
+        typ    = so.REDPageObject_GetType(subobj)
+        return PageObject.new(subobj, index, typ, self)
+
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]
+
+    def flat_iter(self):
+        '''Iterates over all non-container objects in this form.'''
+        for obj in self:
+            if obj.type == PageObject.OBJ_TYPE_FORM:
+                yield from obj.flat_iter()
+            else:
+                yield obj
 
     def __repr__(self):
-        return '<FormObject>'
+        return f'<FormObject len={len(self)}>'
 
 

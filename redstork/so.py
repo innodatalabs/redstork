@@ -131,6 +131,12 @@ so.REDFont_GetFlags.restype = c_int
 so.REDFont_GetWeight.argtypes = [c_void_p]
 so.REDFont_GetWeight.restype = c_int
 
+so.REDFont_GetId.argtypes = [c_void_p, c_void_p, c_void_p]
+so.REDFont_GetId.restype = c_int
+
+so.REDFont_IsVertical.argtypes = [c_void_p]
+so.REDFont_IsVertical.restype = c_int
+
 so.RED_InitLibrary()
 
 so.REDImageObject_GetPixelWidth.argtypes = [c_void_p]
@@ -150,3 +156,12 @@ so.FPDFPath_GetMatrix.restype = c_int
 
 so.FPDFFormObj_GetMatrix.argtypes = [c_void_p, POINTER(FPDF_MATRIX)]
 so.FPDFFormObj_GetMatrix.restype = c_int
+
+so.REDFormObject_GetFormMatrix.argtypes = [c_void_p, POINTER(FPDF_MATRIX)]
+so.REDFormObject_GetFormMatrix.restype = c_int
+
+so.REDFormObject_GetObjectCount.argtypes = [c_void_p]
+so.REDFormObject_GetObjectCount.restype = c_int
+
+so.REDFormObject_GetObjectAt.argtypes = [c_void_p, c_int]
+so.REDFormObject_GetObjectAt.restype = c_void_p
