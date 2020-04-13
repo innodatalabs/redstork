@@ -174,6 +174,14 @@ FPDF_EXPORT extern "C" int REDTextObject_GetTextMatrix(CPDF_TextObject *pObj, FS
   return 1;
 }
 
+FPDF_EXPORT extern "C" int REDTextObject_GetItemCount(CPDF_TextObject *pObj) {
+  return pObj->CountItems();
+}
+
+FPDF_EXPORT extern "C" void REDTextObject_GetItemInfo(CPDF_TextObject *pObj, unsigned int index, CPDF_TextObjectItem *pItem) {
+  pObj->GetItemInfo(index, pItem);
+}
+
 FPDF_EXPORT extern "C" void REDFont_Destroy(CPDF_Font *p) {
     RetainPtr<CPDF_Font> font;
 
@@ -182,9 +190,9 @@ FPDF_EXPORT extern "C" void REDFont_Destroy(CPDF_Font *p) {
 
 FPDF_EXPORT extern "C" unsigned long REDFont_GetName(CPDF_Font *font, char *buf, unsigned long buflen) {
   ByteString basefont = font->GetBaseFontName();
-  unsigned long length = basefont.GetLength() + 1;
-  if (buf && buflen >= length) {
-    memcpy(buf, basefont.c_str(), length);
+  unsigned long length = basefont.GetLength();
+  if (buf && buflen >= length + 1) {
+    memcpy(buf, basefont.c_str(), length + 1);
   }
 
   return length;
@@ -211,6 +219,16 @@ FPDF_EXPORT extern "C" bool REDFont_GetId(CPDF_Font *font, unsigned int *pObjNum
 
 FPDF_EXPORT extern "C" bool REDFont_IsVertical(CPDF_Font *pFont) {
     return pFont->IsVertWriting();
+}
+
+FPDF_EXPORT extern "C" int REDFont_UnicodeFromCharCode(CPDF_Font *pFont, int code, void *buf, unsigned buflen) {
+  auto out = pFont->UnicodeFromCharCode(code).ToUTF8();
+  unsigned long length = out.GetLength();
+  if (buf && buflen >= length + 1) {
+    memcpy(buf, out.c_str(), length + 1);
+  }
+
+  return length;
 }
 
 FPDF_EXPORT extern "C" unsigned int REDImageObject_GetPixelWidth(CPDF_ImageObject *pObj) {

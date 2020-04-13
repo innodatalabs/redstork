@@ -38,6 +38,13 @@ class FPDF_MATRIX(Structure):
         ('f', c_float),
     ]
 
+class FPDF_ITEM_INFO(Structure):
+    _fields_ = [
+        ('code', c_int),
+        ('x', c_float),
+        ('y', c_float),
+    ]
+
 so.RED_LastError.restype = c_char_p
 
 so.RED_LoadDocument.argtypes = [c_char_p, c_char_p]
@@ -120,6 +127,12 @@ so.FPDFTextObj_GetMatrix.restype = c_int
 so.REDTextObject_GetTextMatrix.argtypes = [c_void_p, POINTER(FPDF_MATRIX)]
 so.REDTextObject_GetTextMatrix.restype = c_int
 
+so.REDTextObject_GetItemCount.argtypes = [c_void_p]
+so.REDTextObject_GetItemCount.restype = c_int
+
+so.REDTextObject_GetItemInfo.argtypes = [c_void_p, c_int, POINTER(FPDF_ITEM_INFO)]
+so.REDTextObject_GetItemInfo.restype = c_int
+
 so.REDFont_Destroy.argtypes = [c_void_p]
 
 so.REDFont_GetName.argtypes = [c_void_p, c_void_p, c_int]
@@ -136,6 +149,9 @@ so.REDFont_GetId.restype = c_int
 
 so.REDFont_IsVertical.argtypes = [c_void_p]
 so.REDFont_IsVertical.restype = c_int
+
+so.REDFont_UnicodeFromCharCode.argtypes = [c_void_p, c_int, c_void_p, c_int]
+so.REDFont_UnicodeFromCharCode.restype = c_int
 
 so.RED_InitLibrary()
 

@@ -27,7 +27,7 @@ class Font:
         '''Font name in the PDF document.'''
         buf = create_string_buffer(512)
         length = so.REDFont_GetName(self._font, buf, 512)
-        return buf[:length-1].decode()
+        return buf[:length].decode()
 
     @property
     def simple_name(self):
@@ -63,6 +63,11 @@ class Font:
             raise RuntimeError('unexpected error: font id not found')
 
         return obj_id.value, gen_id.value
+
+    def __getitem__(self, charcode):
+        buf = create_string_buffer(16)
+        length = so.REDFont_UnicodeFromCharCode(self._font, c_int(charcode), buf, 16)
+        return buf[:length].decode()
 
     def __del__(self):
         so.REDFont_Destroy(self._font)

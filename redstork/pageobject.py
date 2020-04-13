@@ -1,5 +1,5 @@
 from ctypes import pointer, c_float
-from .bindings import so, FPDF_RECT, FPDF_MATRIX
+from .bindings import so, FPDF_RECT, FPDF_MATRIX, FPDF_ITEM_INFO
 from .font import Font
 
 
@@ -62,7 +62,9 @@ class TextObject(PageObject):
 
     def __getitem__(self, index):
         '''Returns item at this index.'''
-        return RED_Char()
+        item = FPDF_ITEM_INFO(-1, 0., 0.)
+        so.REDTextObject_GetItemInfo(self._obj, index, pointer(item))
+        return item.code, item.x, item.y
 
     def __iter__(self):
         '''Iterates over items.'''
@@ -71,6 +73,16 @@ class TextObject(PageObject):
 
     def __repr__(self):
         return f'<TextObject len={len(self)}, font_size={self.font_size}>'
+
+    @property
+    def text(self):
+        font = self.font
+
+        return ''.join(
+            font[code]
+            for code,_,_ in self
+            if code != -1  # -1 is kern
+        )
 
 
 class PathObject(PageObject):
