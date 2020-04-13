@@ -45,7 +45,7 @@ class TextObject(PageObject):
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
         f = so.REDTextObject_GetFont(obj)
-        self.font = Font(f, self)                           #: :class:Font for this text object
+        self.font = Font(f, parent)                           #: :class:Font for this text object
         self.font_size = so.REDTextObject_GetFontSize(obj)  #: font size of this text object
 
         matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)

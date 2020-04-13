@@ -5,6 +5,8 @@ from ctypes import c_int, c_long, c_float, c_void_p, c_char_p
 
 if sys.platform == 'linux':
     so_name = 'linux/libredstork.so'
+elif sys.platform == 'win32':
+    so_name = 'win/redstork.dll'
 else:
     raise RuntimeError('Unsupported platform: %s' % sys.platform)
 
