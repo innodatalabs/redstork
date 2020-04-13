@@ -1,3 +1,4 @@
+import sys
 from setuptools import setup, find_packages
 from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 from redstork import __version__
@@ -7,7 +8,8 @@ from redstork import __version__
 class bdist_wheel(_bdist_wheel):
     def finalize_options(self):
         _bdist_wheel.finalize_options(self)
-        self.root_is_pure = False
+        if sys.platform == 'win32':
+            self.root_is_pure = False
 
 with open('README.md') as f:
     long_description = f.read()
@@ -33,6 +35,6 @@ setup(
     ],
     packages=find_packages(),
     package_data = {'': ['linux/*.so', 'win/*.dll', 'darwin/*.so', 'pdfium_version.txt']},
-    # cmdclass = {'bdist_wheel': bdist_wheel}
+    cmdclass = {'bdist_wheel': bdist_wheel},
     python_requires='>=3.6',
 )
