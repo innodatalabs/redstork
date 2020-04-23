@@ -450,3 +450,27 @@ FPDF_EXPORT extern "C" bool REDFormObject_GetFormMatrix(CPDF_FormObject const *p
 
   return true;
 }
+
+FPDF_EXPORT extern "C" const void *REDFont_LoadGlyph(CPDF_Font *font, int char_code) {
+  auto pCfxFont = font->GetFont();
+  bool bVert = false;
+  unsigned int glyph_index = font->GlyphFromCharCode(char_code, &bVert);
+  const CFX_PathData *pPathData = pCfxFont->LoadGlyphPath(glyph_index, 0);
+  return pPathData;
+}
+
+FPDF_EXPORT extern "C" int REDGlyph_Size(const CFX_PathData *path) {
+  return path->GetPoints().size();
+}
+
+typedef struct {
+  float x;
+  float y;
+  unsigned char type;
+  bool close;
+} RED_PATH_POINT;
+
+FPDF_EXPORT extern "C" void REDGlyph_Get(const CFX_PathData *path, int index, RED_PATH_POINT *p) {
+  auto pPoint = path->GetPoints()[index];
+  *p = * ((RED_PATH_POINT*) &pPoint);
+}

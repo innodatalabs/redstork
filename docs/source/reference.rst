@@ -30,6 +30,21 @@ TextObject
     :special-members:
     :exclude-members: __dict__,__weakref__
 
+Font
+""""
+.. autoclass:: Font
+    :members:
+    :special-members:
+    :exclude-members: __dict__,__weakref__
+
+
+Glyph
+"""""
+.. autoclass:: Glyph
+    :members:
+    :special-members:
+    :exclude-members: __dict__,__weakref__
+
 ImageObject
 ^^^^^^^^^^^
 .. autoclass:: ImageObject
@@ -54,13 +69,6 @@ ShadingObject
 FormObject
 ^^^^^^^^^^
 .. autoclass:: FormObject
-    :members:
-    :special-members:
-    :exclude-members: __dict__,__weakref__
-
-Font
-----
-.. autoclass:: Font
     :members:
     :special-members:
     :exclude-members: __dict__,__weakref__

@@ -1,6 +1,7 @@
 import re
 from ctypes import create_string_buffer, c_int, pointer
 from .bindings import so
+from .glyph import Glyph
 
 
 class Font:
@@ -64,7 +65,23 @@ class Font:
 
         return obj_id.value, gen_id.value
 
+    def load_glyph(self, charcode):
+        '''Load glyph, see :class:`Glyph`
+
+        Args:
+            charcode (int): the character code (see :class:`TextObject`)
+        '''
+        g = so.REDFont_LoadGlyph(self._font, charcode)
+        if g is None:
+            return None
+        return Glyph(g, self._font)
+
     def __getitem__(self, charcode):
+        '''Returns Unicode text of this character.
+
+        Args:
+            charcode (int) - the character code (see :class:`TextObject`)
+        '''
         buf = create_string_buffer(16)
         length = so.REDFont_UnicodeFromCharCode(self._font, c_int(charcode), buf, 16)
         return buf[:length].decode()

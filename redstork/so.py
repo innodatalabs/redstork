@@ -1,7 +1,7 @@
 import os
 import sys
 from ctypes import CDLL, pointer, POINTER, Structure, create_string_buffer, create_unicode_buffer
-from ctypes import c_int, c_long, c_float, c_void_p, c_char_p
+from ctypes import c_int, c_long, c_float, c_void_p, c_char_p, c_uint8, c_bool
 
 if sys.platform == 'linux':
     so_name = 'linux/libredstork.so'
@@ -45,6 +45,14 @@ class FPDF_ITEM_INFO(Structure):
         ('code', c_int),
         ('x', c_float),
         ('y', c_float),
+    ]
+
+class FPDF_PATH_POINT(Structure):
+    _fields_ = [
+        ('x', c_float),
+        ('y', c_float),
+        ('type', c_uint8),
+        ('close', c_bool),
     ]
 
 so.RED_LastError.restype = c_char_p
@@ -183,3 +191,12 @@ so.REDFormObject_GetObjectCount.restype = c_int
 
 so.REDFormObject_GetObjectAt.argtypes = [c_void_p, c_int]
 so.REDFormObject_GetObjectAt.restype = c_void_p
+
+so.REDFont_LoadGlyph.argtypes = [c_void_p, c_int]
+so.REDFont_LoadGlyph.restype = c_void_p
+
+so.REDGlyph_Size.argtypes = [c_void_p]
+so.REDGlyph_Size.restype = c_int
+
+so.REDGlyph_Get.argtypes = [c_void_p, c_int, POINTER(FPDF_PATH_POINT)]
+
