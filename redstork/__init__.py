@@ -9,3 +9,4 @@ from .document import Document
 from .page import Page
 from .pageobject import PageObject, TextObject, ImageObject, PathObject, ShadingObject, FormObject
 from .font import Font
+from .glyph import Glyph
