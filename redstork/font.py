@@ -1,6 +1,7 @@
 import re
 from ctypes import create_string_buffer, c_int, pointer
 from .bindings import so
+from .glyph import Glyph
 
 
 class Font:
@@ -63,6 +64,12 @@ class Font:
             raise RuntimeError('unexpected error: font id not found')
 
         return obj_id.value, gen_id.value
+
+    def load_glyph(self, glyph_id):
+        g = so.REDFont_LoadGlyph(self._font, glyph_id)
+        if g is None:
+            return None
+        return Glyph(g, self._font)
 
     def __getitem__(self, charcode):
         buf = create_string_buffer(16)

@@ -1,6 +1,6 @@
 
 try:
-    from .so import so, FPDF_RECT, FPDF_MATRIX, FPDF_ITEM_INFO
+    from .so import so, FPDF_RECT, FPDF_MATRIX, FPDF_ITEM_INFO, FPDF_PATH_POINT
 except OSError:
     print('Failed to load shared library')
     class DummySO:
@@ -10,4 +10,4 @@ except OSError:
     FPDF_RECT = None
     FPDF_MATRIX = None
     FPDF_ITEM_INFO = None
-
+    FPDF_PATH_POINT = None

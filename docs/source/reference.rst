@@ -64,3 +64,11 @@ Font
     :members:
     :special-members:
     :exclude-members: __dict__,__weakref__
+
+
+Glyph
+-----
+.. autoclass:: Glyph
+    :members:
+    :special-members:
+    :exclude-members: __dict__,__weakref__
