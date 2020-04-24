@@ -15,6 +15,7 @@
 #include "core/fpdfapi/parser/cpdf_array.h"
 #include "core/fpdfapi/parser/cpdf_stream.h"
 #include "core/fpdfapi/parser/cpdf_stream_acc.h"
+#include "core/fpdfapi/parser/cpdf_string.h"
 #include "core/fpdfapi/edit/cpdf_creator.h"
 
 
@@ -430,6 +431,26 @@ FPDF_EXPORT extern "C" const char * REDDoc_GetMetaTextKeyAt(FPDF_DOCUMENT docume
   }
 
   return keys[index].c_str();
+}
+
+FPDF_EXPORT extern "C" bool REDDoc_SetMetaItem(FPDF_DOCUMENT document, const char *key, const char *value) {
+  CPDF_Document* pDoc = CPDFDocumentFromFPDFDocument(document);
+  if (!pDoc)
+    return false;
+
+  CPDF_Dictionary* pInfo = pDoc->GetInfo();
+  if (!pInfo)
+    return false;
+
+  auto bkey = ByteString(key);
+
+  if (value == nullptr) {
+    pInfo->SetFor(bkey, nullptr);  // deletes this key
+  } else {
+    auto wide = WideString::FromUTF8(value);
+    pInfo->SetNewFor<CPDF_String>(bkey, wide);
+  }
+  return true;
 }
 
 

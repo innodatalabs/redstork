@@ -19,6 +19,10 @@ class PageObject:
         self.matrix = 1., 0., 0., 1., 0., 0.
 
     @property
+    def page(self):
+        return self._parent
+
+    @property
     def rect(self):
         rect = FPDF_RECT(0., 0., 0., 0.)
         so.REDPageObject_GetRect(self._obj, pointer(rect))
@@ -44,8 +48,11 @@ class TextObject(PageObject):
     '''Represents a string of text on a page'''
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
+
         f = so.REDTextObject_GetFont(obj)
-        self.font = Font(f, parent)                         #: :class:`Font` for this text object
+        font = Font(f, parent)
+        doc = parent.document
+        self.font = doc.fonts.setdefault(font.id, font)  #: :class:`Font` for this text object
         self.font_size = so.REDTextObject_GetFontSize(obj)  #: font size of this text object
 
         matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)

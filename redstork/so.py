@@ -68,6 +68,9 @@ so.REDDoc_GetMetaTextKeyCount.restype = c_int
 so.REDDoc_GetMetaTextKeyAt.argtypes = [c_void_p, c_int]
 so.REDDoc_GetMetaTextKeyAt.restype = c_char_p
 
+so.REDDoc_SetMetaItem.argtypes = [c_void_p, c_void_p, c_void_p]
+so.REDDoc_SetMetaItem.restype = c_int
+
 so.FPDF_GetPageCount.argtypes = [c_void_p]
 so.FPDF_GetPageCount.restype = c_int
 

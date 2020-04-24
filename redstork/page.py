@@ -129,6 +129,10 @@ class Page:
         if result == 0:
             raise RuntimeError('Failed to render as ' + file_name)
 
+    @property
+    def document(self):
+        return self._parent
+
     def __repr__(self):
         return f'<Page len={len(self)}>'
 

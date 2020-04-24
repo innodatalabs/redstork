@@ -1,5 +1,6 @@
 from redstork import Document, PageObject
 from . import res
+import tempfile
 
 
 def test_font():
@@ -68,54 +69,46 @@ def test_scaling():
                 assert xscaled == int(xscaled)
                 assert yscaled == int(yscaled)
 
+def test_document_fonts():
+    doc = Document(res('sample.pdf'))
+
+    for page in doc:
+        list(page)  # forces reading of the page objects and populates fonts
+
+    assert len(doc.fonts) == 9
+
+    names = [x.simple_name for x in doc.fonts.values()]
+    assert names == [
+        'NimbusSanL-Bold',
+        'NimbusSanL-BoldItal',
+        'NimbusSanL-Regu',
+        'NimbusRomNo9L-Medi',
+        'NimbusRomNo9L-Regu',
+        'NimbusMonL-Bold',
+        'NimbusMonL-Regu',
+        'NimbusRomNo9L-ReguItal',
+        'NimbusMonL-ReguObli',
+    ]
+
 
 def test_unicode_map():
     doc = Document(res('tt2.pdf'))
 
-    import pdb; pdb.set_trace()
-    page = doc[1]
-    text_objs = [x for x in page if x.type == PageObject.OBJ_TYPE_TEXT]
-    text_obj = text_objs[0]
-    font = text_obj.font
-    print(font.id)
+    list(doc[1])  # read all objects from page 2. This populates doc.fonts
+    font = doc.fonts[33, 0]
+    assert font.is_editable
+    assert font[30] == '\u037e'
 
-    for c,_,_ in text_obj:
-        print(font[c])
+    font[30] = ';'
+    assert font.changed
+    assert font[30] == ';'
 
-    umap = font.read_unicode_map()
-    assert umap is not None
+    with tempfile.TemporaryDirectory() as d:
+        fname = f'{d}/temp.pdf'
+        doc.save(fname)
 
-    import re
-    print(umap)
-    umap2 = re.sub(r'037E', '002E002F', umap)
-    assert umap2 != umap
-
-    print()
-    print(umap2)
-    print()
-
-    font.write_unicode_map(umap2)
-    umapx = font.read_unicode_map()
-    assert umapx == umap2
-
-    doc.save('newfile.pdf')
-
-    doc = Document('newfile.pdf')
-
-    page = doc[1]
-    text_objs = [x for x in page if x.type == PageObject.OBJ_TYPE_TEXT]
-    text_obj = text_objs[0]
-    font = text_obj.font
-    print(font.id)
-
-    for c,_,_ in text_obj:
-        print(font[c])
-
-    umap = font.read_unicode_map()
-    assert umap is not None
-
-    import re
-    print(umap)
-
-
-    assert False
+        doc = Document(fname)
+        list(doc[1])  # read all objects from page 2. This populates doc.fonts
+        font = doc.fonts[33, 0]
+        assert font.is_editable
+        assert font[30] == ';'
