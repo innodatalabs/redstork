@@ -1,5 +1,6 @@
 from redstork import Document, PageObject
 from . import res
+import tempfile
 
 
 def test_font():
@@ -67,3 +68,47 @@ def test_scaling():
                 yscaled = y * SCALE
                 assert xscaled == int(xscaled)
                 assert yscaled == int(yscaled)
+
+def test_document_fonts():
+    doc = Document(res('sample.pdf'))
+
+    for page in doc:
+        list(page)  # forces reading of the page objects and populates fonts
+
+    assert len(doc.fonts) == 9
+
+    names = [x.simple_name for x in doc.fonts.values()]
+    assert names == [
+        'NimbusSanL-Bold',
+        'NimbusSanL-BoldItal',
+        'NimbusSanL-Regu',
+        'NimbusRomNo9L-Medi',
+        'NimbusRomNo9L-Regu',
+        'NimbusMonL-Bold',
+        'NimbusMonL-Regu',
+        'NimbusRomNo9L-ReguItal',
+        'NimbusMonL-ReguObli',
+    ]
+
+
+def test_unicode_map():
+    doc = Document(res('tt2.pdf'))
+
+    list(doc[1])  # read all objects from page 2. This populates doc.fonts
+    font = doc.fonts[33, 0]
+    assert font.is_editable
+    assert font[30] == '\u037e'
+
+    font[30] = ';'
+    assert font.changed
+    assert font[30] == ';'
+
+    with tempfile.TemporaryDirectory() as d:
+        fname = f'{d}/temp.pdf'
+        doc.save(fname)
+
+        doc = Document(fname)
+        list(doc[1])  # read all objects from page 2. This populates doc.fonts
+        font = doc.fonts[33, 0]
+        assert font.is_editable
+        assert font[30] == ';'

@@ -13,6 +13,10 @@
 #include "core/fpdfapi/font/cpdf_font.h"
 #include "constants/page_object.h"
 #include "core/fpdfapi/parser/cpdf_array.h"
+#include "core/fpdfapi/parser/cpdf_stream.h"
+#include "core/fpdfapi/parser/cpdf_stream_acc.h"
+#include "core/fpdfapi/parser/cpdf_string.h"
+#include "core/fpdfapi/edit/cpdf_creator.h"
 
 
 FPDF_EXPORT extern "C" const char *FPDF_ErrorCodeToString(long err) {
@@ -429,6 +433,26 @@ FPDF_EXPORT extern "C" const char * REDDoc_GetMetaTextKeyAt(FPDF_DOCUMENT docume
   return keys[index].c_str();
 }
 
+FPDF_EXPORT extern "C" bool REDDoc_SetMetaItem(FPDF_DOCUMENT document, const char *key, const char *value) {
+  CPDF_Document* pDoc = CPDFDocumentFromFPDFDocument(document);
+  if (!pDoc)
+    return false;
+
+  CPDF_Dictionary* pInfo = pDoc->GetInfo();
+  if (!pInfo)
+    return false;
+
+  auto bkey = ByteString(key);
+
+  if (value == nullptr) {
+    pInfo->SetFor(bkey, nullptr);  // deletes this key
+  } else {
+    auto wide = WideString::FromUTF8(value);
+    pInfo->SetNewFor<CPDF_String>(bkey, wide);
+  }
+  return true;
+}
+
 
 FPDF_EXPORT extern "C" unsigned int REDFormObject_GetObjectCount(CPDF_FormObject const *pFormObj) {
   return pFormObj->form()->GetPageObjectCount();
@@ -473,4 +497,101 @@ typedef struct {
 FPDF_EXPORT extern "C" void REDGlyph_Get(const CFX_PathData *path, int index, RED_PATH_POINT *p) {
   auto pPoint = path->GetPoints()[index];
   *p = * ((RED_PATH_POINT*) &pPoint);
+}
+
+FPDF_EXPORT extern "C" const void *REDFont_LoadUnicodeMap(CPDF_Font *font) {
+  auto pDict = font->GetFontDict();
+  if (pDict == nullptr) {
+    return nullptr;
+  }
+
+  auto pStream = pDict->GetStreamFor("ToUnicode");
+  if (pStream == nullptr) {
+    return nullptr;
+  }
+
+  auto pAcc = pdfium::MakeRetain<CPDF_StreamAcc>(pStream);
+  pAcc->LoadAllDataFiltered();
+  auto span = pAcc->GetSpan();
+
+  unsigned int size = span.size();
+  unsigned char *data = span.data();
+  unsigned char *buffer = (unsigned char *) malloc(size + 1);
+  if (buffer == nullptr) {
+    fprintf(stderr, "Failed to allocate\n");
+    return nullptr;
+  }
+
+  memcpy(buffer, data, size);
+  buffer[size] = '\0';
+
+  return buffer;
+}
+
+FPDF_EXPORT extern "C" bool REDFont_WriteUnicodeMap(CPDF_Font *font, unsigned char *buffer, size_t len) {
+  auto pDict = font->GetFontDict();
+  if (pDict == nullptr) {
+    return false;
+  }
+
+  auto pStream = pDict->GetStreamFor("ToUnicode");
+  if (pStream == nullptr) {
+    return false;
+  }
+
+  auto span = pdfium::span<const uint8_t>(buffer, len);
+  pStream->SetDataAndRemoveFilter(span);
+  return true;
+}
+
+FPDF_EXPORT extern "C" void REDFont_DestroyUnicodeMap(unsigned char *buffer) {
+  free(buffer);
+}
+
+class FileWriter : public IFX_RetainableWriteStream {
+public:
+  FileWriter(const char *filename) : m_fp(nullptr) {
+  }
+
+  bool Open(const char *filename) {
+    Close();
+    m_fp = fopen(filename, "wb");
+    return m_fp != nullptr;
+  }
+
+  void Close() {
+    if (m_fp != nullptr) {
+      fclose(m_fp);
+    }
+  }
+
+  ~FileWriter() {
+    Close();
+  }
+
+  virtual bool WriteBlock(const void* pData, size_t size) {
+    size_t num = fwrite(pData, 1, size, m_fp);
+    return num == size;
+  }
+  virtual bool WriteString(ByteStringView str) {
+    return WriteBlock(str.unterminated_c_str(), str.GetLength());
+  }
+
+private:
+  FILE *m_fp;
+};
+
+FPDF_EXPORT extern "C" int REDDoc_Save(FPDF_DOCUMENT document, char const *filename) {
+  CPDF_Document* pDoc = CPDFDocumentFromFPDFDocument(document);
+  if (!pDoc)
+    return 0;
+
+  auto buffer_io = RetainPtr<FileWriter>(new FileWriter(filename));
+  if (!buffer_io->Open(filename)) {
+    return false;
+  }
+
+  CPDF_Creator creator(pDoc, buffer_io);
+
+  return creator.Create(0);
 }

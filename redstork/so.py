@@ -68,6 +68,9 @@ so.REDDoc_GetMetaTextKeyCount.restype = c_int
 so.REDDoc_GetMetaTextKeyAt.argtypes = [c_void_p, c_int]
 so.REDDoc_GetMetaTextKeyAt.restype = c_char_p
 
+so.REDDoc_SetMetaItem.argtypes = [c_void_p, c_void_p, c_void_p]
+so.REDDoc_SetMetaItem.restype = c_int
+
 so.FPDF_GetPageCount.argtypes = [c_void_p]
 so.FPDF_GetPageCount.restype = c_int
 
@@ -200,3 +203,12 @@ so.REDGlyph_Size.restype = c_int
 
 so.REDGlyph_Get.argtypes = [c_void_p, c_int, POINTER(FPDF_PATH_POINT)]
 
+so.REDFont_LoadUnicodeMap.argtypes = [c_void_p]
+so.REDFont_LoadUnicodeMap.restype = c_void_p
+
+so.REDFont_DestroyUnicodeMap.argtypes = [c_void_p]
+so.REDFont_WriteUnicodeMap.argtypes = [c_void_p, c_void_p, c_int]
+so.REDFont_WriteUnicodeMap.restype = c_int
+
+so.REDDoc_Save.argtypes = [c_void_p, c_void_p]
+so.REDDoc_Save.restype = c_int
