@@ -24,7 +24,7 @@ class Glyph:
         '''Returns a 4-tuple representing this drawing instruction: (x, y, type, close).
 
         Args:
-            i (int): index of the operator
+            i (int): index of the instruction
         '''
         point = FPDF_PATH_POINT()
         so.REDGlyph_Get(self._glyph, i, pointer(point))

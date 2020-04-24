@@ -8,5 +8,5 @@ with open(os.path.join(os.path.dirname(__file__), 'pdfium_version.txt')) as f:
 from .document import Document
 from .page import Page
 from .pageobject import PageObject, TextObject, ImageObject, PathObject, ShadingObject, FormObject
-from .font import Font
+from .font import Font, ReadOnlyEncodingError
 from .glyph import Glyph

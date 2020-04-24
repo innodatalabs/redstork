@@ -85,7 +85,7 @@ class Document:
         return False
 
     def save(self, filename):
-        '''Saves PDF file, resets :method:`Document.changed` to False'''
+        '''Saves PDF file, resets :meth:`Document.changed` to False'''
         if self.meta.changed:
             self._save_meta()
             self.meta.sync()

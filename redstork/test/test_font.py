@@ -112,3 +112,26 @@ def test_unicode_map():
         font = doc.fonts[33, 0]
         assert font.is_editable
         assert font[30] == ';'
+
+
+def test_unicode_map_multichar():
+    doc = Document(res('tt2.pdf'))
+
+    list(doc[1])  # read all objects from page 2. This populates doc.fonts
+    font = doc.fonts[33, 0]
+    assert font.is_editable
+    assert font[30] == '\u037e'
+
+    font[30] = 'Hello'
+    assert font.changed
+    assert font[30] == 'Hello'
+
+    with tempfile.TemporaryDirectory() as d:
+        fname = f'{d}/temp.pdf'
+        doc.save(fname)
+
+        doc = Document(fname)
+        list(doc[1])  # read all objects from page 2. This populates doc.fonts
+        font = doc.fonts[33, 0]
+        assert font.is_editable
+        assert font[30] == 'Hello'

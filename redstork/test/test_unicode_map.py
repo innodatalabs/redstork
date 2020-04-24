@@ -137,3 +137,40 @@ endbfrange\
         print(result.encode())
         print(result)
         assert False
+
+
+def test_unicode_map_03():
+
+    umap = UnicodeMap('''\
+1 beginbfchar
+<0001> <000100020003>
+<0002> <0002>
+<0101> <0101>
+<0102> <0102>
+endbfchar\
+''')
+    assert dict(umap.items()) == {
+        1  : '\x01\x02\x03',
+        2  : '\x02',
+        257: '\u0101',
+        258: '\u0102',
+    }
+    umap[3] = '\x03'
+    model = '''\
+3 beginbfchar
+<0001> <000100020003>
+<0002> <00480065006C006C006F>
+<0003> <0003>
+endbfchar
+2 beginbfchar
+<0101> <0101>
+<0102> <0102>
+endbfchar\
+'''
+    umap[2] = 'Hello'
+    result = umap.format()
+    if result != model:
+        print(model.encode())
+        print(result.encode())
+        print(result)
+        assert False

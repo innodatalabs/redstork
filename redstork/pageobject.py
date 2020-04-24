@@ -4,26 +4,28 @@ from .font import Font
 
 
 class PageObject:
-    OBJ_TYPE_TEXT    = 1
-    OBJ_TYPE_PATH    = 2
-    OBJ_TYPE_IMAGE   = 3
-    OBJ_TYPE_SHADING = 4
-    OBJ_TYPE_FORM    = 5
+    OBJ_TYPE_TEXT    = 1  #: see :class:`TextObject`
+    OBJ_TYPE_PATH    = 2  #: see :class:`PathObject`
+    OBJ_TYPE_IMAGE   = 3  #: see :class:`ImageObject`
+    OBJ_TYPE_SHADING = 4  #: see :class:`ShadingObject`
+    OBJ_TYPE_FORM    = 5  #: for internal use only
 
     '''Common superclass of all page objects'''
     def __init__(self, obj, index, typ, parent):
         self._obj = obj
         self._index = index
         self._parent = parent
-        self.type = typ
-        self.matrix = 1., 0., 0., 1., 0., 0.
+        self.type = typ                      #: type of this object
+        self.matrix = 1., 0., 0., 1., 0., 0. #: transformation matrix of this object
 
     @property
     def page(self):
+        '''Links back to the parent page'''
         return self._parent
 
     @property
     def rect(self):
+        '''Object rectangle on the page'''
         rect = FPDF_RECT(0., 0., 0., 0.)
         so.REDPageObject_GetRect(self._obj, pointer(rect))
         return rect.left, rect.bottom, rect.right, rect.top
@@ -127,10 +129,12 @@ class ImageObject(PageObject):
 
     @property
     def pixel_width(self):
+        '''width of the bitmap, in pixels'''
         return so.REDImageObject_GetPixelWidth(self._obj)
 
     @property
     def pixel_height(self):
+        '''height of the bitmap, in pixels'''
         return so.REDImageObject_GetPixelHeight(self._obj)
 
 class ShadingObject(PageObject):
@@ -142,7 +146,7 @@ class ShadingObject(PageObject):
         return '<ShadingObject>'
 
 class FormObject(PageObject):
-    '''Represents a form (XObject) on a page - a container of other page objects.'''
+    '''Represents a form (XObject) on a page - a container of other page objects (used internally).'''
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
         matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)
