@@ -1,4 +1,4 @@
-__version__ = '0.0.14'
+__version__ = '0.0.15'
 
 import os
 with open(os.path.join(os.path.dirname(__file__), 'pdfium_version.txt')) as f:
