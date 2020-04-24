@@ -5,9 +5,9 @@ from ctypes import pointer
 class Glyph:
     '''Represents Glyph drawing instructions'''
 
-    LINETO    = 0  #: LineTo instruction
-    BEZIER_TO = 1  #: BezierTo instruction
-    MOVETO    = 2  #: MoveTo instruction
+    LINETO  = 0  #: LineTo instruction
+    CURVETO = 1  #: CurveTo instruction
+    MOVETO  = 2  #: MoveTo instruction
 
     def __init__(self, glyph, parent):
         self._glyph = glyph

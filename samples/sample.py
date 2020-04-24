@@ -1,34 +1,48 @@
-import redstork as rs
+from redstork import Document, PageObject, Glyph
+from redstork.test import res
 
-if __name__ == '__main__':
-    import os
+doc = Document(res('sample.pdf'))
 
-    fname = os.path.expanduser('~/REDSync/testResources/izguts/9783642051104.pdf')
+print('Number of pages:', len(doc))
 
-    doc = rs.Document(fname)
-    for key, val in doc.meta.items():
-        print(key, val)
+print('MediaBox of the first page is:', doc[0].media_box)
 
-    print(doc.numpages)
-    for page_index in range(doc.numpages):
-        print('Page:', page_index)
-        page = doc[page_index]
-        print(page, page.width, page.height, page.bbox, page.crop_box, page.media_box, page.label, page.rotation, len(page))
-        for x in page:
-            print(x.rect, x.type, x)
-            # if x.type == rs.page.Page.OBJ_TYPE_TEXT:
-            #     print('\t', x.font)
-            #     page.render('first_text.ppm', scale=5, rect=x.rect)
-            #     assert False
-        break
+print('Rotation of the first page is:', doc[0].rotation)
 
-    doc[0].render_('test_000_.ppm')
-    doc[1].render_('test_001_.ppm')
-    doc[2].render_('test_002_.ppm')
-    doc[3].render_('test_003_.ppm')
+print('Document title:', doc.meta['Title'])
 
-    doc[0].render('test_000.ppm')
-    doc[1].render('test_001.ppm')
-    doc[2].render('test_002.ppm')
-    doc[3].render('test_003.ppm')
+print('First page has', len(doc[0]), 'objects')
 
+doc[0].render('page-0.ppm', scale=2)   # render page #1 as image
+
+page = doc[0]
+for o in page:
+    if o.type == PageObject.OBJ_TYPE_TEXT:
+        for code, _, _ in o:
+            print(o.font[code], end='')
+        print()
+
+for fid, font in doc.fonts.items():
+    print(font.simple_name, fid)
+
+# lets generate an SVG file of the first letter on page 1
+text_object = [o for o in page if o.type == PageObject.OBJ_TYPE_TEXT][0]  # first text object
+charcode, _, _ = text_object[0]  # first character of the first text object
+
+glyph = font.load_glyph(charcode)
+path, delayed_c = [], []
+for x, y, op, close in glyph:
+    x, y = round(x, 3), round(y, 3)
+    if op == Glyph.MOVETO:
+        path.append(f'M {x} {y}')
+    elif op == Glyph.LINETO:
+        path.append(f'L {x} {y}')
+    elif op == Glyph.CURVETO:
+        delayed_c.append(f'{x} {y}')
+        if len(delayed_c) == 3:
+            path.append('C ' + ', '.join(delayed_c))
+            delayed_c.clear()
+    if close:
+        path.append('Z')
+path = ' '.join(path)
+print('<svg><g fill="gray" transform="scale(100,-100)"><path d="' + path + '" /></g></svg>')

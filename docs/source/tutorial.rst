@@ -145,7 +145,7 @@ Font
 
 Font object is a look-up table for character text, and also holds character glyphs (shape).
 
-Font names in PDF file have a special prefix. To get a human-friendly one use :meth:`Font.short_name`.
+Font names in PDF file have a special prefix. To get a human-friendly one use :meth:`Font.simple_name`.
 
 Document contains a lazy font collection :meth:`Document.fonts`. It is lazy, because just after document is opened,
 it is empty. As pages are accessed and parsed, this collection is populated.
