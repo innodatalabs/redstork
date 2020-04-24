@@ -67,3 +67,55 @@ def test_scaling():
                 yscaled = y * SCALE
                 assert xscaled == int(xscaled)
                 assert yscaled == int(yscaled)
+
+
+def test_unicode_map():
+    doc = Document(res('tt2.pdf'))
+
+    import pdb; pdb.set_trace()
+    page = doc[1]
+    text_objs = [x for x in page if x.type == PageObject.OBJ_TYPE_TEXT]
+    text_obj = text_objs[0]
+    font = text_obj.font
+    print(font.id)
+
+    for c,_,_ in text_obj:
+        print(font[c])
+
+    umap = font.read_unicode_map()
+    assert umap is not None
+
+    import re
+    print(umap)
+    umap2 = re.sub(r'037E', '002E002F', umap)
+    assert umap2 != umap
+
+    print()
+    print(umap2)
+    print()
+
+    font.write_unicode_map(umap2)
+    umapx = font.read_unicode_map()
+    assert umapx == umap2
+
+    doc.save('newfile.pdf')
+
+    doc = Document('newfile.pdf')
+
+    page = doc[1]
+    text_objs = [x for x in page if x.type == PageObject.OBJ_TYPE_TEXT]
+    text_obj = text_objs[0]
+    font = text_obj.font
+    print(font.id)
+
+    for c,_,_ in text_obj:
+        print(font[c])
+
+    umap = font.read_unicode_map()
+    assert umap is not None
+
+    import re
+    print(umap)
+
+
+    assert False

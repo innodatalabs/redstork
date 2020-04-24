@@ -72,6 +72,10 @@ class Document:
         l = so.FPDF_GetPageLabel(self._doc, page_index, out, 4096)
         return out.raw[:l-2].decode('utf-16le')
 
+    def save(self, filename):
+        if not so.REDDoc_Save(self._doc, filename.encode()):
+            raise RuntimeError('Can not write: ' + filename)
+
     @classmethod
     def _get_meta_dict(cls, doc):
         out = {}

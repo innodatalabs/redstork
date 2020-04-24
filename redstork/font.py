@@ -1,5 +1,5 @@
 import re
-from ctypes import create_string_buffer, c_int, pointer
+from ctypes import create_string_buffer, c_int, pointer, cast, c_char_p
 from .bindings import so
 from .glyph import Glyph
 
@@ -75,6 +75,19 @@ class Font:
         if g is None:
             return None
         return Glyph(g, self._font)
+
+    def read_unicode_map(self):
+        umap = so.REDFont_LoadUnicodeMap(self._font)
+        if umap is not None:
+            x = cast(umap, c_char_p).value.decode()
+            so.REDFont_DestroyUnicodeMap(umap)
+            umap = x
+        return umap
+
+    def write_unicode_map(self, data):
+        data = data.encode()
+        if not so.REDFont_WriteUnicodeMap(self._font, data, len(data)):
+            raise RuntimeError('Failed to write unicode map')
 
     def __getitem__(self, charcode):
         '''Returns Unicode text of this character.

@@ -200,3 +200,12 @@ so.REDGlyph_Size.restype = c_int
 
 so.REDGlyph_Get.argtypes = [c_void_p, c_int, POINTER(FPDF_PATH_POINT)]
 
+so.REDFont_LoadUnicodeMap.argtypes = [c_void_p]
+so.REDFont_LoadUnicodeMap.restype = c_void_p
+
+so.REDFont_DestroyUnicodeMap.argtypes = [c_void_p]
+so.REDFont_WriteUnicodeMap.argtypes = [c_void_p, c_void_p, c_int]
+so.REDFont_WriteUnicodeMap.restype = c_int
+
+so.REDDoc_Save.argtypes = [c_void_p, c_void_p]
+so.REDDoc_Save.restype = c_int
