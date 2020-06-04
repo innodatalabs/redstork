@@ -44,6 +44,8 @@ def _parse_bfchar(text):
 
 def _parse_text(text):
     text = text.replace(' ', '')
+    if len(text) == 2:
+        return chr(int(text, 16))
     tx = []
     for off in range(0, len(text), 4):
         x = text[off:off+4]

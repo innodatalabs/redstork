@@ -196,3 +196,12 @@ def test_unicode_map_surrogate2():
             text.append(obj.text)  # should not crash
     assert ''.join(text)[-20:] == 're.com/naturephysics'
 
+
+def test_unicode_map_surrogate3():
+    doc = Document(res('arxiv1901.02668.pdf'))
+
+    text = []
+    for obj in doc[0]:
+        if obj.type == PageObject.OBJ_TYPE_TEXT:
+            text.append(obj.text)  # should not crash
+    assert ''.join(text)[-20:] == 'asm-ph]  11 Jan 2019'
