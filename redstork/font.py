@@ -24,6 +24,7 @@ class Font:
         self._font = font
         self._parent = parent
         self._unicode_map = UnicodeMap.NotParsed
+        self._text_cache = {}
 
     @property
     def name(self):
@@ -114,9 +115,13 @@ class Font:
             text = umap.get(charcode)
             if text is not None:
                 return text
-        buf = create_string_buffer(16)
-        length = so.REDFont_UnicodeFromCharCode(self._font, c_int(charcode), buf, 16)
-        return buf[:length].decode('utf-8', 'surrogatepass')
+        text = self._text_cache.get(charcode)
+        if text is None:
+            buf = create_string_buffer(16)
+            length = so.REDFont_UnicodeFromCharCode(self._font, c_int(charcode), buf, 16)
+            text = buf[:length].decode('utf-8', 'surrogatepass')
+            self._text_cache[charcode] = text
+        return text
 
     @property
     def is_editable(self):
