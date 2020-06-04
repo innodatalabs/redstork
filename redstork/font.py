@@ -116,7 +116,7 @@ class Font:
                 return text
         buf = create_string_buffer(16)
         length = so.REDFont_UnicodeFromCharCode(self._font, c_int(charcode), buf, 16)
-        return buf[:length].decode()
+        return buf[:length].decode('utf-8', 'surrogatepass')
 
     @property
     def is_editable(self):

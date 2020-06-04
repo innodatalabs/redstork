@@ -166,3 +166,13 @@ def test_unicode_map_multichar4():
             text.append(obj.text)  # should not crash
     assert ''.join(text)[-20:] == 'rcanbefoundinTableI.'
 
+
+def test_unicode_map_surrogate():
+    doc = Document(res('arxiv1901.08637.pdf'))
+
+    text = []
+    for obj in doc[0]:
+        if obj.type == PageObject.OBJ_TYPE_TEXT:
+            text.append(obj.text)  # should not crash
+    assert ''.join(text)[-20:] == 'ical limits.        '
+
