@@ -57,8 +57,6 @@ def _parse_bfrange(text):
         if mtc is not None:
             yield from _parse_implicit_range(mtc.group(1), mtc.group(2), mtc.group(3))
         else:
-            print(line)
-            import pdb; pdb.set_trace()
             mtc = re.match(_RE_CODE + r'\s*' + _RE_CODE + r'\s*\[(.*)\]$', line)
             assert mtc, text
             yield from _parse_explicit_range(mtc.group(1), mtc.group(2), mtc.group(3))
@@ -78,7 +76,7 @@ def _parse_explicit_range(start_code, end_code, text_list):
     start_code = int(start_code, 16)
     end_code   = int(end_code, 16) + 1
 
-    texts = [re.match(_RE_CODE + r'$', x) for x in text_list.split]
+    texts = [re.match(_RE_CODE + r'$', x).group(1) for x in text_list.split()]
     assert all(x is not None for x in texts), text_list
     texts = [''.join(_parse_text(x)) for x in texts]
 

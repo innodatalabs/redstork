@@ -137,7 +137,7 @@ def test_unicode_map_multichar():
         assert font[30] == 'Hello'
 
 
-def test_unicode_map_multichar():
+def test_unicode_map_multichar2():
     doc = Document(res('arxiv1901.08145v1.pdf'))
 
     text = []
@@ -145,3 +145,13 @@ def test_unicode_map_multichar():
         if obj.type == PageObject.OBJ_TYPE_TEXT:
             text.append(obj.text)  # should not crash
     assert ''.join(text)[-20:] == 'ing-centerpositionX,'
+
+
+def test_unicode_map_multichar3():
+    doc = Document(res('arxiv1901.09059.pdf'))
+
+    text = []
+    for obj in doc[0]:
+        if obj.type == PageObject.OBJ_TYPE_TEXT:
+            text.append(obj.text)  # should not crash
+    assert ''.join(text)[-20:] == 'd applicability.    '
