@@ -20,7 +20,7 @@ class UnicodeMap(DictChanged):
 
 
 _RE_CODE = r'<([\dA-Fa-f]{2,4})>'
-_RE_TEXT = r'<([\dA-Fa-f]+)>'
+_RE_TEXT = r'<([\dA-Fa-f ]+)>'
 
 def _parse(text):
     umap = {}
@@ -40,8 +40,10 @@ def _parse_bfchar(text):
         key = int(mtc.group(1), 16)
         val = ''.join(_parse_text(mtc.group(2)))
         yield key, val
+    assert off == len(text), text
 
 def _parse_text(text):
+    text = text.replace(' ', '')
     tx = []
     for off in range(0, len(text), 4):
         x = text[off:off+4]
@@ -76,10 +78,14 @@ def _parse_explicit_range(start_code, end_code, text_list):
     start_code = int(start_code, 16)
     end_code   = int(end_code, 16) + 1
 
-    texts = [re.match(_RE_TEXT + r'$', x).group(1) for x in text_list.split()]
-    assert all(x is not None for x in texts), text_list
-    texts = [''.join(_parse_text(x)) for x in texts]
-
+    off = 0
+    texts = []
+    for mtc in re.finditer(_RE_TEXT + r'\s*', text_list):
+        assert mtc.start() == off, text_list
+        off = mtc.end()
+        val = ''.join(_parse_text(mtc.group(1)))
+        texts.append(val)
+    assert off == len(text_list), text_list
     assert start_code < end_code
     assert len(texts) == end_code - start_code
     yield from zip(range(start_code, end_code), texts)

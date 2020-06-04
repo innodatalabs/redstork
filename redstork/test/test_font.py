@@ -186,3 +186,13 @@ def test_unicode_map_surrogate2():
             text.append(obj.text)  # should not crash
     assert ''.join(text)[-20:] == 'Equal contributors  '
 
+
+def test_unicode_map_surrogate2():
+    doc = Document(res('arxiv1901.10092.pdf'))
+
+    text = []
+    for obj in doc[0]:
+        if obj.type == PageObject.OBJ_TYPE_TEXT:
+            text.append(obj.text)  # should not crash
+    assert ''.join(text)[-20:] == 're.com/naturephysics'
+
