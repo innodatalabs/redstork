@@ -126,4 +126,4 @@ class Document:
             so.REDDoc_SetMetaItem(self._doc, (key + '\0').encode(), (value + '\0').encode())
 
     def __repr__(self):
-        return f'<Document fname={self.fname}, numpages={self.numpages}>'
+        return f'<Document fname={self.file_name}, numpages={self.numpages}>'

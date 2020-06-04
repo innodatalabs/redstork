@@ -10,6 +10,8 @@ def test_document():
 
     assert doc.meta['Title'] == 'Red Stork'
 
+    str(doc)  # should not crash
+
 
 def test_document_save():
 

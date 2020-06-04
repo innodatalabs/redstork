@@ -135,3 +135,13 @@ def test_unicode_map_multichar():
         font = doc.fonts[33, 0]
         assert font.is_editable
         assert font[30] == 'Hello'
+
+
+def test_unicode_map_multichar():
+    doc = Document(res('arxiv1901.08145v1.pdf'))
+
+    text = []
+    for obj in doc[0]:
+        if obj.type == PageObject.OBJ_TYPE_TEXT:
+            text.append(obj.text)  # should not crash
+    assert ''.join(text)[-20:] == 'ing-centerpositionX,'

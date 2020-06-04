@@ -19,7 +19,7 @@ class UnicodeMap(DictChanged):
         return _format(self, self._text)
 
 
-_RE_CODE = r'<([\dA-Fa-f]{4,4})>'
+_RE_CODE = r'<([\dA-Fa-f]{2,4})>'
 _RE_TEXT = r'<([\dA-Fa-f]+)>'
 
 def _parse(text):
@@ -53,11 +53,13 @@ def _parse_text(text):
 def _parse_bfrange(text):
     for line in text.split('\n'):
         line = line.strip()
-        mtc = re.match(_RE_CODE + r'\s+' + _RE_CODE + r'\s+' + _RE_TEXT + r'$', line)
+        mtc = re.match(_RE_CODE + r'\s*' + _RE_CODE + r'\s*' + _RE_TEXT + r'$', line)
         if mtc is not None:
             yield from _parse_implicit_range(mtc.group(1), mtc.group(2), mtc.group(3))
         else:
-            mtc = re.match(_RE_CODE + r'\s+' + _RE_CODE + r'\s+\[(.*)\]$')
+            print(line)
+            import pdb; pdb.set_trace()
+            mtc = re.match(_RE_CODE + r'\s*' + _RE_CODE + r'\s*\[(.*)\]$', line)
             assert mtc, text
             yield from _parse_explicit_range(mtc.group(1), mtc.group(2), mtc.group(3))
 
