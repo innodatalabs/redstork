@@ -155,3 +155,14 @@ def test_unicode_map_multichar3():
         if obj.type == PageObject.OBJ_TYPE_TEXT:
             text.append(obj.text)  # should not crash
     assert ''.join(text)[-20:] == 'd applicability.    '
+
+
+def test_unicode_map_multichar4():
+    doc = Document(res('arxiv1901.11067.pdf'))
+
+    text = []
+    for obj in doc[0]:
+        if obj.type == PageObject.OBJ_TYPE_TEXT:
+            text.append(obj.text)  # should not crash
+    assert ''.join(text)[-20:] == 'rcanbefoundinTableI.'
+

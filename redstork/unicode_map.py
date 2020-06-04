@@ -33,10 +33,10 @@ def _parse(text):
     return umap
 
 def _parse_bfchar(text):
-    for line in text.split('\n'):
-        line = line.strip()
-        mtc = re.match(_RE_CODE + r'\s+' + _RE_TEXT + r'$', line)
-        assert mtc is not None, text
+    off = 0
+    for mtc in re.finditer(_RE_CODE + r'\s*' + _RE_TEXT + r'\s*', text):
+        assert mtc.start() == off, text
+        off = mtc.end()
         key = int(mtc.group(1), 16)
         val = ''.join(_parse_text(mtc.group(2)))
         yield key, val
