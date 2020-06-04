@@ -76,7 +76,7 @@ def _parse_explicit_range(start_code, end_code, text_list):
     start_code = int(start_code, 16)
     end_code   = int(end_code, 16) + 1
 
-    texts = [re.match(_RE_CODE + r'$', x).group(1) for x in text_list.split()]
+    texts = [re.match(_RE_TEXT + r'$', x).group(1) for x in text_list.split()]
     assert all(x is not None for x in texts), text_list
     texts = [''.join(_parse_text(x)) for x in texts]
 
