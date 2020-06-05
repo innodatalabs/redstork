@@ -161,6 +161,7 @@ class FormObject(PageObject):
             form_matrix.a, form_matrix.b, form_matrix.c,
             form_matrix.d, form_matrix.e, form_matrix.f
         )  #: transformation matrix for contained objects
+        self._parent = parent
 
     def __len__(self):
         return so.REDFormObject_GetObjectCount(self._obj)
@@ -188,4 +189,6 @@ class FormObject(PageObject):
     def __repr__(self):
         return f'<FormObject len={len(self)}>'
 
-
+    @property
+    def document(self):
+        return self._parent.document

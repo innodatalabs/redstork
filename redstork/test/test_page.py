@@ -1,4 +1,4 @@
-from redstork import Document
+from redstork import Document, PageObject
 from redstork.test import res
 
 
@@ -17,3 +17,13 @@ def test_page_label():
 
     assert doc[2].label == 'i'
     assert doc[-3].label == '9'
+
+def test_flatiter():
+    '''used to crash'''
+    doc = Document(res('arxiv1901.10092.pdf'))
+
+    text = []
+    for obj in doc[0].flat_iter():
+        if obj.type == PageObject.OBJ_TYPE_TEXT:
+            text.append(obj.text)  # should not crash
+    assert ''.join(text)[-20:] == 're.com/naturephysics'
