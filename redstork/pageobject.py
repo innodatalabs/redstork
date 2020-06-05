@@ -83,6 +83,90 @@ class TextObject(PageObject):
         for i in range(len(self)):
             yield self[i]
 
+    def char_iter(self):
+        '''Iterates over characters (skips kerns)'''
+        for c, x, y in self:
+            if c  != -1:  # -1 is kern
+                yield c, x, y
+
+    def text_geometry_iter(self):
+        '''Iterates over characters and returns character text and bounds'''
+        font = self.font
+        a, b, c, d, e, f = self.text_matrix
+        for cid, x, y in self.char_iter():
+            text = font[cid]
+            glyph = font.load_glyph(cid)
+            if glyph is None:
+                continue  # any better idea?
+            ascent, descent, advance = glyph.ascent, glyph.descent, glyph.advance
+            x *= self.font_size
+            y *= self.font_size
+            ascent  *= self.font_size
+            descent *= self.font_size
+            advance *= self.font_size
+            box = self.box(x, y-descent, x+advance, y+ascent)
+
+            yield text, box
+
+    @property
+    def effective_font_size(self):
+        '''Returns effective (user-visible) font size'''
+        return self.font_size * self.scale_y
+
+    @property
+    def scale_y(self):
+        '''Returns Y-scale of text matrix transformation'''
+        a, b, c, d, e, f = self.text_matrix
+        #
+        #   a  b
+        #   c  d
+        #
+        # (1, 0) => (a, c)
+        # (0, 1) => (b, d). Note that (d, -b) is orthogonal to (b, d)
+        # (d, -b) * (a, c) / |(a,c)| / |(d,-b)| is a height correction due to skew
+        # |(b,d)| is y-scale without skew correction
+        # true y-scale is: (d,-b) * (a,c) / |(a,c)|
+        return abs(a*d - b*c) / (math.sqrt(a*a + c*c) + 1.e-8)
+
+    @property
+    def scale_x(self):
+        '''Returns X-scale of text matrix transformation'''
+        a, b, c, d, e, f = self.text_matrix
+        return math.sqrt(a*a + c*c)
+
+    @property
+    def skew(self):
+        '''Returns skew value of text matrix.'''
+        #
+        #  a  b
+        #  c  d
+        #
+        a, b, c, d, e, f = self.text_matrix
+        return (a*b + c*d) / math.sqrt( (a*a + c*c) * (b*b + d*d) )
+
+    def box(self, x0, y0, x1, y1):
+        '''Computes bounding box after transformation with text matrix'''
+        a, b, c, d, e, f = self.text_matrix
+        xx = [
+            x0*a + y0*b,
+            x1*a + y0*b,
+            x0*a + y1*b,
+            x1*a + y1*b,
+        ]
+        yy = [
+            x0*c + y0*d,
+            x1*c + y0*d,
+            x0*c + y1*d,
+            x1*c + y1*d,
+        ]
+
+        x0 = min(xx) + e
+        x1 = max(xx) + e
+        y0 = min(yy) + f
+        y1 = max(yy) + f
+
+        return x0, y0, x1, y1
+
     def __repr__(self):
         return f'<TextObject len={len(self)}, font_size={self.font_size}>'
 
@@ -92,8 +176,7 @@ class TextObject(PageObject):
 
         return ''.join(
             font[code]
-            for code,_,_ in self
-            if code != -1  # -1 is kern
+            for code,_,_ in self.char_iter()
         )
 
 
@@ -161,7 +244,6 @@ class FormObject(PageObject):
             form_matrix.a, form_matrix.b, form_matrix.c,
             form_matrix.d, form_matrix.e, form_matrix.f
         )  #: transformation matrix for contained objects
-        self._parent = parent
 
     def __len__(self):
         return so.REDFormObject_GetObjectCount(self._obj)

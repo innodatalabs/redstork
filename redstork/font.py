@@ -3,6 +3,7 @@ from ctypes import create_string_buffer, c_int, pointer, cast, c_char_p
 from .bindings import so
 from .glyph import Glyph
 from .unicode_map import UnicodeMap
+from .memoize import memoize
 
 
 class Font:
@@ -68,6 +69,7 @@ class Font:
 
         return obj_id.value, gen_id.value
 
+    @memoize
     def load_glyph(self, charcode):
         '''Load glyph, see :class:`Glyph`
 
