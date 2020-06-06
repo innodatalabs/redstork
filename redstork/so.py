@@ -212,3 +212,6 @@ so.REDFont_WriteUnicodeMap.restype = c_int
 
 so.REDDoc_Save.argtypes = [c_void_p, c_void_p]
 so.REDDoc_Save.restype = c_int
+
+so.REDGlyph_GetBounds.argtypes = [c_void_p, c_void_p]
+so.REDGlyph_GetBounds.restype = c_int

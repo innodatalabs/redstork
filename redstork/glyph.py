@@ -1,4 +1,4 @@
-from .bindings import so, FPDF_PATH_POINT
+from .bindings import so, FPDF_PATH_POINT, FPDF_RECT
 from .memoize import memoize
 from ctypes import pointer
 
@@ -31,17 +31,23 @@ class Glyph:
         so.REDGlyph_Get(self._glyph, i, pointer(point))
         return point.x, point.y, point.type, point.close
 
+    # @memoize
+    # def _bounds(self):
+    #     if len(self) == 0:
+    #         return None
+    #     coords = [(x, y) for x, y, _, _ in self]
+    #     xmin = min(x for x,_ in coords)
+    #     xmax = max(x for x,_ in coords)
+    #     ymin = min(y for _,y in coords)
+    #     ymax = max(y for _,y in coords)
+
+    #     return xmin, ymin, xmax, ymax
+
     @memoize
     def bounds(self):
-        if len(self) == 0:
-            return None
-        coords = [(x, y) for x, y, _, _ in self]
-        xmin = min(x for x,_ in coords)
-        xmax = max(x for x,_ in coords)
-        ymin = min(y for _,y in coords)
-        ymax = max(y for _,y in coords)
-
-        return xmin, ymin, xmax, ymax
+        rect = FPDF_RECT(0., 0., 0., 0.)
+        so.REDGlyph_GetBounds(self._glyph, pointer(rect))
+        return rect.left, rect.bottom, rect.right, rect.top
 
     @property
     @memoize

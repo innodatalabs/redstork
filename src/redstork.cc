@@ -499,6 +499,30 @@ FPDF_EXPORT extern "C" void REDGlyph_Get(const CFX_PathData *path, int index, RE
   *p = * ((RED_PATH_POINT*) &pPoint);
 }
 
+#define RED_FLT_MAX (1.e8)
+FPDF_EXPORT extern "C" bool REDGlyph_GetBounds(const CFX_PathData *path, FS_RECTF *out) {
+  auto points = path->GetPoints();
+  if (points.size() < 1) return false;
+
+  float x0 = RED_FLT_MAX;
+  float y0 = RED_FLT_MAX;
+  float x1 = -RED_FLT_MAX;
+  float y1 = -RED_FLT_MAX;
+  for (std::vector<FX_PATHPOINT>::iterator it = points.begin(); it != points.end(); ++it) {
+    x0 = std::min(x0, it->m_Point.x);
+    y0 = std::min(y0, it->m_Point.y);
+    x1 = std::max(x1, it->m_Point.x);
+    y1 = std::max(y1, it->m_Point.y);
+  }
+
+  out->left = x0;
+  out->bottom = y0;
+  out->right = x1;
+  out->top = y1;
+
+  return true;
+}
+
 FPDF_EXPORT extern "C" const void *REDFont_LoadUnicodeMap(CPDF_Font *font) {
   auto pDict = font->GetFontDict();
   if (pDict == nullptr) {

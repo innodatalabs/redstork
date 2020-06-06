@@ -205,3 +205,14 @@ def test_unicode_map_surrogate3():
         if obj.type == PageObject.OBJ_TYPE_TEXT:
             text.append(obj.text)  # should not crash
     assert ''.join(text)[-20:] == 'asm-ph]  11 Jan 2019'
+
+
+def test_unicode_map_empty_range()):
+    doc = Document(res('arxiv1901.02527.pdf'))
+
+    text = []
+    for page in doc:
+        for obj in page.flat_iter():
+            if obj.type == PageObject.OBJ_TYPE_TEXT:
+                text.append(obj.text)  # should not crash
+    assert ''.join(text)[-20:] == '):1084–1102,2018.513'

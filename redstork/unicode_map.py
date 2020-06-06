@@ -24,15 +24,18 @@ _RE_TEXT = r'<([\dA-Fa-f ]+)>'
 
 def _parse(text):
     umap = {}
-    for mtc in re.finditer(r'\s*\d+\sbeginbfchar\s+(.*?)\s+endbfchar\s*', text, flags=re.DOTALL):
+    for mtc in re.finditer(r'\s*\d+\sbeginbfchar(.*?)endbfchar\s*', text, flags=re.DOTALL):
         for key, val in _parse_bfchar(mtc.group(1)):
             umap[key] = val
-    for mtc in re.finditer(r'\s*\d+\sbeginbfrange\s+(.*?)\s+endbfrange\s*', text, flags=re.DOTALL):
+    for mtc in re.finditer(r'\s*\d+\sbeginbfrange(.*?)endbfrange\s*', text, flags=re.DOTALL):
         for key, val in _parse_bfrange(mtc.group(1)):
             umap[key] = val
     return umap
 
 def _parse_bfchar(text):
+    text = text.strip()
+    if text == '':
+        return
     off = 0
     for mtc in re.finditer(_RE_CODE + r'\s*' + _RE_TEXT + r'\s*', text):
         assert mtc.start() == off, text
@@ -55,6 +58,9 @@ def _parse_text(text):
     return tx
 
 def _parse_bfrange(text):
+    text = text.strip()
+    if text == '':
+        return
     for line in text.split('\n'):
         line = line.strip()
         mtc = re.match(_RE_CODE + r'\s*' + _RE_CODE + r'\s*' + _RE_TEXT + r'$', line)
