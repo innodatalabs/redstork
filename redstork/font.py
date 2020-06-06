@@ -3,7 +3,6 @@ from ctypes import create_string_buffer, c_int, pointer, cast, c_char_p
 from .bindings import so
 from .glyph import Glyph
 from .unicode_map import UnicodeMap
-from .memoize import memoize
 
 
 class Font:
@@ -26,6 +25,7 @@ class Font:
         self._parent = parent
         self._unicode_map = UnicodeMap.NotParsed
         self._text_cache = {}
+        self._glyph_cache = {}
 
     @property
     def name(self):
@@ -69,17 +69,17 @@ class Font:
 
         return obj_id.value, gen_id.value
 
-    @memoize
     def load_glyph(self, charcode):
         '''Load glyph, see :class:`Glyph`
 
         Args:
             charcode (int): the character code (see :class:`TextObject`)
         '''
-        g = so.REDFont_LoadGlyph(self._font, charcode)
-        if g is None:
-            return None
-        return Glyph(g, self._font)
+        if charcode not in self._glyph_cache:
+            g = so.REDFont_LoadGlyph(self._font, charcode)
+            g = Glyph(g, self._font) if g is not None else None
+            self._glyph_cache[charcode] = g
+        return self._glyph_cache[charcode]
 
     def load_unicode_map(self):
         if self._unicode_map is UnicodeMap.NotParsed:

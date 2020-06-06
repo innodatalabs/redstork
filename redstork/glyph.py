@@ -1,5 +1,4 @@
 from .bindings import so, FPDF_PATH_POINT, FPDF_RECT
-from .memoize import memoize
 from ctypes import pointer
 
 
@@ -13,6 +12,7 @@ class Glyph:
     def __init__(self, glyph, parent):
         self._glyph = glyph
         self._parent = parent
+        self._bounds = None
 
     def __len__(self):
         return so.REDGlyph_Size(self._glyph)
@@ -43,34 +43,24 @@ class Glyph:
 
     #     return xmin, ymin, xmax, ymax
 
-    @memoize
     def bounds(self):
-        rect = FPDF_RECT(0., 0., 0., 0.)
-        so.REDGlyph_GetBounds(self._glyph, pointer(rect))
-        return rect.left, rect.bottom, rect.right, rect.top
+        if self._bounds is None:
+            rect = FPDF_RECT(0., 0., 0., 0.)
+            so.REDGlyph_GetBounds(self._glyph, pointer(rect))
+            self._bounds = rect.left, rect.bottom, rect.right, rect.top
+        return self._bounds
 
     @property
-    @memoize
     def ascent(self):
         bounds = self.bounds()
-        if bounds is None:
-            return 0
         return max(0, bounds[3])
 
     @property
-    @memoize
     def descent(self):
-        bounds = self.bounds()
-        if bounds is None:
-            return 0
         _, ymin, _, _ = self.bounds()
         return max(0, -ymin)
 
     @property
-    @memoize
     def advance(self):
-        bounds = self.bounds()
-        if bounds is None:
-            return 0
         _, _, xmax, _ = self.bounds()
         return max(0, xmax)
