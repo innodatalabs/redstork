@@ -207,7 +207,7 @@ def test_unicode_map_surrogate3():
     assert ''.join(text)[-20:] == 'asm-ph]  11 Jan 2019'
 
 
-def test_unicode_map_empty_range()):
+def test_unicode_map_empty_range():
     doc = Document(res('arxiv1901.02527.pdf'))
 
     text = []
