@@ -216,3 +216,14 @@ def test_unicode_map_empty_range():
             if obj.type == PageObject.OBJ_TYPE_TEXT:
                 text.append(obj.text)  # should not crash
     assert ''.join(text)[-20:] == '):1084–1102,2018.513'
+
+
+def test_unicode_map_XX():
+    doc = Document(res('arxiv1901.02066.pdf'))
+
+    text = []
+    for page in doc:
+        for obj in page.flat_iter():
+            if obj.type == PageObject.OBJ_TYPE_TEXT:
+                text.append(obj.text)  # should not crash
+    assert ''.join(text)[-20:] == '[year], [vol.],1–9|9'

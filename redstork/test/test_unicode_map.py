@@ -1,7 +1,7 @@
 from redstork.unicode_map import UnicodeMap
 
 def test_unicode_map():
-    stream = '''\
+    stream = b'''\
 /CIDInit /ProcSet findresource begin
 12 dict begin
 begincmap
@@ -51,7 +51,7 @@ end\
     assert len(umap) == 79
     assert umap.changed
 
-    model = '''\
+    model = b'''\
 /CIDInit /ProcSet findresource begin
 12 dict begin
 begincmap
@@ -97,8 +97,7 @@ end\
 '''
     result = umap.format()
     if result != model:
-        print(model.encode())
-        print(result.encode())
+        print(model)
         print(result)
         assert False
 
@@ -107,7 +106,7 @@ end\
 
 def test_unicode_map_02():
 
-    umap = UnicodeMap('''\
+    umap = UnicodeMap(b'''\
 1 beginbfchar
 <0001> <0001>
 <0002> <0002>
@@ -122,7 +121,7 @@ endbfchar\
         258: '\u0102',
     }
     umap[3] = '\x03'
-    model = '''\
+    model = b'''\
 2 beginbfchar
 <0101> <0101>
 <0102> <0102>
@@ -133,15 +132,14 @@ endbfrange\
 '''
     result = umap.format()
     if result != model:
-        print(model.encode())
-        print(result.encode())
+        print(model)
         print(result)
         assert False
 
 
 def test_unicode_map_03():
 
-    umap = UnicodeMap('''\
+    umap = UnicodeMap(b'''\
 1 beginbfchar
 <0001> <000100020003>
 <0002> <0002>
@@ -156,7 +154,7 @@ endbfchar\
         258: '\u0102',
     }
     umap[3] = '\x03'
-    model = '''\
+    model = b'''\
 3 beginbfchar
 <0001> <000100020003>
 <0002> <00480065006C006C006F>
@@ -170,7 +168,6 @@ endbfchar\
     umap[2] = 'Hello'
     result = umap.format()
     if result != model:
-        print(model.encode())
-        print(result.encode())
+        print(model)
         print(result)
         assert False

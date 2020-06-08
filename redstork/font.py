@@ -87,7 +87,7 @@ class Font:
             if umap is None:
                 self._unicode_map = None
             else:
-                text = cast(umap, c_char_p).value.decode()
+                text = cast(umap, c_char_p).value
                 self._unicode_map = UnicodeMap(text)
                 so.REDFont_DestroyUnicodeMap(umap)
         return self._unicode_map
@@ -95,7 +95,7 @@ class Font:
     def save_unicode_map(self):
         if not self.changed:
             return
-        data = self._unicode_map.format().encode()
+        data = self._unicode_map.format()
         if not so.REDFont_WriteUnicodeMap(self._font, data, len(data)):
             raise RuntimeError('Failed to save unicode map')
         self._unicode_map.sync()

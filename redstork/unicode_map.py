@@ -19,16 +19,16 @@ class UnicodeMap(DictChanged):
         return _format(self, self._text)
 
 
-_RE_CODE = r'<([\dA-Fa-f]{2,4})>'
-_RE_TEXT = r'<([\dA-Fa-f ]+)>'
+_RE_CODE = r'<([\dA-Fa-f]{2,4})\s*>'
+_RE_TEXT = r'<([\dA-Fa-f ]+)\s*>'
 
 def _parse(text):
     umap = {}
-    for mtc in re.finditer(r'\s*\d+\sbeginbfchar(.*?)endbfchar\s*', text, flags=re.DOTALL):
-        for key, val in _parse_bfchar(mtc.group(1)):
+    for mtc in re.finditer(br'\s*\d+\sbeginbfchar(.*?)endbfchar\s*', text, flags=re.DOTALL):
+        for key, val in _parse_bfchar(mtc.group(1).decode()):
             umap[key] = val
-    for mtc in re.finditer(r'\s*\d+\sbeginbfrange(.*?)endbfrange\s*', text, flags=re.DOTALL):
-        for key, val in _parse_bfrange(mtc.group(1)):
+    for mtc in re.finditer(br'\s*\d+\sbeginbfrange(.*?)endbfrange\s*', text, flags=re.DOTALL):
+        for key, val in _parse_bfrange(mtc.group(1).decode()):
             umap[key] = val
     return umap
 
@@ -110,22 +110,22 @@ def _format(mapping, text):
 
     for bfchar in bfchars:
         if bfchar:
-            text.append(f'{len(bfchar)} beginbfchar')
+            text.append(f'{len(bfchar)} beginbfchar'.encode())
             for x, y in bfchar:
-                text.append(f'<{_format_hex_code(x)}> <{_format_hex_text(y)}>')
-            text.append('endbfchar')
+                text.append(f'<{_format_hex_code(x)}> <{_format_hex_text(y)}>'.encode())
+            text.append(b'endbfchar')
 
     for bfrange in bfranges:
         if bfrange:
-            text.append(f'{len(bfrange)} beginbfrange')
+            text.append(f'{len(bfrange)} beginbfrange'.encode())
             for x, y, z in bfrange:
-                text.append(f'<{_format_hex_code(x)}> <{_format_hex_code(y)}> <{_format_hex_text(z)}>')
-            text.append('endbfrange')
+                text.append(f'<{_format_hex_code(x)}> <{_format_hex_code(y)}> <{_format_hex_text(z)}>'.encode())
+            text.append(b'endbfrange')
 
     if postamble:
         text.append(postamble)
 
-    return '\n'.join(text)
+    return b'\n'.join(text)
 
 def _format_mapping(mapping):
     code_groups = []
@@ -148,17 +148,17 @@ def _format_mapping(mapping):
     return bfchars, bfgroups
 
 def _clear_bfchars_bfranges(text):
-    mtc = re.search(r'\s*\d+\s+beginbfchar', text)
+    mtc = re.search(br'\s*\d+\s+beginbfchar', text)
     if mtc is None:
-        mtc = re.search(r'\s*\d+\s+beginbfrange', text)
+        mtc = re.search(br'\s*\d+\s+beginbfrange', text)
     assert mtc, text
 
     preamble = text[:mtc.start()]
     rest = text[mtc.start():]
-    rest = re.sub(r'\s*\d+\s+beginbfchar.*?endbfchar\s*', '', rest, flags=re.DOTALL)
-    assert not re.search(r'beginbfchar', rest), rest
-    rest = re.sub(r'\s*\d+\s+beginbfrange.*?endbfrange\s*', '', rest, flags=re.DOTALL)
-    assert not re.search(r'beginbfrange', rest), rest
+    rest = re.sub(br'\s*\d+\s+beginbfchar.*?endbfchar\s*', b'', rest, flags=re.DOTALL)
+    assert not re.search(br'beginbfchar', rest), rest
+    rest = re.sub(br'\s*\d+\s+beginbfrange.*?endbfrange\s*', b'', rest, flags=re.DOTALL)
+    assert not re.search(br'beginbfrange', rest), rest
 
     return preamble, rest
 
