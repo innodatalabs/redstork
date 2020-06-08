@@ -1,6 +1,7 @@
 from ctypes import pointer, c_float
 from .bindings import so, FPDF_RECT, FPDF_MATRIX, FPDF_ITEM_INFO
 from .font import Font
+import contextlib
 
 
 class PageObject:
@@ -17,18 +18,14 @@ class PageObject:
         self._parent = parent
         self.type = typ                      #: type of this object
         self.matrix = 1., 0., 0., 1., 0., 0. #: transformation matrix of this object
+        rect = FPDF_RECT(0., 0., 0., 0.)
+        so.REDPageObject_GetRect(self._obj, pointer(rect))
+        self.rect = rect.left, rect.bottom, rect.right, rect.top  # object rectangle
 
     @property
     def page(self):
         '''Links back to the parent page'''
         return self._parent
-
-    @property
-    def rect(self):
-        '''Object rectangle on the page'''
-        rect = FPDF_RECT(0., 0., 0., 0.)
-        so.REDPageObject_GetRect(self._obj, pointer(rect))
-        return rect.left, rect.bottom, rect.right, rect.top
 
     @classmethod
     def new(cls, obj, index, typ, parent):
@@ -44,6 +41,27 @@ class PageObject:
             return FormObject(obj, index, typ, parent)
         else:
             raise RuntimeError('unexpected page object type %s' % typ)
+
+    @contextlib.contextmanager
+    def transform(self, matrix):
+        saved = self.matrix
+        self.matrix = compose(self.matrix, matrix)
+
+        x0,y0,x1,y1 = self.rect
+        vertices = [
+            apply(matrix, (x0, y0)),
+            apply(matrix, (x0, y1)),
+            apply(matrix, (x1, y0)),
+            apply(matrix, (x1, y1)),
+        ]
+
+        self.rect = min(x for x,_ in vertices), min(y for _,y in vertices), max(x for x,_ in vertices), max(y for _,y in vertices)
+
+        try:
+            yield
+        finally:
+            self.matrix = saved
+            self.rect = x0, y0, x1, y1
 
 
 class TextObject(PageObject):
@@ -99,8 +117,6 @@ class TextObject(PageObject):
             if glyph is None:
                 continue  # any better idea?
             ascent, descent, advance = glyph.ascent, glyph.descent, glyph.advance
-            x *= self.font_size
-            y *= self.font_size
             ascent  *= self.font_size
             descent *= self.font_size
             advance *= self.font_size
@@ -147,23 +163,17 @@ class TextObject(PageObject):
     def box(self, x0, y0, x1, y1):
         '''Computes bounding box after transformation with text matrix'''
         a, b, c, d, e, f = self.text_matrix
-        xx = [
-            x0*a + y0*b,
-            x1*a + y0*b,
-            x0*a + y1*b,
-            x1*a + y1*b,
-        ]
-        yy = [
-            x0*c + y0*d,
-            x1*c + y0*d,
-            x0*c + y1*d,
-            x1*c + y1*d,
+        vertices = [
+            apply(self.text_matrix, (x0, y0)),
+            apply(self.text_matrix, (x0, y1)),
+            apply(self.text_matrix, (x1, y0)),
+            apply(self.text_matrix, (x1, y1)),
         ]
 
-        x0 = min(xx) + e
-        x1 = max(xx) + e
-        y0 = min(yy) + f
-        y1 = max(yy) + f
+        x0 = min(x for x,_ in vertices)
+        x1 = max(x for x,_ in vertices)
+        y0 = min(y for _,y in vertices)
+        y1 = max(y for _,y in vertices)
 
         return x0, y0, x1, y1
 
@@ -179,6 +189,15 @@ class TextObject(PageObject):
             for code,_,_ in self.char_iter()
         )
 
+    @contextlib.contextmanager
+    def transform(self, matrix):
+        saved = self.text_matrix
+        self.text_matrix = compose(self.text_matrix, matrix)
+        try:
+            with super().transform(matrix):
+                yield
+        finally:
+            self.text_matrix = saved
 
 class PathObject(PageObject):
     '''Represents vector graphics on a aage.'''
@@ -266,7 +285,8 @@ class FormObject(PageObject):
             if obj.type == PageObject.OBJ_TYPE_FORM:
                 yield from obj.flat_iter()
             else:
-                yield obj
+                with obj.transform(self.matrix):
+                    yield obj
 
     def __repr__(self):
         return f'<FormObject len={len(self)}>'
@@ -274,3 +294,22 @@ class FormObject(PageObject):
     @property
     def document(self):
         return self._parent.document
+
+def compose(m1, m0):
+    a0, b0, c0, d0, e0, f0 = m0
+    a1, b1, c1, d1, e1, f1 = m1
+
+    a = a1*a0 + c1*b0
+    b = b1*a0 + d1*c0
+    c = a1*c0 + c1*d0
+    d = b1*c0 + d1*d0
+    e = e1*a0 + f1*b0 + e0
+    f = e1*c0 + f1*d0 + f0
+
+    return a, b, c, d, e, f
+
+def apply(m, v):
+    a, b, c, d, e, f = m
+    x, y = v
+
+    return e + a*x + c*y, f + b*x + d*y
