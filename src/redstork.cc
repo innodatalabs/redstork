@@ -403,6 +403,39 @@ FPDF_EXPORT extern "C" bool REDPage_RenderRect(FPDF_PAGE page, char const *file_
   return true;
 }
 
+FPDF_EXPORT extern "C" bool REDPage_RenderRect_Buffer(
+  FPDF_PAGE page, float scale, const FS_MATRIX *matrix, const FS_RECTF *rect, unsigned char *buffer, int len
+  ) {
+  FS_RECTF clip;
+  if (rect == nullptr) {
+    REDPage_GetCropBox(page, &clip);
+  } else {
+    clip = *rect;
+  }
+  auto width = static_cast<int>((clip.right-clip.left));
+  auto height = static_cast<int>((clip.bottom-clip.top));
+
+  if (len < width*height*4){
+    return false;
+  }
+
+  ScopedFPDFBitmap bitmap(FPDFBitmap_Create(width, height, 0));
+  if (!bitmap) {
+    return false;
+  }
+
+  FPDFBitmap_FillRect(bitmap.get(), 0, 0, width, height, 0xFFFFFFFF);
+
+  FPDF_RenderPageBitmapWithMatrix(bitmap.get(), page, matrix, &clip, FPDF_LCD_TEXT | FPDF_ANNOT);
+
+//   int stride = FPDFBitmap_GetStride(bitmap.get());
+  void* pixData = FPDFBitmap_GetBuffer(bitmap.get());
+
+  memcpy(buffer, pixData, width * height * 4);
+
+  return true;
+}
+
 FPDF_EXPORT extern "C" unsigned int REDDoc_GetMetaTextKeyCount(FPDF_DOCUMENT document) {
   CPDF_Document* pDoc = CPDFDocumentFromFPDFDocument(document);
   if (!pDoc)
