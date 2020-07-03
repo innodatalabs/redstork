@@ -113,7 +113,7 @@ class Page:
 
         rotation = self.rotation
         if rotation == 0:
-            fs_matrix = FPDF_MATRIX(scale, 0., 0., scale, 0., -(cy1-y1) * scale)
+            fs_matrix = FPDF_MATRIX(scale, 0., 0., scale, -(x0-cx0) * scale, -(cy1-y1) * scale)
         elif rotation == 1:
             fs_matrix = FPDF_MATRIX(0., -scale, scale, 0., (cx1-x1) * scale, (y1-cy0) * scale)
         elif rotation == 2:
