@@ -54,7 +54,7 @@ git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 
 You **must** add this directory to your path, best do this in your `~/.bashrc`
 ```
-export PATH=$PATH;/home/mike/git/depot_tools
+export PATH=$PATH:/home/mike/git/depot_tools
 ```
 
 ### PDFium
@@ -104,8 +104,8 @@ Use `gn` tool (from Google toolchain) to generate `ninja` files:
 ```
 cd redstork
 mkdir out out/Debug out/Release
-cp args.Debug.gn out/Debug/args.gn
-cp args.Release.gn out/Release/args.gn
+cp src/args.Debug.gn out/Debug/args.gn
+cp src/args.Release.gn out/Release/args.gn
 gn gen out/Debug
 gn gen out/Release
 ```

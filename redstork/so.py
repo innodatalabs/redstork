@@ -120,6 +120,9 @@ so.REDPage_Render.restype = c_int
 so.REDPage_RenderRect.argtypes = [c_void_p, c_char_p, c_int, c_float, POINTER(FPDF_MATRIX), POINTER(FPDF_RECT)]
 so.REDPage_RenderRect.restype = c_int
 
+so.REDPage_RenderRect_Buffer.argtypes = [c_void_p, c_float, POINTER(FPDF_MATRIX), POINTER(FPDF_RECT), c_char_p, c_int]
+so.REDPage_RenderRect_Buffer.restype = c_int
+
 so.REDPageObject_GetRect.argtypes = [c_void_p, POINTER(FPDF_RECT)]
 
 so.REDPageObject_GetType.argtypes = [c_void_p]
