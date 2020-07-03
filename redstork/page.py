@@ -98,7 +98,7 @@ class Page:
         if result == 0:
             raise RuntimeError('Failed to render as ' + file_name)
 
-    def get_fsmatrix_(self, rotation, crop_box, rect, scale):
+    def _get_fsmatrix(self, rotation, crop_box, rect, scale):
         '''
         get the fs_matrix based on the crop_box and rotatoin of the page, 
         and also the current region of interest (rect) and scaling
@@ -127,7 +127,7 @@ class Page:
                                 if None, then page's :attr:`crop_box` will be used for rendering.
         '''
         rect = self.crop_box if rect is None else rect
-        fs_matrix = self.get_fsmatrix_(self.rotation, self.crop_box, rect, scale)
+        fs_matrix = self._get_fsmatrix(self.rotation, self.crop_box, rect, scale)
 
         width = int((rect[2] - rect[0]) * scale + 0.5)
         height = int((rect[3] - rect[1]) * scale + 0.5)
@@ -151,7 +151,7 @@ class Page:
                                 if None, then page's :attr:`crop_box` will be used for rendering.
         '''
         rect = self.crop_box if rect is None else rect
-        fs_matrix = self.get_fsmatrix_(self.rotation, self.crop_box, rect, scale)
+        fs_matrix = self._get_fsmatrix(self.rotation, self.crop_box, rect, scale)
 
         cropper = FPDF_RECT(0, 0, (rect[2] - rect[0]) * scale + 0.5, (rect[3] - rect[1]) * scale + 0.5)
         result = so.REDPage_RenderRect(
