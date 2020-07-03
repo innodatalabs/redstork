@@ -78,7 +78,7 @@ gclient sync
 From `pdfium` directory, do:
 
 ```bash
-git clone github.com/innodatalabs/redstork.git
+git clone https://github.com/innodatalabs/redstork.git
 ```
 
 ### Apply patches

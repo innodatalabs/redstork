@@ -98,19 +98,14 @@ class Page:
         if result == 0:
             raise RuntimeError('Failed to render as ' + file_name)
 
-    def render_to_buffer(self, scale=1.0, rect=None):
-        '''Render page (or rectangle on the page) as PPM image file.
-
-        Args:
-            scale (float):      scale to use (default is 1.0, which will assume that 1pt takes 1px)
-            rect (tuple):       optional rectangle to render. Value is a 4-tuple of (x0, y0, x1, y1) in PDF coordinates.
-                                if None, then page's :attr:`crop_box` will be used for rendering.
+    def _get_fsmatrix(self, rotation, crop_box, rect, scale):
         '''
-        cx0, cy0, cx1, cy1 = self.crop_box
-        x0, y0, x1, y1 = self.crop_box if rect is None else rect
-        fs_rect = FPDF_RECT(x0, y1, x1, y0)
-
-        rotation = self.rotation
+        get the fs_matrix based on the crop_box and rotatoin of the page, 
+        and also the current region of interest (rect) and scaling
+        '''
+        cx0, cy0, cx1, cy1 = crop_box
+        x0, y0, x1, y1 = rect
+        # 
         if rotation == 0:
             fs_matrix = FPDF_MATRIX(scale, 0., 0., scale, -(x0-cx0) * scale, -(cy1-y1) * scale)
         elif rotation == 1:
@@ -121,9 +116,21 @@ class Page:
             fs_matrix = FPDF_MATRIX(0., scale, -scale, 0., (x1-cx0) * scale, (y0-cy0) * scale)
         else:
             raise RuntimeError('Unexpected rotationv alue: %s' % rotation)
+        return fs_matrix
 
-        width = int((x1-x0) * scale + 0.5)
-        height = int((y1-y0) * scale + 0.5)
+    def render_to_buffer(self, scale=1.0, rect=None):
+        '''Render page (or rectangle on the page) to memory (the pixel format is BGRx)
+
+        Args:
+            scale (float):      scale to use (default is 1.0, which will assume that 1pt takes 1px)
+            rect (tuple):       optional rectangle to render. Value is a 4-tuple of (x0, y0, x1, y1) in PDF coordinates.
+                                if None, then page's :attr:`crop_box` will be used for rendering.
+        '''
+        rect = self.crop_box if rect is None else rect
+        fs_matrix = self._get_fsmatrix(self.rotation, self.crop_box, rect, scale)
+
+        width = int((rect[2] - rect[0]) * scale + 0.5)
+        height = int((rect[3] - rect[1]) * scale + 0.5)
         cropper = FPDF_RECT(0, 0, width, height)
 
         buf_size = int(width * height * 4)
@@ -143,23 +150,10 @@ class Page:
             rect (tuple):       optional rectangle to render. Value is a 4-tuple of (x0, y0, x1, y1) in PDF coordinates.
                                 if None, then page's :attr:`crop_box` will be used for rendering.
         '''
-        cx0, cy0, cx1, cy1 = self.crop_box
-        x0, y0, x1, y1 = self.crop_box if rect is None else rect
-        fs_rect = FPDF_RECT(x0, y1, x1, y0)
+        rect = self.crop_box if rect is None else rect
+        fs_matrix = self._get_fsmatrix(self.rotation, self.crop_box, rect, scale)
 
-        rotation = self.rotation
-        if rotation == 0:
-            fs_matrix = FPDF_MATRIX(scale, 0., 0., scale, -(x0-cx0) * scale, -(cy1-y1) * scale)
-        elif rotation == 1:
-            fs_matrix = FPDF_MATRIX(0., -scale, scale, 0., (cx1-x1) * scale, (y1-cy0) * scale)
-        elif rotation == 2:
-            fs_matrix = FPDF_MATRIX(0., scale, scale, 0., 0., 0.)
-        elif rotation == 3:
-            fs_matrix = FPDF_MATRIX(0., scale, -scale, 0., (x1-cx0) * scale, (y0-cy0) * scale)
-        else:
-            raise RuntimeError('Unexpected rotationv alue: %s' % rotation)
-
-        cropper = FPDF_RECT(0, 0, (x1-x0) * scale + 0.5, (y1-y0) * scale + 0.5)
+        cropper = FPDF_RECT(0, 0, (rect[2] - rect[0]) * scale + 0.5, (rect[3] - rect[1]) * scale + 0.5)
         result = so.REDPage_RenderRect(
             self._page, c_char_p(file_name.encode()), 1, 1., fs_matrix, cropper)
         if result == 0:
