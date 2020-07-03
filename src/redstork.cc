@@ -419,19 +419,15 @@ FPDF_EXPORT extern "C" bool REDPage_RenderRect_Buffer(
     return false;
   }
 
-  ScopedFPDFBitmap bitmap(FPDFBitmap_Create(width, height, 0));
+  // use external buffer
+  FPDF_BITMAP bitmap = FPDFBitmap_CreateEx(width, height, FPDFBitmap_BGRx, buffer, width*4);
   if (!bitmap) {
     return false;
   }
 
-  FPDFBitmap_FillRect(bitmap.get(), 0, 0, width, height, 0xFFFFFFFF);
+  FPDFBitmap_FillRect(bitmap, 0, 0, width, height, 0xFFFFFFFF);
 
-  FPDF_RenderPageBitmapWithMatrix(bitmap.get(), page, matrix, &clip, FPDF_LCD_TEXT | FPDF_ANNOT);
-
-//   int stride = FPDFBitmap_GetStride(bitmap.get());
-  void* pixData = FPDFBitmap_GetBuffer(bitmap.get());
-
-  memcpy(buffer, pixData, width * height * 4);
+  FPDF_RenderPageBitmapWithMatrix(bitmap, page, matrix, &clip, FPDF_LCD_TEXT | FPDF_ANNOT);
 
   return true;
 }
