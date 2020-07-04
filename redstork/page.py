@@ -93,19 +93,15 @@ class Page:
             else:
                 yield obj
 
-    def render_(self, file_name, scale=1.0):
-        result = so.REDPage_Render(self._page, c_char_p(file_name.encode()), 1, scale)
-        if result == 0:
-            raise RuntimeError('Failed to render as ' + file_name)
-
-    def _get_fsmatrix(self, rotation, crop_box, rect, scale):
+    @staticmethod
+    def _get_fsmatrix(rotation, crop_box, rect, scale):
         '''
-        get the fs_matrix based on the crop_box and rotatoin of the page, 
+        get the fs_matrix based on the crop_box and rotatoin of the page,
         and also the current region of interest (rect) and scaling
         '''
         cx0, cy0, cx1, cy1 = crop_box
         x0, y0, x1, y1 = rect
-        # 
+        #
         if rotation == 0:
             fs_matrix = FPDF_MATRIX(scale, 0., 0., scale, -(x0-cx0) * scale, -(cy1-y1) * scale)
         elif rotation == 1:
@@ -115,7 +111,7 @@ class Page:
         elif rotation == 3:
             fs_matrix = FPDF_MATRIX(0., scale, -scale, 0., (x1-cx0) * scale, (y0-cy0) * scale)
         else:
-            raise RuntimeError('Unexpected rotationv alue: %s' % rotation)
+            raise RuntimeError('Unexpected rotationv value: %s' % rotation)
         return fs_matrix
 
     def render_to_buffer(self, scale=1.0, rect=None):
@@ -138,7 +134,7 @@ class Page:
         result = so.REDPage_RenderRect_Buffer(self._page, 1., fs_matrix, cropper, buf, buf_size)
         if result == 0:
             raise RuntimeError('Failed in rendering')
-        
+
         return buf, width, height
 
     def render(self, file_name, scale=1.0, rect=None):
