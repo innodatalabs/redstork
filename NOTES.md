@@ -67,7 +67,7 @@ gclient sync
 
 # checkout the right branch
 cd pdfium
-version="chromium/4097"
+version="chromium/4192"
 git fetch origin $version
 git checkout $version
 
