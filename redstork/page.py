@@ -111,7 +111,7 @@ class Page:
         elif rotation == 3:
             fs_matrix = FPDF_MATRIX(0., scale, -scale, 0., (x1-cx0) * scale, (y0-cy0) * scale)
         else:
-            raise RuntimeError('Unexpected rotationv value: %s' % rotation)
+            raise RuntimeError('Unexpected rotation value: %s' % rotation)
         return fs_matrix
 
     def render_to_buffer(self, scale=1.0, rect=None):
