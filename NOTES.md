@@ -89,11 +89,6 @@ Patch root `BUILD.gn` file
 patch -p0 -i redstork/patches/BUILD.gn.diff
 ```
 
-Patch build/toolchain for Python3 compatibility (if using Python3 as build engine)
-```bash
-(cd build; patch -p0 -i ../redstork/patches/gcc_solink_wrapper.py.diff)
-```
-
 Note to myself: how to generate patch files
 ```bash
 git diff --no-prefix >> filename.diff
