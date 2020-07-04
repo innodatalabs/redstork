@@ -57,7 +57,10 @@ class Document:
         if page_index < 0:
             page_index = self.numpages + page_index
         if 0 <= page_index < self.numpages:
-            return Page(so.FPDF_LoadPage(self._doc, page_index), page_index, self)
+            page_obj = so.FPDF_LoadPage(self._doc, page_index)
+            if page_obj is None:
+                raise RuntimeError('Failed to load page at index %s' % page_index)
+            return Page(page_obj, page_index, self)
         raise ValueError('Page number %s is out of range: 0..%s' % (page_index, self.numpages))
 
     def __len__(self):
