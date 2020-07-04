@@ -10,6 +10,7 @@ docker pull mkroutikov/redstork
 To compile and build wheel:
 ```bash
 docker run -v`pwd`:/pdfium/redstork -it mkroutikov/redstork
+make so  # or make sodbg
 make wheel
 ```
 

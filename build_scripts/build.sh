@@ -22,7 +22,6 @@ gclient sync
 
 # apply patches
 patch -p0 -i /self/patches/BUILD.gn.diff
-(cd build; patch -p0 -i /self/patches/gcc_solink_wrapper.py.diff)
 
 # copy new sources
 cp -r /self redstork
@@ -41,8 +40,8 @@ ninja -C /out/Debug
 gn gen /out/Release
 ninja -C /out/Release
 
-# build Python wheel
-cp /out/Release/lib*.so redstork/linux/
-rm -rf build dist
-python setup.py bdist_wheel
-cp dist/*.whl /out
+# # build Python wheel
+# cp /out/Release/lib*.so redstork/linux/
+# rm -rf build dist
+# python setup.py bdist_wheel
+# cp dist/*.whl /out
