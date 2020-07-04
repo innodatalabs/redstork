@@ -1,5 +1,5 @@
 import os
-from ctypes import create_string_buffer
+from ctypes import c_double, byref, create_string_buffer
 from .page import Page
 from .bindings import so
 from .dict_changed import DictChanged
@@ -76,7 +76,19 @@ class Document:
         out = create_string_buffer(4096)
         l = so.FPDF_GetPageLabel(self._doc, page_index, out, 4096)
         return out.raw[:l-2].decode('utf-16le')
-
+    
+    def get_all_pages_size(self):
+        '''
+        get width and height of all pages, without loading each page
+        '''
+        allPagesSize = []
+        width = c_double()
+        height = c_double()
+        for i in range(self.numpages):
+            so.FPDF_GetPageSizeByIndex(self._doc, i, byref(width), byref(height))
+            allPagesSize.append([width.value, height.value])
+        return allPagesSize
+        
     @property
     def changed(self):
         '''True is PDF was changed since teh load (or last save)'''
