@@ -10,6 +10,7 @@ docker pull mkroutikov/redstork
 To compile and build wheel:
 ```bash
 docker run -v`pwd`:/pdfium/redstork -it mkroutikov/redstork
+make so  # or make sodbg
 make wheel
 ```
 
@@ -86,11 +87,6 @@ git clone https://github.com/innodatalabs/redstork.git
 Patch root `BUILD.gn` file
 ```bash
 patch -p0 -i redstork/patches/BUILD.gn.diff
-```
-
-Patch build/toolchain for Python3 compatibility (if using Python3 as build engine)
-```bash
-(cd build; patch -p0 -i ../redstork/patches/gcc_solink_wrapper.py.diff)
 ```
 
 Note to myself: how to generate patch files

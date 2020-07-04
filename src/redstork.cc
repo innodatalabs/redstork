@@ -17,6 +17,7 @@
 #include "core/fpdfapi/parser/cpdf_stream_acc.h"
 #include "core/fpdfapi/parser/cpdf_string.h"
 #include "core/fpdfapi/edit/cpdf_creator.h"
+#include "third_party/base/stl_util.h"
 
 
 FPDF_EXPORT extern "C" const char *FPDF_ErrorCodeToString(long err) {
@@ -78,7 +79,7 @@ static CPDF_Object* GetPageAttr(CPDF_Page const *page, const ByteString& name) {
       return pObj;
 
     pPageDict = pPageDict->GetDictFor(pdfium::page_object::kParent);
-    if (!pPageDict || pdfium::ContainsKey(visited, pPageDict))
+    if (!pPageDict || pdfium::Contains(visited, pPageDict))
       break;
   }
   return nullptr;
