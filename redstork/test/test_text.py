@@ -47,6 +47,7 @@ def test_geometry_sane():
             for obj in page.flat_iter():
                 if obj.type == PageObject.OBJ_TYPE_TEXT:
                     txt_boxes = list(obj.text_geometry_iter())
-                    assert all(inside(page.crop_box, bx) for _,bx in txt_boxes), (fname, pageidx, page.crop_box, objcount)
+                    for _,bx in txt_boxes:
+                        assert inside(page.crop_box, bx), (fname, pageidx, page.crop_box, objcount, bx)
                     # assert all(inside(obj.rect, bx) for _,bx in txt_boxes), (fname, pageidx, obj.rect, objcount)
                 objcount += 1

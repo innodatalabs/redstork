@@ -57,8 +57,8 @@ class FPDF_PATH_POINT(Structure):
 
 so.RED_LastError.restype = c_char_p
 
-so.RED_LoadDocument.argtypes = [c_char_p, c_char_p]
-so.RED_LoadDocument.restype = c_void_p
+so.FPDF_LoadDocument.argtypes = [c_char_p, c_char_p]
+so.FPDF_LoadDocument.restype = c_void_p
 
 so.FPDF_CloseDocument.argtypes = [c_void_p]
 
@@ -99,20 +99,14 @@ so.FPDF_GetMetaText.restype = c_long
 so.FPDF_GetPageLabel.argtypes = [c_void_p, c_int, c_void_p, c_long]
 so.FPDF_GetPageLabel.restype = c_long
 
-so.REDPage_GetPageRotation.argtypes = [c_void_p]
-so.REDPage_GetPageRotation.restype = c_int
+so.FPDFPage_GetRotation.argtypes = [c_void_p]
+so.FPDFPage_GetRotation.restype = c_int
 
-so.REDPage_GetMediaBox.argtypes = [c_void_p, POINTER(FPDF_RECT)]
-so.REDPage_GetMediaBox.restype = c_int
+so.FPDFPage_CountObjects.argtypes = [c_void_p]
+so.FPDFPage_CountObjects.restype = c_int
 
-so.REDPage_GetCropBox.argtypes = [c_void_p, POINTER(FPDF_RECT)]
-so.REDPage_GetCropBox.restype = c_int
-
-so.REDPage_GetPageObjectCount.argtypes = [c_void_p]
-so.REDPage_GetPageObjectCount.restype = c_int
-
-so.REDPage_GetPageObjectByIndex.argtypes = [c_void_p, c_int]
-so.REDPage_GetPageObjectByIndex.restype = c_void_p
+so.FPDFPage_GetObject.argtypes = [c_void_p, c_int]
+so.FPDFPage_GetObject.restype = c_void_p
 
 so.REDPage_Render.argtypes = [c_void_p, c_char_p, c_int, c_float]
 so.REDPage_Render.restype = c_int
@@ -123,28 +117,23 @@ so.REDPage_RenderRect.restype = c_int
 so.REDPage_RenderRect_Buffer.argtypes = [c_void_p, c_float, POINTER(FPDF_MATRIX), POINTER(FPDF_RECT), c_char_p, c_int]
 so.REDPage_RenderRect_Buffer.restype = c_int
 
-so.REDPageObject_GetRect.argtypes = [c_void_p, POINTER(FPDF_RECT)]
+so.FPDFPageObj_GetBounds.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
+so.FPDFPageObj_GetBounds.restype = c_int
 
-so.REDPageObject_GetType.argtypes = [c_void_p]
-so.REDPageObject_GetType.restype = c_int
+so.FPDFPageObj_GetType.argtypes = [c_void_p]
+so.FPDFPageObj_GetType.restype = c_int
 
 so.REDTextObject_CountItems.argtypes = [c_void_p]
 so.REDTextObject_CountItems.restype = c_int
 
-so.REDTextObject_GetFontSize.argtypes = [c_void_p]
-so.REDTextObject_GetFontSize.restype = c_float
+so.FPDFTextObj_GetFontSize.argtypes = [c_void_p]
+so.FPDFTextObj_GetFontSize.restype = c_float
 
 so.REDTextObject_GetFont.argtypes = [c_void_p]
 so.REDTextObject_GetFont.restype = c_void_p
 
 so.FPDFTextObj_GetMatrix.argtypes = [c_void_p, POINTER(FPDF_MATRIX)]
 so.FPDFTextObj_GetMatrix.restype = c_int
-
-so.REDTextObject_GetTextMatrix.argtypes = [c_void_p, POINTER(FPDF_MATRIX)]
-so.REDTextObject_GetTextMatrix.restype = c_int
-
-so.REDTextObject_GetItemCount.argtypes = [c_void_p]
-so.REDTextObject_GetItemCount.restype = c_int
 
 so.REDTextObject_GetItemInfo.argtypes = [c_void_p, c_int, POINTER(FPDF_ITEM_INFO)]
 so.REDTextObject_GetItemInfo.restype = c_int
@@ -169,8 +158,6 @@ so.REDFont_IsVertical.restype = c_int
 so.REDFont_UnicodeFromCharCode.argtypes = [c_void_p, c_int, c_void_p, c_int]
 so.REDFont_UnicodeFromCharCode.restype = c_int
 
-so.RED_InitLibrary()
-
 so.REDImageObject_GetPixelWidth.argtypes = [c_void_p]
 so.REDImageObject_GetPixelWidth.restype  = c_int
 
@@ -192,11 +179,11 @@ so.FPDFFormObj_GetMatrix.restype = c_int
 so.REDFormObject_GetFormMatrix.argtypes = [c_void_p, POINTER(FPDF_MATRIX)]
 so.REDFormObject_GetFormMatrix.restype = c_int
 
-so.REDFormObject_GetObjectCount.argtypes = [c_void_p]
-so.REDFormObject_GetObjectCount.restype = c_int
+so.FPDFFormObj_CountObjects.argtypes = [c_void_p]
+so.FPDFFormObj_CountObjects.restype = c_int
 
-so.REDFormObject_GetObjectAt.argtypes = [c_void_p, c_int]
-so.REDFormObject_GetObjectAt.restype = c_void_p
+so.FPDFFormObj_GetObject.argtypes = [c_void_p, c_int]
+so.FPDFFormObj_GetObject.restype = c_void_p
 
 so.REDFont_LoadGlyph.argtypes = [c_void_p, c_int]
 so.REDFont_LoadGlyph.restype = c_void_p
@@ -218,3 +205,5 @@ so.REDDoc_Save.restype = c_int
 
 so.REDGlyph_GetBounds.argtypes = [c_void_p, c_void_p]
 so.REDGlyph_GetBounds.restype = c_int
+
+so.RED_InitLibrary()

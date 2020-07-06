@@ -1,4 +1,4 @@
-from ctypes import pointer, c_float
+from ctypes import pointer, c_float, byref
 from .bindings import so, FPDF_RECT, FPDF_MATRIX, FPDF_ITEM_INFO
 from .font import Font
 import contextlib
@@ -18,9 +18,10 @@ class PageObject:
         self._parent = parent
         self.type = typ                      #: type of this object
         self.matrix = 1., 0., 0., 1., 0., 0. #: transformation matrix of this object
-        rect = FPDF_RECT(0., 0., 0., 0.)
-        so.REDPageObject_GetRect(self._obj, pointer(rect))
-        self.rect = rect.left, rect.bottom, rect.right, rect.top  # object rectangle
+        left, bottom, right, top = c_float(), c_float(), c_float(), c_float()
+        so.FPDFPageObj_GetBounds(self._obj,
+            byref(left), byref(bottom), byref(right), byref(top))
+        self.rect = left.value, bottom.value, right.value, top.value  # object rectangle
 
     @property
     def page(self):
@@ -73,15 +74,11 @@ class TextObject(PageObject):
         font = Font(f, parent)
         doc = parent.document
         self.font = doc.fonts.setdefault(font.id, font)  #: :class:`Font` for this text object
-        self.font_size = so.REDTextObject_GetFontSize(obj)  #: font size of this text object
+        self.font_size = so.FPDFTextObj_GetFontSize(obj)  #: font size of this text object
 
         matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)
         so.FPDFTextObj_GetMatrix(obj, pointer(matrix))
         self.matrix = matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f  #: matrix for this page object
-
-        matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)
-        so.REDTextObject_GetTextMatrix(obj, pointer(matrix))
-        self.text_matrix = matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f  #: text matrix for this page object
 
     def __len__(self):
         '''Number of items in this string'''
@@ -110,7 +107,7 @@ class TextObject(PageObject):
     def text_geometry_iter(self):
         '''Iterates over characters and returns character text and bounds'''
         font = self.font
-        a, b, c, d, e, f = self.text_matrix
+        a, b, c, d, e, f = self.matrix
         for cid, x, y in self.char_iter():
             text = font[cid]
             glyph = font.load_glyph(cid)
@@ -132,7 +129,7 @@ class TextObject(PageObject):
     @property
     def scale_y(self):
         '''Returns Y-scale of text matrix transformation'''
-        a, b, c, d, e, f = self.text_matrix
+        a, b, c, d, e, f = self.matrix
         #
         #   a  b
         #   c  d
@@ -147,7 +144,7 @@ class TextObject(PageObject):
     @property
     def scale_x(self):
         '''Returns X-scale of text matrix transformation'''
-        a, b, c, d, e, f = self.text_matrix
+        a, b, c, d, e, f = self.matrix
         return math.sqrt(a*a + c*c)
 
     @property
@@ -157,17 +154,17 @@ class TextObject(PageObject):
         #  a  b
         #  c  d
         #
-        a, b, c, d, e, f = self.text_matrix
+        a, b, c, d, e, f = self.matrix
         return (a*b + c*d) / math.sqrt( (a*a + c*c) * (b*b + d*d) )
 
     def box(self, x0, y0, x1, y1):
         '''Computes bounding box after transformation with text matrix'''
-        a, b, c, d, e, f = self.text_matrix
+        a, b, c, d, e, f = self.matrix
         vertices = [
-            apply(self.text_matrix, (x0, y0)),
-            apply(self.text_matrix, (x0, y1)),
-            apply(self.text_matrix, (x1, y0)),
-            apply(self.text_matrix, (x1, y1)),
+            apply(self.matrix, (x0, y0)),
+            apply(self.matrix, (x0, y1)),
+            apply(self.matrix, (x1, y0)),
+            apply(self.matrix, (x1, y1)),
         ]
 
         x0 = min(x for x,_ in vertices)
@@ -189,15 +186,6 @@ class TextObject(PageObject):
             for code,_,_ in self.char_iter()
         )
 
-    @contextlib.contextmanager
-    def transform(self, matrix):
-        saved = self.text_matrix
-        self.text_matrix = compose(self.text_matrix, matrix)
-        try:
-            with super().transform(matrix):
-                yield
-        finally:
-            self.text_matrix = saved
 
 class PathObject(PageObject):
     '''Represents vector graphics on a aage.'''
@@ -265,14 +253,14 @@ class FormObject(PageObject):
         )  #: transformation matrix for contained objects
 
     def __len__(self):
-        return so.REDFormObject_GetObjectCount(self._obj)
+        return so.FPDFFormObj_CountObjects(self._obj)
 
     def __getitem__(self, index):
         if index < 0:
             index = len(self) + index
 
-        subobj = so.REDFormObject_GetObjectAt(self._obj, index)
-        typ    = so.REDPageObject_GetType(subobj)
+        subobj = so.FPDFFormObj_GetObject(self._obj, index)
+        typ    = so.FPDFPageObj_GetType(subobj)
         return PageObject.new(subobj, index, typ, self)
 
     def __iter__(self):

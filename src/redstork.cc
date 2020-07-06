@@ -56,112 +56,8 @@ FPDF_EXPORT extern "C" void RED_InitLibrary(void) {
     FPDF_InitLibraryWithConfig(&config);
 }
 
-FPDF_EXPORT extern "C" void RED_DestroyLibrary(void) {
-    FPDF_DestroyLibrary();
-}
-
-FPDF_EXPORT extern "C" FPDF_DOCUMENT RED_LoadDocument(char const *path, const char *pass) {
-    return FPDF_LoadDocument(path, pass);
-}
-
-FPDF_EXPORT extern "C" int REDPage_GetPageRotation(FPDF_PAGE page) {
-    CPDF_Page* pPage = CPDFPageFromFPDFPage(page);
-
-    return pPage->GetPageRotation();
-}
-
-static CPDF_Object* GetPageAttr(CPDF_Page const *page, const ByteString& name) {
-  CPDF_Dictionary* pPageDict = page->GetDict();
-  std::set<CPDF_Dictionary*> visited;
-  while (1) {
-    visited.insert(pPageDict);
-    if (CPDF_Object* pObj = pPageDict->GetDirectObjectFor(name))
-      return pObj;
-
-    pPageDict = pPageDict->GetDictFor(pdfium::page_object::kParent);
-    if (!pPageDict || pdfium::Contains(visited, pPageDict))
-      break;
-  }
-  return nullptr;
-}
-
-static CFX_FloatRect GetBox(CPDF_Page const *page, const ByteString& name) {
-  CFX_FloatRect box;
-  CPDF_Array* pBox = ToArray(GetPageAttr(page, name));
-  if (pBox) {
-    box = pBox->GetRect();
-    box.Normalize();
-  }
-  return box;
-}
-
-
-FPDF_EXPORT extern "C" int REDPage_GetMediaBox(FPDF_PAGE page, FS_RECTF *rect) {
-    CPDF_Page const *pPage = CPDFPageFromFPDFPage(page);
-
-    auto mediabox = GetBox(pPage, pdfium::page_object::kMediaBox);
-    if (mediabox.IsEmpty())
-      mediabox = CFX_FloatRect(0, 0, 612, 792);
-
-    rect->left = mediabox.left;
-    rect->top  = mediabox.top;
-    rect->right = mediabox.right;
-    rect->bottom = mediabox.bottom;
-
-    return true;
-}
-
-FPDF_EXPORT extern "C" int REDPage_GetCropBox(FPDF_PAGE page, FS_RECTF *rect) {
-    CPDF_Page const *pPage = CPDFPageFromFPDFPage(page);
-
-    auto mediabox = GetBox(pPage, pdfium::page_object::kMediaBox);
-    if (mediabox.IsEmpty())
-      mediabox = CFX_FloatRect(0, 0, 612, 792);
-
-    auto cropbox = GetBox(pPage, pdfium::page_object::kCropBox);
-    if (cropbox.IsEmpty())
-      cropbox = mediabox;
-
-    cropbox.Intersect(mediabox);
-
-    rect->left = cropbox.left;
-    rect->top  = cropbox.top;
-    rect->right = cropbox.right;
-    rect->bottom = cropbox.bottom;
-
-    return true;
-}
-
-
-FPDF_EXPORT extern "C" int REDPage_GetPageObjectCount(FPDF_PAGE page) {
-    CPDF_Page* pPage = CPDFPageFromFPDFPage(page);
-    pPage->ParseContent();
-    return pPage->GetPageObjectCount();
-}
-
-FPDF_EXPORT extern "C" CPDF_PageObject * REDPage_GetPageObjectByIndex(FPDF_PAGE page, int index) {
-    CPDF_Page* pPage = CPDFPageFromFPDFPage(page);
-    return pPage->GetPageObjectByIndex(index);
-}
-
-FPDF_EXPORT extern "C" int REDPageObject_GetType(CPDF_PageObject *pObj) {
-    return pObj->GetType();
-}
-
-FPDF_EXPORT extern "C" void REDPageObject_GetRect(CPDF_PageObject *pObj, FS_RECTF *r) {
-    auto rect = pObj->GetRect();
-    r->left = rect.Left();
-    r->top = rect.Top();
-    r->right = rect.Right();
-    r->bottom = rect.Bottom();
-}
-
 FPDF_EXPORT extern "C" int REDTextObject_CountItems(CPDF_TextObject *pObj) {
     return pObj->CountItems();
-}
-
-FPDF_EXPORT extern "C" float REDTextObject_GetFontSize(CPDF_TextObject *pObj) {
-    return pObj->GetFontSize();
 }
 
 FPDF_EXPORT extern "C" CPDF_Font * REDTextObject_GetFont(CPDF_TextObject *pObj) {
@@ -177,10 +73,6 @@ FPDF_EXPORT extern "C" int REDTextObject_GetTextMatrix(CPDF_TextObject *pObj, FS
   pMatrix->e = m.e;
   pMatrix->f = m.f;
   return 1;
-}
-
-FPDF_EXPORT extern "C" int REDTextObject_GetItemCount(CPDF_TextObject *pObj) {
-  return pObj->CountItems();
 }
 
 FPDF_EXPORT extern "C" void REDTextObject_GetItemInfo(CPDF_TextObject *pObj, unsigned int index, CPDF_TextObjectItem *pItem) {
@@ -363,7 +255,7 @@ FPDF_EXPORT extern "C" bool REDPage_Render(FPDF_PAGE page, char const *file_name
 FPDF_EXPORT extern "C" bool REDPage_RenderRect(FPDF_PAGE page, char const *file_name, int format, float scale, const FS_MATRIX *matrix, const FS_RECTF *rect) {
   FS_RECTF clip;
   if (rect == nullptr) {
-    REDPage_GetCropBox(page, &clip);
+    return false;
   } else {
     clip = *rect;
   }
@@ -409,7 +301,7 @@ FPDF_EXPORT extern "C" bool REDPage_RenderRect_Buffer(
   ) {
   FS_RECTF clip;
   if (rect == nullptr) {
-    REDPage_GetCropBox(page, &clip);
+    return false;
   } else {
     clip = *rect;
   }
