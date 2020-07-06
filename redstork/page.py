@@ -1,4 +1,4 @@
-from ctypes import pointer, c_float, c_char_p, create_string_buffer
+from ctypes import pointer, c_float, c_char_p, create_string_buffer, byref
 from .bindings import so, FPDF_RECT, FPDF_MATRIX
 from .pageobject import PageObject
 
@@ -30,26 +30,36 @@ class Page:
     @property
     def crop_box(self):
         '''Page crop box.'''
-        rect = FPDF_RECT(0., 0., 0., 0.)
+        left, bottom, right, top = c_float(), c_float(), c_float(), c_float()
 
-        so.REDPage_GetCropBox(
-            self._page,
-            pointer(rect)
-        )
+        mediabox = self.media_box
+        rc = so.FPDFPage_GetCropBox(self._page,
+            byref(left), byref(bottom), byref(right), byref(top))
+        if rc:
+            cropbox = left.value, bottom.value, right.value, top.value
+        else:
+            cropbox = mediabox
 
-        return rect.left, rect.bottom, rect.right, rect.top
+        x0 = max(cropbox[0], mediabox[0])
+        x1 = min(cropbox[2], mediabox[2])
+        y0 = max(cropbox[1], mediabox[1])
+        y1 = min(cropbox[3], mediabox[3])
+
+        assert x0 < x1 and y0 < y1
+
+        return x0, y0, x1, y1
 
     @property
     def media_box(self):
         '''Page media box.'''
-        rect = FPDF_RECT(0., 0., 0., 0.)
+        left, bottom, right, top = c_float(), c_float(), c_float(), c_float()
 
-        so.REDPage_GetMediaBox(
-            self._page,
-            pointer(rect)
-        )
+        rc = so.FPDFPage_GetMediaBox(self._page,
+            byref(left), byref(bottom), byref(right), byref(top))
+        if not rc:
+            return (0, 0, 612, 792)
 
-        return rect.left, rect.bottom, rect.right, rect.top
+        return left.value, bottom.value, right.value, top.value
 
     @property
     def rotation(self):
@@ -60,7 +70,7 @@ class Page:
         * 2 - rotated 180 degrees clock-wise
         * 3 - rotated 270 degrees clock-wise
         '''
-        return so.REDPage_GetPageRotation(self._page)
+        return so.FPDFPage_GetRotation(self._page)
 
     @property
     def label(self):
@@ -72,12 +82,12 @@ class Page:
 
     def __len__(self):
         '''Number of objects on this page.'''
-        return so.REDPage_GetPageObjectCount(self._page)
+        return so.FPDFPage_CountObjects(self._page)
 
     def __getitem__(self, index):
         '''Get object at this index.'''
-        obj = so.REDPage_GetPageObjectByIndex(self._page, index)
-        typ = so.REDPageObject_GetType(obj)
+        obj = so.FPDFPage_GetObject(self._page, index)
+        typ = so.FPDFPageObj_GetType(obj)
         return PageObject.new(obj, index, typ, self)
 
     def __iter__(self):
