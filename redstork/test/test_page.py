@@ -34,12 +34,33 @@ def test_get_fsmatrix():
     rect = (5, 100, 55, 150)
 
     # rotation=0
-    matrix = Page._get_fsmatrix(0, crop_box, rect, 1)
-    matrix = (matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f)
+    matrix = Page._get_matrix(0, crop_box, rect, 1)
     assert matrix == (1, 0, 0, 1, -5, -50)
     assert apply(matrix, (5, 50)) == (0, 0)  # top left corner
     assert apply(matrix, (5, 100)) == (0, 50)  # bottom left corner
     assert apply(matrix, (55, 50)) == (50, 0)  # top right corner
     assert apply(matrix, (55, 100)) == (50, 50)  # bottom right corner
 
-    # TODO: test other rotations (need a PDF sample)
+    # rotation=1
+    matrix = Page._get_matrix(1, crop_box, rect, 1)
+    assert matrix == (0, -1, 1, 0, -5, 150)
+    assert apply(matrix, (150, 5)) == (0, 0)  # top left corner
+    assert apply(matrix, (100, 5)) == (0, 50)  # bottom left corner
+    assert apply(matrix, (150, 55)) == (50, 0)  # top right corner
+    assert apply(matrix, (100, 55)) == (50, 50)  # bottom right corner
+
+    # rotation=2
+    matrix = Page._get_matrix(2, crop_box, rect, 1)
+    assert matrix == (-1, 0, 0, -1, 95, 150)
+    assert apply(matrix, (95, 150)) == (0, 0)  # top left corner
+    assert apply(matrix, (95, 100)) == (0, 50)  # bottom left corner
+    assert apply(matrix, (45, 150)) == (50, 0)  # top right corner
+    assert apply(matrix, (45, 100)) == (50, 50)  # bottom right corner
+
+    # rotation=3
+    matrix = Page._get_matrix(3, crop_box, rect, 1)
+    assert matrix == (0, 1, -1, 0, 95, -50)
+    assert apply(matrix, (50, 95)) == (0, 0)  # top left corner
+    assert apply(matrix, (100, 95)) == (0, 50)  # bottom left corner
+    assert apply(matrix, (50, 45)) == (50, 0)  # top right corner
+    assert apply(matrix, (100, 45)) == (50, 50)  # bottom right corner
