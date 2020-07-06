@@ -1,0 +1,25 @@
+test: off
+
+branches:
+  only:
+  - master
+
+skip_non_tags: true
+
+environment:
+  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+  GYP_MSVS_VERSION: 2017
+  PDFium_BRANCH: $(APPVEYOR_REPO_TAG_NAME)
+  matrix:
+    - PDFium_V8: disabled
+
+platform:
+  - x64
+
+configuration:
+  - Release
+
+build_script:
+  - call build_scripts\build.bat
+  - cd %APPVEYOR_BUILD_FOLDER%
+
