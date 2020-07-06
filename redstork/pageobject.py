@@ -19,8 +19,10 @@ class PageObject:
         self.type = typ                      #: type of this object
         self.matrix = 1., 0., 0., 1., 0., 0. #: transformation matrix of this object
         left, bottom, right, top = c_float(), c_float(), c_float(), c_float()
-        so.FPDFPageObj_GetBounds(self._obj,
+        rc = so.FPDFPageObj_GetBounds(self._obj,
             byref(left), byref(bottom), byref(right), byref(top))
+        if not rc:
+            raise RuntimeError('FPDFPageObj_GetBounds failed')
         self.rect = left.value, bottom.value, right.value, top.value  # object rectangle
 
     @property
