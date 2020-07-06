@@ -18,18 +18,18 @@ test:
 	pytest
 
 wheel: test
-	rm -rf wheelhouse
-	mkdir wheelhouse
-	pip wheel -v --wheel-dir=wheelhouse .
+	rm -rf build dist
+	pip install wheel
+	python setup.py bdist_wheel
 
 publish: wheel
 	pip install twine
-	twine upload wheelhouse/*.whl -u __token__ -p $(PYPI_TOKEN)
+	twine upload dist/*.whl -u __token__ -p $(PYPI_TOKEN)
 
 maybe_publish: wheel
 ifneq ($(ON_TAG),)
 	pip install twine
-	twine upload wheelhouse/*.whl -u __token__ -p $(PYPI_TOKEN)
+	twine upload dist/*.whl -u __token__ -p $(PYPI_TOKEN)
 endif
 
 docs:
