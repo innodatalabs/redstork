@@ -8,8 +8,17 @@ from redstork import __version__
 class bdist_wheel(_bdist_wheel):
     def finalize_options(self):
         _bdist_wheel.finalize_options(self)
-        if sys.platform == 'win32':
-            self.root_is_pure = False
+        print(sys.platform)
+        if sys.platform == 'linux':
+            self.plat_name = 'manylinux1_x86_64'
+        elif sys.platform == 'win32':
+            self.plat_name = 'win64'
+        elif sys.platform == 'darwin':
+            self.plat_name = 'darwin'
+        else:
+            assert False, sys.platform
+        self.python_tag = 'py3'
+        self.plat_name_supplied = True
 
 with open('README.md') as f:
     long_description = f.read()
