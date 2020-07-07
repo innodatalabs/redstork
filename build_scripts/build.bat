@@ -33,7 +33,7 @@ call gclient sync || exit /b
 
 : Install python packages
 where python || exit /b
-call %RED_STAGING%\depot_tools\python.bat -m pip install pywin32 || exit /b
+call %REDSTAGING%\depot_tools\python.bat -m pip install pywin32 || exit /b
 
 : Patch
 cd %REDSTAGING%\pdfium
