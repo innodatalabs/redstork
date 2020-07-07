@@ -26,10 +26,10 @@ publish: wheel
 	pip install twine
 	twine upload dist/*.whl -u __token__ -p $(PYPI_TOKEN)
 
-maybe_publish: wheel
+maybe_publish:
 ifneq ($(ON_TAG),)
 	pip install twine
-	twine upload dist/*.whl -u __token__ -p $(PYPI_TOKEN)
+	twine upload dist/redstork*.whl -u __token__ -p $(PYPI_TOKEN)
 endif
 
 docs:

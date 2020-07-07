@@ -138,8 +138,7 @@ so.FPDFTextObj_GetMatrix.restype = c_int
 so.REDTextObject_GetItemInfo.argtypes = [c_void_p, c_int, POINTER(FPDF_ITEM_INFO)]
 so.REDTextObject_GetItemInfo.restype = c_int
 
-so.REDFont_Destroy.argtypes = [c_void_p]
-
+so.FPDFFont_Close.argtypes = [c_void_p]
 so.REDFont_GetName.argtypes = [c_void_p, c_void_p, c_int]
 so.REDFont_GetName.restype = c_int
 
