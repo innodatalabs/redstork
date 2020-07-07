@@ -4,19 +4,14 @@ set -ex
 REDSTORK=$PWD
 REDSTAGING=$PWD/staging
 OS=`python3 -c "import sys; print(sys.platform)"`
-
-echo $OS
-echo $TRAVIS_TAG
-
-exit 0;
+# which version of PDFium to use?
+PDFIUM_VERSION=`cat $REDSTORK/redstork/pdfium_version.txt`
 
 mkdir $REDSTAGING
 cd $REDSTAGING
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 export PATH=$REDSTAGING/depot_tools:$PATH
 
-# which version of PDFium to use?
-version=`cat $REDSTORK/redstork/pdfium_version.txt`
 
 gclient config --name pdfium --unmanaged https://pdfium.googlesource.com/pdfium.git
 gclient sync
@@ -38,7 +33,6 @@ cp $REDSTORK/src/args.$OS.Release.gn $REDSTAGING/out/Release/args.gn
 mkdir $REDSTAGING/pdfium/redstork
 cp $REDSTORK/BUILD.gn $REDSTAGING/pdfium/redstork/
 cp -r $REDSTORK/src $REDSTAGING/pdfium/redstork/src
-cd $REDSTAGING/pdfium/redstork
 
 # build debug
 gn gen $REDSTAGING/out/Debug
