@@ -32,10 +32,8 @@ git.exe checkout %PDVIUM_VERSION% || exit /b
 call gclient sync || exit /b
 
 : Install python packages
-C:\Python38-x64\python.exe -m venv .venv
-call .venv\Scripts\activate.bat
 where python || exit /b
-call %RED_STAGING%\depot_tools\python\python.bat -m pip install pywin32 || exit /b
+call %RED_STAGING%\depot_tools\python.bat -m pip install pywin32 || exit /b
 
 : Patch
 cd %REDSTAGING%\pdfium
@@ -58,6 +56,8 @@ call gn gen %REDSTAGING%\out || exit /b
 call ninja -C %REDSTAGING%\out || exit /b
 
 cd %REDSTORK%
+C:\Python38-x64\python.exe -m venv .venv
+call .venv\Scripts\activate.bat
 pip install pytest wheel
 
 copy %REDSTAGING%\out\lib\redstork.dll.lib redstork\windows\ || exit /b
