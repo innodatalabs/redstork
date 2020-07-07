@@ -13,16 +13,16 @@ jobs:
     # - "3.8"
     - os: osx
       osx_image: xcode11.3
-      env:
-      - HOMEBREW_NO_INSTALL_CLEANUP=1
-      - HOMEBREW_NO_ANALYTICS=1
-      addons:
-        homebrew:
-          packages: python3
-      before_install:
-      - python3 -m pip install --upgrade virtualenv
-      - virtualenv -p python3 --system-site-packages "$HOME/venv"
-      - source "$HOME/venv/bin/activate"
+    #   env:
+    #   - HOMEBREW_NO_INSTALL_CLEANUP=1
+    #   - HOMEBREW_NO_ANALYTICS=1
+    #   addons:
+    #     homebrew:
+    #       packages: python3
+    #   before_install:
+    #   - python3 -m pip install --upgrade virtualenv
+    #   - virtualenv -p python3 --system-site-packages "$HOME/venv"
+    #   - source "$HOME/venv/bin/activate"
 
 script:
     - bash build_scripts/build.sh
