@@ -5,6 +5,8 @@
 : PDFium_BRANCH = master | chromium/3211 | ...
 : PDFium_V8 = enabled
 
+set /P PDFiumBRANCH=< redstork\pdfium_version.txt
+
 : Input
 set WindowsSDK_DIR=C:\Program Files (x86)\Windows Kits\10\bin\%PLATFORM%
 set DepotTools_URL=https://storage.googleapis.com/chrome-infra/depot_tools.zip
@@ -53,7 +55,7 @@ cd %PDFium_SOURCE_DIR%
 git.exe checkout %PDFium_BRANCH% && call gclient sync
 
 : Install python packages
-where python
+where python || exit /b
 call %DepotTools_DIR%\python.bat -m pip install pywin32 || exit /b
 
 : Patch
