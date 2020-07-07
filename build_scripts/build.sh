@@ -64,7 +64,7 @@ pip install pytest wheel
 # mv dist/$wheel_name dist/dbg-$wheel_name
 
 # build Release Python wheel
-cp $REDSTAGING/out/lib*.so $REDSTORK/redstork/$OS/
+cp $REDSTAGING/out/lib*{.so,.dylib} $REDSTORK/redstork/$OS/
 rm -f $REDSTORK/redstork/$OS/libpdfium*
 PYTHONPATH=. pytest redstork/test
 rm -rf build dist

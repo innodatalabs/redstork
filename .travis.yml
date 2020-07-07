@@ -25,8 +25,7 @@ jobs:
     #   - source "$HOME/venv/bin/activate"
 
 script:
-    - bash build_scripts/build.sh
-    - make maybe_publish  # test, build wheel, and (if on tag) publish
+    - bash build_scripts/build.sh && make maybe_publish
 
 deploy:
     provider: releases
