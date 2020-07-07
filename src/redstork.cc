@@ -1,5 +1,7 @@
+#include "redstork.h"
+
 #include <stdio.h>
-#include "public/fpdfview.h"
+
 #include "public/cpp/fpdf_scopers.h"
 #include "fpdfsdk/cpdfsdk_helpers.h"
 #include "core/fpdfapi/parser/cpdf_document.h"
@@ -20,7 +22,15 @@
 #include "third_party/base/stl_util.h"
 
 
-FPDF_EXPORT extern "C" const char *FPDF_ErrorCodeToString(long err) {
+inline const CFX_PathData *CFXPathDataFromFPDFPathData(FPDF_PATHDATA data) {
+  return reinterpret_cast<const CFX_PathData*>(data);
+}
+
+inline FPDF_PATHDATA FPDFPathDataFromCFXPathData(const CFX_PathData *pData) {
+  return reinterpret_cast<FPDF_PATHDATA>(pData);
+}
+
+FPDF_EXPORT extern "C" const char * FPDF_CALLCONV FPDF_ErrorCodeToString(long err) {
   switch (err) {
     case FPDF_ERR_SUCCESS:
       return "Success";
@@ -41,12 +51,12 @@ FPDF_EXPORT extern "C" const char *FPDF_ErrorCodeToString(long err) {
   }
 }
 
-FPDF_EXPORT extern "C" const char* RED_LastError() {
+FPDF_EXPORT extern "C" const char* FPDF_CALLCONV RED_LastError() {
   unsigned long err = FPDF_GetLastError();
   return FPDF_ErrorCodeToString(err);
 }
 
-FPDF_EXPORT extern "C" void RED_InitLibrary(void) {
+FPDF_EXPORT extern "C" void FPDF_CALLCONV RED_InitLibrary(void) {
     FPDF_LIBRARY_CONFIG config;
     config.version = 2;
     config.m_pUserFontPaths = nullptr;
@@ -56,16 +66,22 @@ FPDF_EXPORT extern "C" void RED_InitLibrary(void) {
     FPDF_InitLibraryWithConfig(&config);
 }
 
-FPDF_EXPORT extern "C" int REDTextObject_CountItems(CPDF_TextObject *pObj) {
-    return pObj->CountItems();
+FPDF_EXPORT extern "C" FPDF_CALLCONV int REDTextObject_CountItems(FPDF_PAGEOBJECT textObj) {
+  CPDF_PageObject *pPageObj = CPDFPageObjectFromFPDFPageObject(textObj);
+  CPDF_TextObject *pTextObj = pPageObj->AsText();
+  return pTextObj->CountItems();
 }
 
-FPDF_EXPORT extern "C" CPDF_Font * REDTextObject_GetFont(CPDF_TextObject *pObj) {
-    return pObj->GetFont().Leak();
+FPDF_EXPORT extern "C" FPDF_CALLCONV FPDF_FONT REDTextObject_GetFont(FPDF_PAGEOBJECT textObj) {
+  CPDF_PageObject *pPageObj = CPDFPageObjectFromFPDFPageObject(textObj);
+  CPDF_TextObject *pTextObj = pPageObj->AsText();
+  return FPDFFontFromCPDFFont(pTextObj->GetFont().Leak());
 }
 
-FPDF_EXPORT extern "C" int REDTextObject_GetTextMatrix(CPDF_TextObject *pObj, FS_MATRIX *pMatrix) {
-  CFX_Matrix m = pObj->GetTextMatrix();
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDTextObject_GetTextMatrix(FPDF_PAGEOBJECT textObj, FS_MATRIX *pMatrix) {
+  CPDF_PageObject *pPageObj = CPDFPageObjectFromFPDFPageObject(textObj);
+  CPDF_TextObject *pTextObj = pPageObj->AsText();
+  CFX_Matrix m = pTextObj->GetTextMatrix();
   pMatrix->a = m.a;
   pMatrix->b = m.b;
   pMatrix->c = m.c;
@@ -75,18 +91,20 @@ FPDF_EXPORT extern "C" int REDTextObject_GetTextMatrix(CPDF_TextObject *pObj, FS
   return 1;
 }
 
-FPDF_EXPORT extern "C" void REDTextObject_GetItemInfo(CPDF_TextObject *pObj, unsigned int index, CPDF_TextObjectItem *pItem) {
-  pObj->GetItemInfo(index, pItem);
+FPDF_EXPORT extern "C" void FPDF_CALLCONV REDTextObject_GetItemInfo(FPDF_PAGEOBJECT textObj, unsigned int index, FPDF_TEXT_OBJECT_ITEM *pItem) {
+  CPDF_PageObject *pPageObj = CPDFPageObjectFromFPDFPageObject(textObj);
+  CPDF_TextObject *pTextObj = pPageObj->AsText();
+  CPDF_TextObjectItem item;
+  pTextObj->GetItemInfo(index, &item);
+
+  pItem->charCode = item.m_CharCode;
+  pItem->originX  = item.m_Origin.x;
+  pItem->originY  = item.m_Origin.y;
 }
 
-FPDF_EXPORT extern "C" void REDFont_Destroy(CPDF_Font *p) {
-    RetainPtr<CPDF_Font> font;
-
-    font.Unleak(p);
-}
-
-FPDF_EXPORT extern "C" unsigned long REDFont_GetName(CPDF_Font *font, char *buf, unsigned long buflen) {
-  ByteString basefont = font->GetBaseFontName();
+FPDF_EXPORT extern "C" unsigned long FPDF_CALLCONV REDFont_GetName(FPDF_FONT font, char *buf, unsigned long buflen) {
+  CPDF_Font *pFont = CPDFFontFromFPDFFont(font);
+  ByteString basefont = pFont->GetBaseFontName();
   unsigned long length = basefont.GetLength();
   if (buf && buflen >= length + 1) {
     memcpy(buf, basefont.c_str(), length + 1);
@@ -95,30 +113,35 @@ FPDF_EXPORT extern "C" unsigned long REDFont_GetName(CPDF_Font *font, char *buf,
   return length;
 }
 
-FPDF_EXPORT extern "C" int REDFont_GetFlags(CPDF_Font *font) {
-  return font->GetFontFlags();
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDFont_GetFlags(FPDF_FONT font) {
+  CPDF_Font *pFont = CPDFFontFromFPDFFont(font);
+  return pFont->GetFontFlags();
 }
 
-FPDF_EXPORT extern "C" int REDFont_GetWeight(CPDF_Font *font) {
-  return font->GetFontWeight();
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDFont_GetWeight(FPDF_FONT font) {
+  CPDF_Font *pFont = CPDFFontFromFPDFFont(font);
+  return pFont->GetFontWeight();
 }
 
-FPDF_EXPORT extern "C" bool REDFont_GetId(CPDF_Font *font, unsigned int *pObjNum, unsigned int *pGenNum) {
-  auto pFontDict = font->GetFontDict();
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDFont_GetId(FPDF_FONT font, unsigned int *pObjNum, unsigned int *pGenNum) {
+  CPDF_Font *pFont = CPDFFontFromFPDFFont(font);
+  auto pFontDict = pFont->GetFontDict();
 
-  if (pFontDict == nullptr) return false;
+  if (pFontDict == nullptr) return 0;
 
   *pObjNum = pFontDict->GetObjNum();
   *pGenNum = pFontDict->GetGenNum();
 
-  return true;
+  return 1;
 }
 
-FPDF_EXPORT extern "C" bool REDFont_IsVertical(CPDF_Font *pFont) {
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDFont_IsVertical(FPDF_FONT font) {
+    CPDF_Font *pFont = CPDFFontFromFPDFFont(font);
     return pFont->IsVertWriting();
 }
 
-FPDF_EXPORT extern "C" int REDFont_UnicodeFromCharCode(CPDF_Font *pFont, int code, void *buf, unsigned buflen) {
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDFont_UnicodeFromCharCode(FPDF_FONT font, int code, void *buf, unsigned buflen) {
+  CPDF_Font *pFont = CPDFFontFromFPDFFont(font);
   auto out = pFont->UnicodeFromCharCode(code).ToUTF8();
   unsigned long length = out.GetLength();
   if (buf && buflen >= length + 1) {
@@ -128,12 +151,16 @@ FPDF_EXPORT extern "C" int REDFont_UnicodeFromCharCode(CPDF_Font *pFont, int cod
   return length;
 }
 
-FPDF_EXPORT extern "C" unsigned int REDImageObject_GetPixelWidth(CPDF_ImageObject *pObj) {
-  return pObj->GetImage()->GetPixelWidth();
+FPDF_EXPORT extern "C" unsigned int FPDF_CALLCONV REDImageObject_GetPixelWidth(FPDF_PAGEOBJECT imageObj) {
+  CPDF_PageObject *pPageObj = CPDFPageObjectFromFPDFPageObject(imageObj);
+  CPDF_ImageObject *pImageObj = pPageObj->AsImage();
+  return pImageObj->GetImage()->GetPixelWidth();
 }
 
-FPDF_EXPORT extern "C" unsigned int REDImageObject_GetPixelHeight(CPDF_ImageObject *pObj) {
-  return pObj->GetImage()->GetPixelHeight();
+FPDF_EXPORT extern "C" unsigned int FPDF_CALLCONV REDImageObject_GetPixelHeight(FPDF_PAGEOBJECT imageObj) {
+  CPDF_PageObject *pPageObj = CPDFPageObjectFromFPDFPageObject(imageObj);
+  CPDF_ImageObject *pImageObj = pPageObj->AsImage();
+  return pImageObj->GetImage()->GetPixelHeight();
 }
 
 #ifdef PNG_SUPPORT
@@ -211,13 +238,13 @@ bool WritePpm(const char* file_name,
 
 #define FORMAT_PNG (0)
 #define FORMAT_PPM (1)
-FPDF_EXPORT extern "C" bool REDPage_Render(FPDF_PAGE page, char const *file_name, int format, float scale) {
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDPage_Render(FPDF_PAGE page, char const *file_name, int format, float scale) {
   auto width = static_cast<int>(FPDF_GetPageWidthF(page) * scale);
   auto height = static_cast<int>(FPDF_GetPageHeightF(page) * scale);
 
   ScopedFPDFBitmap bitmap(FPDFBitmap_Create(width, height, 0));
   if (!bitmap) {
-    return false;
+    return 0;
   }
 
   FPDFBitmap_FillRect(bitmap.get(), 0, 0, width, height, 0xFFFFFFFF);
@@ -232,27 +259,27 @@ FPDF_EXPORT extern "C" bool REDPage_Render(FPDF_PAGE page, char const *file_name
 #ifdef PNG_SUPPORT
     case FORMAT_PNG:
       if (!WritePng(file_name, buffer, stride, width, height) ) {
-        return false;
+        return 0;
       }
       break;
 #endif
 
     case FORMAT_PPM:
       if (!WritePpm(file_name, buffer, stride, width, height)) {
-        return false;
+        return 0;
       }
       break;
 
     default:
-      return false;
+      return 0;
   }
 
-  return true;
+  return 1;
 }
 
 #define FORMAT_PNG (0)
 #define FORMAT_PPM (1)
-FPDF_EXPORT extern "C" bool REDPage_RenderRect(FPDF_PAGE page, char const *file_name, int format, float scale, const FS_MATRIX *matrix, const FS_RECTF *rect) {
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDPage_RenderRect(FPDF_PAGE page, char const *file_name, int format, float scale, const FS_MATRIX *matrix, const FS_RECTF *rect) {
   FS_RECTF clip;
   if (rect == nullptr) {
     return false;
@@ -278,25 +305,25 @@ FPDF_EXPORT extern "C" bool REDPage_RenderRect(FPDF_PAGE page, char const *file_
 #ifdef PNG_SUPPORT
     case FORMAT_PNG:
       if (!WritePng(file_name, buffer, stride, width, height) ) {
-        return false;
+        return 0;
       }
       break;
 #endif
 
     case FORMAT_PPM:
       if (!WritePpm(file_name, buffer, stride, width, height)) {
-        return false;
+        return 0;
       }
       break;
 
     default:
-      return false;
+      return 0;
   }
 
-  return true;
+  return 1;
 }
 
-FPDF_EXPORT extern "C" bool REDPage_RenderRect_Buffer(
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDPage_RenderRect_Buffer(
   FPDF_PAGE page, float scale, const FS_MATRIX *matrix, const FS_RECTF *rect, unsigned char *buffer, int len
   ) {
   FS_RECTF clip;
@@ -309,23 +336,23 @@ FPDF_EXPORT extern "C" bool REDPage_RenderRect_Buffer(
   auto height = static_cast<int>((clip.bottom-clip.top));
 
   if (len < width*height*4){
-    return false;
+    return 0;
   }
 
   // use external buffer
   FPDF_BITMAP bitmap = FPDFBitmap_CreateEx(width, height, FPDFBitmap_BGRx, buffer, width*4);
   if (!bitmap) {
-    return false;
+    return 0;
   }
 
   FPDFBitmap_FillRect(bitmap, 0, 0, width, height, 0xFFFFFFFF);
 
   FPDF_RenderPageBitmapWithMatrix(bitmap, page, matrix, &clip, FPDF_LCD_TEXT | FPDF_ANNOT);
 
-  return true;
+  return 1;
 }
 
-FPDF_EXPORT extern "C" unsigned int REDDoc_GetMetaTextKeyCount(FPDF_DOCUMENT document) {
+FPDF_EXPORT extern "C" unsigned int FPDF_CALLCONV REDDoc_GetMetaTextKeyCount(FPDF_DOCUMENT document) {
   CPDF_Document* pDoc = CPDFDocumentFromFPDFDocument(document);
   if (!pDoc)
     return 0;
@@ -337,7 +364,7 @@ FPDF_EXPORT extern "C" unsigned int REDDoc_GetMetaTextKeyCount(FPDF_DOCUMENT doc
   return pInfo->GetKeys().size();
 }
 
-FPDF_EXPORT extern "C" const char * REDDoc_GetMetaTextKeyAt(FPDF_DOCUMENT document, unsigned int index) {
+FPDF_EXPORT extern "C" const char * FPDF_CALLCONV REDDoc_GetMetaTextKeyAt(FPDF_DOCUMENT document, unsigned int index) {
   CPDF_Document* pDoc = CPDFDocumentFromFPDFDocument(document);
   if (!pDoc)
     return nullptr;
@@ -355,14 +382,14 @@ FPDF_EXPORT extern "C" const char * REDDoc_GetMetaTextKeyAt(FPDF_DOCUMENT docume
   return keys[index].c_str();
 }
 
-FPDF_EXPORT extern "C" bool REDDoc_SetMetaItem(FPDF_DOCUMENT document, const char *key, const char *value) {
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDDoc_SetMetaItem(FPDF_DOCUMENT document, const char *key, const char *value) {
   CPDF_Document* pDoc = CPDFDocumentFromFPDFDocument(document);
   if (!pDoc)
-    return false;
+    return 0;
 
   CPDF_Dictionary* pInfo = pDoc->GetInfo();
   if (!pInfo)
-    return false;
+    return 0;
 
   auto bkey = ByteString(key);
 
@@ -372,19 +399,26 @@ FPDF_EXPORT extern "C" bool REDDoc_SetMetaItem(FPDF_DOCUMENT document, const cha
     auto wide = WideString::FromUTF8(value);
     pInfo->SetNewFor<CPDF_String>(bkey, wide);
   }
-  return true;
+  return 1;
 }
 
 
-FPDF_EXPORT extern "C" unsigned int REDFormObject_GetObjectCount(CPDF_FormObject const *pFormObj) {
+FPDF_EXPORT extern "C" unsigned int FPDF_CALLCONV REDFormObject_GetObjectCount(FPDF_PAGEOBJECT formObj) {
+  CPDF_PageObject *pPageObj = CPDFPageObjectFromFPDFPageObject(formObj);
+  CPDF_FormObject *pFormObj = pPageObj->AsForm();
   return pFormObj->form()->GetPageObjectCount();
 }
 
-FPDF_EXPORT extern "C" CPDF_PageObject *REDFormObject_GetObjectAt(CPDF_FormObject const *pFormObj, unsigned int index) {
-  return pFormObj->form()->GetPageObjectByIndex(index);
+FPDF_EXPORT extern "C" FPDF_PAGEOBJECT FPDF_CALLCONV REDFormObject_GetObjectAt(FPDF_PAGEOBJECT formObj, unsigned int index) {
+  CPDF_PageObject *pPageObj = CPDFPageObjectFromFPDFPageObject(formObj);
+  CPDF_FormObject *pFormObj = pPageObj->AsForm();
+  CPDF_PageObject *pInner = pFormObj->form()->GetPageObjectByIndex(index);
+  return FPDFPageObjectFromCPDFPageObject(pInner);
 }
 
-FPDF_EXPORT extern "C" bool REDFormObject_GetFormMatrix(CPDF_FormObject const *pFormObj, FS_MATRIX *m) {
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDFormObject_GetFormMatrix(FPDF_PAGEOBJECT formObj, FS_MATRIX *m) {
+  CPDF_PageObject *pPageObj = CPDFPageObjectFromFPDFPageObject(formObj);
+  CPDF_FormObject *pFormObj = pPageObj->AsForm();
   CFX_Matrix matrix = pFormObj->form_matrix();
 
   m->a = matrix.a;
@@ -394,37 +428,34 @@ FPDF_EXPORT extern "C" bool REDFormObject_GetFormMatrix(CPDF_FormObject const *p
   m->e = matrix.e;
   m->f = matrix.f;
 
-  return true;
+  return 1;
 }
 
-FPDF_EXPORT extern "C" const void *REDFont_LoadGlyph(CPDF_Font *font, int char_code) {
-  auto pCfxFont = font->GetFont();
+FPDF_EXPORT extern "C" FPDF_PATHDATA FPDF_CALLCONV REDFont_LoadGlyph(FPDF_FONT font, int char_code) {
+  CPDF_Font *pFont = CPDFFontFromFPDFFont(font);
+  auto pCfxFont = pFont->GetFont();
   bool bVert = false;
-  unsigned int glyph_index = font->GlyphFromCharCode(char_code, &bVert);
+  unsigned int glyph_index = pFont->GlyphFromCharCode(char_code, &bVert);
   const CFX_PathData *pPathData = pCfxFont->LoadGlyphPath(glyph_index, 0);
-  return pPathData;
+  return FPDFPathDataFromCFXPathData(pPathData);
 }
 
-FPDF_EXPORT extern "C" int REDGlyph_Size(const CFX_PathData *path) {
-  return path->GetPoints().size();
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDGlyph_Size(FPDF_PATHDATA path) {
+  const CFX_PathData *pPath = CFXPathDataFromFPDFPathData(path);
+  return pPath->GetPoints().size();
 }
 
-typedef struct {
-  float x;
-  float y;
-  unsigned char type;
-  bool close;
-} RED_PATH_POINT;
-
-FPDF_EXPORT extern "C" void REDGlyph_Get(const CFX_PathData *path, int index, RED_PATH_POINT *p) {
-  auto pPoint = path->GetPoints()[index];
-  *p = * ((RED_PATH_POINT*) &pPoint);
+FPDF_EXPORT extern "C" void FPDF_CALLCONV REDGlyph_Get(FPDF_PATHDATA path, int index, FPDF_PATH_POINT *p) {
+  const CFX_PathData *pPath = CFXPathDataFromFPDFPathData(path);
+  auto pPoint = pPath->GetPoints()[index];
+  *p = * ((FPDF_PATH_POINT*) &pPoint);
 }
 
 #define RED_FLT_MAX (1.e8)
-FPDF_EXPORT extern "C" bool REDGlyph_GetBounds(const CFX_PathData *path, FS_RECTF *out) {
-  auto points = path->GetPoints();
-  if (points.size() < 1) return false;
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDGlyph_GetBounds(FPDF_PATHDATA path, FS_RECTF *out) {
+  const CFX_PathData *pPath = CFXPathDataFromFPDFPathData(path);
+  auto points = pPath->GetPoints();
+  if (points.size() < 1) return 0;
 
   float x0 = RED_FLT_MAX;
   float y0 = RED_FLT_MAX;
@@ -442,11 +473,12 @@ FPDF_EXPORT extern "C" bool REDGlyph_GetBounds(const CFX_PathData *path, FS_RECT
   out->right = x1;
   out->top = y1;
 
-  return true;
+  return 1;
 }
 
-FPDF_EXPORT extern "C" const void *REDFont_LoadUnicodeMap(CPDF_Font *font) {
-  auto pDict = font->GetFontDict();
+FPDF_EXPORT extern "C" const void * FPDF_CALLCONV REDFont_LoadUnicodeMap(FPDF_FONT font) {
+  CPDF_Font *pFont = CPDFFontFromFPDFFont(font);
+  auto pDict = pFont->GetFontDict();
   if (pDict == nullptr) {
     return nullptr;
   }
@@ -474,23 +506,24 @@ FPDF_EXPORT extern "C" const void *REDFont_LoadUnicodeMap(CPDF_Font *font) {
   return buffer;
 }
 
-FPDF_EXPORT extern "C" bool REDFont_WriteUnicodeMap(CPDF_Font *font, unsigned char *buffer, size_t len) {
-  auto pDict = font->GetFontDict();
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDFont_WriteUnicodeMap(FPDF_FONT font, unsigned char *buffer, size_t len) {
+  CPDF_Font *pFont = CPDFFontFromFPDFFont(font);
+  auto pDict = pFont->GetFontDict();
   if (pDict == nullptr) {
-    return false;
+    return 0;
   }
 
   auto pStream = pDict->GetStreamFor("ToUnicode");
   if (pStream == nullptr) {
-    return false;
+    return 0;
   }
 
   auto span = pdfium::span<const uint8_t>(buffer, len);
   pStream->SetDataAndRemoveFilter(span);
-  return true;
+  return 1;
 }
 
-FPDF_EXPORT extern "C" void REDFont_DestroyUnicodeMap(unsigned char *buffer) {
+FPDF_EXPORT extern "C" void FPDF_CALLCONV REDFont_DestroyUnicodeMap(unsigned char *buffer) {
   free(buffer);
 }
 
@@ -527,7 +560,7 @@ private:
   FILE *m_fp;
 };
 
-FPDF_EXPORT extern "C" int REDDoc_Save(FPDF_DOCUMENT document, char const *filename) {
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDDoc_Save(FPDF_DOCUMENT document, char const *filename) {
   CPDF_Document* pDoc = CPDFDocumentFromFPDFDocument(document);
   if (!pDoc)
     return 0;
