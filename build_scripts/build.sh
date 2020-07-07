@@ -12,7 +12,6 @@ cd $REDSTAGING
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 export PATH=$REDSTAGING/depot_tools:$PATH
 
-
 gclient config --name pdfium --unmanaged https://pdfium.googlesource.com/pdfium.git
 gclient sync
 
@@ -26,6 +25,9 @@ gclient sync
 patch -p0 -i $REDSTORK/patches/BUILD.gn.diff
 
 mkdir $REDSTAGING/out $REDSTAGING/out/Debug $REDSTAGING/out/Release
+ls -l $REDSTORK/src/
+ls -l $REDSTORK/src/args.$OS.Debug.gn
+ls -l $REDSTAGING/out/Debug/
 cp $REDSTORK/src/args.$OS.Debug.gn $REDSTAGING/out/Debug/args.gn
 cp $REDSTORK/src/args.$OS.Release.gn $REDSTAGING/out/Release/args.gn
 
