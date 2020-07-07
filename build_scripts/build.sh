@@ -1,47 +1,69 @@
 # exit on error and do long report
 set -ex
 
-# which version of PDFium to use?
-version=`cat /self/redstork/pdfium_version.txt`
+REDSTORK=$PWD
+REDSTAGING=$PWD/staging
+OS=`python3 -c "import sys; print(sys.platform)"`
 
+mkdir $REDSTAGING
+cd $REDSTAGING
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-export PATH=$PATH:/depot_tools
+export PATH=$REDSTAGING/depot_tools:$PATH
+
+# which version of PDFium to use?
+version=`cat $REDSTORK/redstork/pdfium_version.txt`
 
 gclient config --name pdfium --unmanaged https://pdfium.googlesource.com/pdfium.git
-
-# resolve third-party deps and download everything
 gclient sync
 
 # checkout the right branch
-cd pdfium
+cd $REDSTAGING/pdfium
 git fetch origin $version
 git checkout $version
-
-# update again since we changed the version
 gclient sync
 
 # apply patches
-patch -p0 -i /self/patches/BUILD.gn.diff
+patch -p0 -i $REDSTORK/patches/BUILD.gn.diff
+
+mkdir $REDSTAGING/out $REDSTAGING/out/Debug $REDSTAGING/out/Release
+cp $REDSTORK/src/args.$OS.Debug.gn $REDSTAGING/out/Debug/args.gn
+cp $REDSTORK/src/args.$OS.Release.gn $REDSTAGING/out/Release/args.gn
 
 # copy new sources
-cp -r /self redstork
-
-mkdir /out /out/Debug /out/Release
-cp /self/src/args.Debug.gn /out/Debug/args.gn
-cp /self/src/args.Release.gn /out/Release/args.gn
-
-cd redstork
+mkdir $REDSTAGING/pdfium/redstork
+cp $REDSTORK/BUILD.gn $REDSTAGING/pdfium/redstork/
+cp -r $REDSTORK/src $REDSTAGING/pdfium/redstork/src
+cd $REDSTAGING/pdfium/redstork
 
 # build debug
-gn gen /out/Debug
-ninja -C /out/Debug
+gn gen $REDSTAGING/out/Debug
+ninja -C $REDSTAGING/out/Debug
 
 # build release
-gn gen /out/Release
-ninja -C /out/Release
+gn gen $REDSTAGING/out/Release
+ninja -C $REDSTAGING/out/Release
 
-# # build Python wheel
-# cp /out/Release/lib*.so redstork/linux/
-# rm -rf build dist
-# python setup.py bdist_wheel
-# cp dist/*.whl /out
+cd $REDSTORK
+python3 -m venv .venv
+. .venv/bin/activate
+pip install pytest wheel
+
+# build Debug Python wheel
+cp $REDSTAGING/out/Debug/lib*.so $REDSTORK/redstork/$OS/
+rm -f $REDSTORK/redstork/$OS/libpdfium*
+PYTHONPATH=. pytest redstork/test
+rm -rf build dist
+python setup.py bdist_wheel
+
+wheel_name=`(cd dist; ls *whl)`
+mv dist/$wheel_name dist/dbg-$wheel_name
+
+# build Release Python wheel
+cp $REDSTAGING/out/Release/lib*.so $REDSTORK/redstork/$OS/
+rm -f $REDSTORK/redstork/$OS/libpdfium*
+PYTHONPATH=. pytest redstork/test
+rm -rf build dist
+python setup.py bdist_wheel
+
+#cleanup
+rm -rf $REDSTAGING

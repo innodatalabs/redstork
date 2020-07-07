@@ -1,4 +1,7 @@
+sudo: required
 language: python
+if: tag IS present
+dist: bionic
 
 python:
     - "3.8"
@@ -7,10 +10,7 @@ branches:
     only:
     - master
 
-services:
-    - docker
-
 script:
-    - docker run -v `pwd`:/pdfium/redstork mkroutikov/redstork:latest make so
+    - bash build_scripts/build.sh
     - make maybe_publish  # test, build wheel, and (if on tag) publish
 

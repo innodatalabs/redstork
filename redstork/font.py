@@ -146,7 +146,7 @@ class Font:
         umap[charcode] = text
 
     def __del__(self):
-        so.REDFont_Destroy(self._font)
+        so.FPDFFont_Close(self._font)
 
     def __repr__(self):
         return f'<RED_Font name={self.name}, flags={self.flags:04x}, weight={self.weight}>'
