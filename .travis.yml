@@ -1,9 +1,9 @@
 sudo: required
 language: python
 
-branches:
-    only:
-    - master
+# branches:
+#     only:
+#     - master
 
 matrix:
     include:
@@ -11,8 +11,7 @@ matrix:
       dist: bionic
       python:
       - "3.8"
-      on:
-        tags: true
+      if: tag IS present
 
 script:
     - bash build_scripts/build.sh
