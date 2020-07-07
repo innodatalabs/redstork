@@ -1,16 +1,30 @@
 sudo: required
 language: python
-# if: tag IS present
-dist: bionic
-
-python:
-    - "3.8"
 
 branches:
     only:
     - master
 
+matrix:
+    include:
+    - os: linux
+      dist: bionic
+      python:
+      - "3.8"
+      on:
+        tags: true
+
 script:
     - bash build_scripts/build.sh
     - make maybe_publish  # test, build wheel, and (if on tag) publish
 
+deploy:
+    provider: releases
+    api_key:
+        secure: $(GUTHUB_RELEASES_API_KEY)
+    file_glob: true
+    file: "dist/redstork*.whl"
+    skip_cleanup: true
+    overwrite: true
+    on:
+        tags: true
