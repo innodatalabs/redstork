@@ -1,6 +1,6 @@
 sudo: required
 language: python
-if: tag IS present
+# if: tag IS present
 dist: bionic
 
 python:
