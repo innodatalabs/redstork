@@ -5,6 +5,11 @@ REDSTORK=$PWD
 REDSTAGING=$PWD/staging
 OS=`python3 -c "import sys; print(sys.platform)"`
 
+echo $OS
+echo $TRAVIS_TAG
+
+exit 0;
+
 mkdir $REDSTAGING
 cd $REDSTAGING
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
