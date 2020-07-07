@@ -1,16 +1,14 @@
-sudo: required
-language: python
+language: shell
 if: tag IS present
-dist: bionic
 
-python:
-    - "3.8"
-
-branches:
-    only:
-    - master
+jobs:
+    include:
+    # - os: linux
+    #   dist: bionic
+    # python:
+    # - "3.8"
+    # - os: osx
+    #   osx_image: xcode11.3
 
 script:
-    - bash build_scripts/build.sh
-    - make maybe_publish  # test, build wheel, and (if on tag) publish
-
+    - bash build_scripts/build.sh && make maybe_publish

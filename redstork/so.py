@@ -7,6 +7,8 @@ if sys.platform == 'linux':
     so_name = 'linux/libredstork.so'
 elif sys.platform == 'win32':
     so_name = 'win/redstork.dll'
+elif sys.platform == 'darwin':
+    so_name = 'darwin/libredstork.dylib'
 else:
     raise RuntimeError('Unsupported platform: %s' % sys.platform)
 
