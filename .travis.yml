@@ -1,7 +1,5 @@
 sudo: required
 language: python
-python:
-- "3.8"
 if: tag IS present
 
 # branches:
@@ -12,8 +10,12 @@ jobs:
     include:
     # - os: linux
     #   dist: bionic
+    # python:
+    # - "3.8"
     - os: osx
       osx_image: xcode11.3
+      python:
+      - "3.7"
 
 script:
     - bash build_scripts/build.sh
