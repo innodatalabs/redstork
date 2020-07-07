@@ -35,7 +35,7 @@ call gclient sync || exit /b
 C:\Python38-x64\python.exe -m venv .venv
 call .venv\Scripts\activate.bat
 where python || exit /b
-call %RED_STAGING%\python\python.bat -m pip install pywin32 || exit /b
+call %RED_STAGING%\depot_tools\python\python.bat -m pip install pywin32 || exit /b
 
 : Patch
 cd %REDSTAGING%\pdfium

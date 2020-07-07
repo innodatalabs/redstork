@@ -1,3 +1,6 @@
+# 
+# 
+# 
 # exit on error and do long report
 set -ex
 
@@ -28,9 +31,9 @@ gclient sync
 # apply patches
 patch -p0 -i $REDSTORK/patches/BUILD.gn.diff
 
-mkdir $REDSTAGING/out $REDSTAGING/out/Debug $REDSTAGING/out/Release
+mkdir $REDSTAGING/out
 # cp $REDSTORK/src/args.$OS.Debug.gn $REDSTAGING/out/Debug/args.gn
-cp $REDSTORK/src/args.$OS.Release.gn $REDSTAGING/out/Release/args.gn
+cp $REDSTORK/src/args.$OS.Release.gn $REDSTAGING/out/args.gn
 
 # copy new sources
 mkdir $REDSTAGING/pdfium/redstork
@@ -42,8 +45,8 @@ cp -r $REDSTORK/src $REDSTAGING/pdfium/redstork/src
 # ninja -C $REDSTAGING/out/Debug
 
 # build release
-gn gen $REDSTAGING/out/Release
-ninja -C $REDSTAGING/out/Release
+gn gen $REDSTAGING/out
+ninja -C $REDSTAGING/out
 
 cd $REDSTORK
 python3 -m venv .venv
@@ -61,7 +64,7 @@ pip install pytest wheel
 # mv dist/$wheel_name dist/dbg-$wheel_name
 
 # build Release Python wheel
-cp $REDSTAGING/out/Release/lib*.so $REDSTORK/redstork/$OS/
+cp $REDSTAGING/out/lib*.so $REDSTORK/$OS/
 rm -f $REDSTORK/redstork/$OS/libpdfium*
 PYTHONPATH=. pytest redstork/test
 rm -rf build dist
