@@ -57,7 +57,7 @@ call %DepotTools_DIR%\python.bat -m pip install pywin32 || exit /b
 
 : Patch
 cd %PDFium_SOURCE_DIR%
-git.exe apply -v "%PDFium_PATCH_DIR%\BUILD.gn" || exit /b
+patch -p0 -i "%PDFium_PATCH_DIR%\BUILD.gn.diff" || exit /b
 rem git.exe -C build apply -v "%PDFium_PATCH_DIR%\rc_compiler.patch" || exit /b
 
 : Configure
