@@ -7,9 +7,9 @@ branches:
 skip_non_tags: true
 
 environment:
-  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-  GYP_MSVS_VERSION: 2019
-  PDFium_BRANCH: $(APPVEYOR_REPO_TAG_NAME)
+  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+  GYP_MSVS_VERSION: 2017
+  PDFium_BRANCH: chromium/4196
   matrix:
     - PDFium_V8: disabled
 
@@ -21,5 +21,4 @@ configuration:
 
 build_script:
   - call build_scripts\build.bat
-  - cd %APPVEYOR_BUILD_FOLDER%
 
