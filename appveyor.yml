@@ -20,6 +20,6 @@ configuration:
   - Release
 
 build_script:
-  - choco install windows-sdk-10-version-1903-all
+  - choco install windows-sdk-10
   - call build_scripts\build.bat
 
