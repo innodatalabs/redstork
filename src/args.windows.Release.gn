@@ -7,7 +7,7 @@ pdf_use_skia = false
 pdf_use_skia_paths = false
 pdf_enable_xfa = false
 pdf_enable_v8 = false
-is_component_build = true
+is_component_build = false
 
 clang_use_chrome_plugins = false
 
