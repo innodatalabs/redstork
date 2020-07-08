@@ -14,7 +14,7 @@ class bdist_wheel(_bdist_wheel):
         elif sys.platform == 'win32':
             self.plat_name = 'win64'
         elif sys.platform == 'darwin':
-            self.plat_name = 'macos_10_9'
+            self.plat_name = 'macosx_10_9_intel'
         else:
             assert False, sys.platform
         self.python_tag = 'py3'
