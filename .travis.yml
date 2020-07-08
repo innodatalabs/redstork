@@ -1,38 +1,14 @@
 language: shell
 if: tag IS present
 
-# branches:
-#     only:
-#     - master
-
 jobs:
     include:
     # - os: linux
     #   dist: bionic
     # python:
     # - "3.8"
-    - os: osx
-      osx_image: xcode11.3
-    #   env:
-    #   - HOMEBREW_NO_INSTALL_CLEANUP=1
-    #   - HOMEBREW_NO_ANALYTICS=1
-    #   addons:
-    #     homebrew:
-    #       packages: python3
-    #   before_install:
-    #   - python3 -m pip install --upgrade virtualenv
-    #   - virtualenv -p python3 --system-site-packages "$HOME/venv"
-    #   - source "$HOME/venv/bin/activate"
+    # - os: osx
+    #   osx_image: xcode11.3
 
 script:
     - bash build_scripts/build.sh && make maybe_publish
-
-deploy:
-    provider: releases
-    token:
-        secure: $(GUTHUB_RELEASES_token)
-    file_glob: true
-    file: "dist/redstork*.whl"
-    overwrite: true
-    on:
-        tags: true
