@@ -13,6 +13,7 @@ set PDFium_URL=https://pdfium.googlesource.com/pdfium.git
 set PDFium_SOURCE_DIR=%CD%\pdfium
 set PDFium_BUILD_DIR=%PDFium_SOURCE_DIR%\out
 set PDFium_PATCH_DIR=%CD%\patches
+set PDFium_EXTRASRC=%CD%\src
 set PDFium_CMAKE_CONFIG=%CD%\PDFiumConfig.cmake
 set PDFium_ARGS=%CD%\src\args.windows.Release.gn
 
@@ -60,10 +61,14 @@ cd %PDFium_SOURCE_DIR%
 patch -p0 -i "%PDFium_PATCH_DIR%\BUILD.gn.diff" || exit /b
 rem git.exe -C build apply -v "%PDFium_PATCH_DIR%\rc_compiler.patch" || exit /b
 
+
 : Configure
 copy %PDFium_ARGS% %PDFium_BUILD_DIR%\args.gn
-if "%CONFIGURATION%"=="Release" echo is_debug=false >> %PDFium_BUILD_DIR%\args.gn
-if "%PLATFORM%"=="x86" echo target_cpu="x86" >> %PDFium_BUILD_DIR%\args.gn
+REM if "%CONFIGURATION%"=="Release" echo is_debug=false >> %PDFium_BUILD_DIR%\args.gn
+REM if "%PLATFORM%"=="x86" echo target_cpu="x86" >> %PDFium_BUILD_DIR%\args.gn
+mkdir %PDFium_SOURCE_DIR%\redstork
+mkdir %PDFium_SOURCE_DIR%\redstork\src
+copy %PDFium_EXTRASRC%\* %PDFium_SOURCE_DIR%\redstork\src
 
 : Generate Ninja files
 call gn gen %PDFium_BUILD_DIR% || exit /b
@@ -72,22 +77,7 @@ call gn gen %PDFium_BUILD_DIR% || exit /b
 call ninja -C %PDFium_BUILD_DIR% pdfium || exit /b
 
 : Install
-echo on
-copy %PDFium_CMAKE_CONFIG% %PDFium_STAGING_DIR% || exit /b
-copy %PDFium_SOURCE_DIR%\LICENSE %PDFium_STAGING_DIR% || exit /b
-xcopy /S /Y %PDFium_SOURCE_DIR%\public %PDFium_INCLUDE_DIR%\ || exit /b
-del %PDFium_INCLUDE_DIR%\DEPS
-del %PDFium_INCLUDE_DIR%\README
-del %PDFium_INCLUDE_DIR%\PRESUBMIT.py
-move %PDFium_BUILD_DIR%\pdfium.dll.lib %PDFium_LIB_DIR% || exit /b
-move %PDFium_BUILD_DIR%\pdfium.dll %PDFium_BIN_DIR% || exit /b
-if "%CONFIGURATION%"=="Debug" move %PDFium_BUILD_DIR%\pdfium.dll.pdb %PDFium_BIN_DIR%
-if "%PDFium_V8%"=="enabled" (
-    mkdir %PDFium_RES_DIR%
-    move %PDFium_BUILD_DIR%\icudtl.dat %PDFium_RES_DIR%
-    move %PDFium_BUILD_DIR%\snapshot_blob.bin %PDFium_RES_DIR%
-)
-
-: Pack
-cd %PDFium_STAGING_DIR%
-call 7z a %PDFium_ARTIFACT% *
+cd %PDFium_EXTRASRC%\..
+C:\Pyton3.8\python.exe -m venv .venv
+call .venv\Script\activate.bat
+pip install wheel pytest
