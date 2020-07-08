@@ -13,7 +13,7 @@ set PDFium_URL=https://pdfium.googlesource.com/pdfium.git
 set PDFium_SOURCE_DIR=%CD%\pdfium
 set PDFium_BUILD_DIR=%PDFium_SOURCE_DIR%\out
 set PDFium_PATCH_DIR=%CD%\patches
-set PDFium_EXTRASRC=%CD%\src
+set PDFium_EXTRASRC=%CD%
 set PDFium_CMAKE_CONFIG=%CD%\PDFiumConfig.cmake
 set PDFium_ARGS=%CD%\src\args.windows.Release.gn
 
@@ -68,7 +68,8 @@ REM if "%CONFIGURATION%"=="Release" echo is_debug=false >> %PDFium_BUILD_DIR%\ar
 REM if "%PLATFORM%"=="x86" echo target_cpu="x86" >> %PDFium_BUILD_DIR%\args.gn
 mkdir %PDFium_SOURCE_DIR%\redstork
 mkdir %PDFium_SOURCE_DIR%\redstork\src
-copy %PDFium_EXTRASRC%\* %PDFium_SOURCE_DIR%\redstork\src
+copy %PDFium_EXTRASRC%\src\* %PDFium_SOURCE_DIR%\redstork\src
+copy %PDFium_EXTRASRC%\BUILD.gn %PDFium_SOURCE_DIR%\redstork\
 
 : Generate Ninja files
 call gn gen %PDFium_BUILD_DIR% || exit /b
@@ -77,7 +78,7 @@ call gn gen %PDFium_BUILD_DIR% || exit /b
 call ninja -C %PDFium_BUILD_DIR% pdfium || exit /b
 
 : Install
-cd %PDFium_EXTRASRC%\..
+cd %PDFium_EXTRASRC%
 C:\Pyton3.8\python.exe -m venv .venv
 call .venv\Script\activate.bat
 pip install wheel pytest
