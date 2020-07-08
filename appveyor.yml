@@ -20,5 +20,6 @@ configuration:
   - Release
 
 build_script:
+  - choco install windows-sdk-10-version-1903-windbg
   - call build_scripts\build.bat
 
