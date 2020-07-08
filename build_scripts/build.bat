@@ -71,6 +71,12 @@ mkdir %PDFium_SOURCE_DIR%\redstork\src
 copy %PDFium_EXTRASRC%\src\* %PDFium_SOURCE_DIR%\redstork\src
 copy %PDFium_EXTRASRC%\BUILD.gn %PDFium_SOURCE_DIR%\redstork\
 
+copy "%PDFium_PATCH_DIR%\resources.rc" . || exit /b
+git.exe apply -v "%PDFium_PATCH_DIR%\shared_library.patch" || exit /b
+rem git.exe apply -v "%PDFium_PATCH_DIR%\relative_includes.patch" || exit /b
+git.exe -C build apply -v "%PDFium_PATCH_DIR%\rc_compiler.patch" || exit /b
+
+
 : Generate Ninja files
 call gn gen %PDFium_BUILD_DIR% || exit /b
 
