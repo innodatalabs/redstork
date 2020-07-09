@@ -2,7 +2,7 @@ test: off
 
 branches:
   only:
-  - master
+  - xxx  # disables appveyor build
 
 skip_non_tags: true
 
