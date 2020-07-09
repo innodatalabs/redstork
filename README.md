@@ -9,8 +9,12 @@ PDF Parsing library, based on [PDFium](https://pdfium.googlesource.com/pdfium/).
 
 ## Requirements
 
-* Fairly recent Linux (Ubuntu 18.04 or better). Support for other platforms is in the works.
 * Python 3
+
+Platfom support:
+* Fairly recent Linux (Ubuntu 18.04 or better). Older systems not supported.
+* MacOS 10.6 or better
+* Windows support in works
 
 ## Installation
 ```bash
