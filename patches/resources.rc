@@ -5,11 +5,11 @@ BEGIN
         BLOCK "040904E4"
         BEGIN
             VALUE "CompanyName",      "Google Inc."
-            VALUE "FileDescription",  "PDFium (compiled by github.com/bblanchon)"
-            VALUE "InternalName",     "pdfium"
-            VALUE "OriginalFilename", "pdfium.dll"
-            VALUE "ProductName",      "pdfium"
-            VALUE "LegalCopyright",   "Copyright 2018 PDFium Authors. All rights reserved."
+            VALUE "FileDescription",  "PDFium+REDSTORK extensions (compiled by github.com/innodatalabs)"
+            VALUE "InternalName",     "redstork"
+            VALUE "OriginalFilename", "redstork.dll"
+            VALUE "ProductName",      "redstork"
+            VALUE "LegalCopyright",   "Copyright 2020 PDFium Authors. All rights reserved."
         END
     END
 

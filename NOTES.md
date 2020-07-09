@@ -6,13 +6,19 @@ One time task - download image of developer container:
 ```bash
 docker pull mkroutikov/redstork
 ```
+or, download debug version of developer container:
+```bash
+docker pull mkroutikov/redstork:debug
+```
 
 To compile and build wheel:
 ```bash
 docker run -v`pwd`:/pdfium/redstork -it mkroutikov/redstork
-make so  # or make sodbg
+make so
+exit
 make wheel
 ```
+(use debug version of container if you need DLLs with debug information).
 
 ## Releasing new version to PyPI
 
@@ -27,7 +33,7 @@ git tag {tag}
 git push --tags
 ```
 
-Pushing a tag to the `master` branch triggers Travis build and deploy process.
+Pushing a tag to the `master` branch triggers Travis/Appveyor build and deploy process.
 
 ## Building developer container
 Build a container with PDFium sources and dependencies compile, so that `redstork` development
@@ -38,6 +44,11 @@ make docker
 ```
 
 This takes a long time (downloads all deps and compiles 1.5K sources for Debug and Release).
+
+## Find out the latest versions of PDFium
+```bash
+git ls-remote --heads https://pdfium.googlesource.com/pdfium.git | grep -ohP 'chromium/\d+' | tail -n10
+```
 
 
 ## Developing (hard way) - no docker
