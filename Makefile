@@ -6,12 +6,9 @@ export PATH := $(PATH):/depot_tools
 ON_TAG := $(shell git tag --points-at HEAD)
 
 so: src/*.cc
-	ninja -C /out/Debug
-	ninja -C /out/Release
-	cp /out/Release/lib*.so redstork/linux/
-
-sodbg: so
-	cp /out/Debug/lib*.so redstork/linux/
+	ninja -C /out
+	ninja -C /out
+	cp /out/lib*.so redstork/linux/
 
 test:
 	pip install pytest
@@ -37,3 +34,6 @@ docs:
 
 docker:
 	docker build -t mkroutikov/redstork -f docker/Dockerfile .
+
+docker-debug:
+	docker build -t mkroutikov/redstork:debug -f docker/Dockerfile-debug .

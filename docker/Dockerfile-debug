@@ -5,7 +5,7 @@ RUN apt update; apt install -y vim
 
 COPY . /self
 
-RUN cd /self; REDSTAGING=/self/.. bash /self/build_scripts/build.sh
+RUN cd /self; REDSTAGING=/self/.. REDDEBUG=true bash /self/build_scripts/build.sh
 
 WORKDIR /pdfium/redstork
 

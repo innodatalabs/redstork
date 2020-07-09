@@ -5,16 +5,13 @@
 set -ex
 
 REDSTORK=$PWD
-if [ -z ${REDSTAGING+x} ];
-then
-    REDSTAGING=$PWD/staging;
-fi
+[ -z ${REDSTAGING+x} ] && REDSTAGING=$PWD/staging
 
 OS=`python3 -c "import sys; print(sys.platform)"`
 # which version of PDFium to use?
 PDFIUM_VERSION=`cat $REDSTORK/redstork/pdfium_version.txt`
 
-mkdir $REDSTAGING
+[ -d $REDSTAGING ] || mkdir $REDSTAGING
 cd $REDSTAGING
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 export PATH=$REDSTAGING/depot_tools:$PATH
@@ -32,8 +29,11 @@ gclient sync
 patch -p0 -i $REDSTORK/patches/BUILD.gn.diff
 
 mkdir $REDSTAGING/out
-# cp $REDSTORK/src/args.$OS.Debug.gn $REDSTAGING/out/Debug/args.gn
-cp $REDSTORK/src/args.$OS.Release.gn $REDSTAGING/out/args.gn
+if [ -z ${REDDEBUG+x} ]; then
+    cp $REDSTORK/src/args.$OS.Release.gn $REDSTAGING/out/args.gn
+else
+    cp $REDSTORK/src/args.$OS.Debug.gn $REDSTAGING/out/args.gn
+fi
 
 # copy new sources
 mkdir $REDSTAGING/pdfium/redstork
