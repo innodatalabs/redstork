@@ -62,6 +62,10 @@ jobs:
         with:
           name: redstork-lib-${{ inputs.target_os }}-${{ inputs.target_cpu }}
           path: staging/
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
       - name: Build wheel
         run: steps/08-wheel.sh
         shell: bash
