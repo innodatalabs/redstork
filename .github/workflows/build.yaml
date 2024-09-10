@@ -62,3 +62,12 @@ jobs:
         with:
           name: redstork-lib-${{ inputs.target_os }}-${{ inputs.target_cpu }}
           path: staging/
+      - name: Build wheel
+        run: steps/08-wheel.sh
+        shell: bash
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: redstork-wheel-${{ inputs.target_os }}-${{ inputs.target_cpu }}
+          path: dist/
+
