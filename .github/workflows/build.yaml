@@ -29,6 +29,7 @@ jobs:
           PDFium_BUILD_DIR=$PDFium_BUILD_DIR
           PDFium_TARGET_OS=$PDFium_TARGET_OS
           OS=$OS
+          CURRENT_CPU=$CURRENT_CPU
           PDFium_TARGET_CPU=$PDFium_TARGET_CPU
           DEPOT_TOOLS_WIN_TOOLCHAIN=$DEPOT_TOOLS_WIN_TOOLCHAIN
           END
