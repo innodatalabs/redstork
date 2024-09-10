@@ -16,6 +16,7 @@ jobs:
           PDFium_BUILD_ROOT=$PDFium_BUILD_ROOT
           PDFium_SOURCE_DIR=$PDFium_SOURCE_DIR
           PDFium_BUILD_DIR=$PDFium_BUILD_DIR
+          PDFium_STAGING_DIR=$PDFium_STAGING_DIR
           PDFium_TARGET_OS=$PDFium_TARGET_OS
           OS=$OS
           PDFium_TARGET_CPU=$PDFium_TARGET_CPU

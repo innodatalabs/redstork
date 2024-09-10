@@ -3,6 +3,7 @@ ROOT=${BUILD_ROOT:-$PWD/pdfium-build}
 export PDFium_BUILD_ROOT=$ROOT
 export PDFium_SOURCE_DIR=$ROOT/pdfium
 export PDFium_BUILD_DIR=$ROOT/pdfium/out
+export PDFium_STAGING_DIR=$ROOT/pdfium/staging
 
 export PDFium_TARGET_OS=linux
 export OS=linux

@@ -2,7 +2,7 @@
 
 BUILD=${PDFium_BUILD_DIR:-pdfium/out}
 
-STAGING="$PWD/staging"
+STAGING=${PDFium_STAGING_DIR:?}
 STAGING_LIB="$STAGING/lib"
 
 mkdir -p "$STAGING"
