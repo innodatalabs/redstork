@@ -11,7 +11,16 @@ jobs:
         uses: actions/checkout@v4
       - name: Set environment variables
         run: |
-          steps/00-env.sh
+          . steps/00-env.sh
+          cat >>$GITHUB_ENV <<END
+          PDFium_BUILD_ROOT=$PDFium_BUILD_ROOT
+          PDFium_SOURCE_DIR=$PDFium_SOURCE_DIR
+          PDFium_BUILD_DIR=$PDFium_BUILD_DIR
+          PDFium_TARGET_OS=$PDFium_TARGET_OS
+          OS=$OS
+          PDFium_TARGET_CPU=$PDFium_TARGET_CPU
+          DEPOT_TOOLS_WIN_TOOLCHAIN=$DEPOT_TOOLS_WIN_TOOLCHAIN
+          END
         shell: bash
       - name: Install (1/2)
         run: steps/01-install.sh
