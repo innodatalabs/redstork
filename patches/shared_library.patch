@@ -1,17 +1,25 @@
 diff --git a/BUILD.gn b/BUILD.gn
-index f27a2f4c1..95eff4106 100644
+index 25978d9..15ead3b 100644
 --- a/BUILD.gn
 +++ b/BUILD.gn
-@@ -140,7 +140,7 @@ group("pdfium_public_headers") {
+@@ -384,7 +384,7 @@ group("pdfium_public_headers") {
    ]
  }
  
 -component("pdfium") {
 +shared_library("pdfium") {
+   output_name = "pdfium"
    libs = []
-   configs += [ ":pdfium_core_config" ]
-   public_configs = [ ":pdfium_public_config" ]
-@@ -179,6 +179,9 @@ component("pdfium") {
+   configs += [ ":pdfium_strict_config" ]
+@@ -401,6 +401,7 @@ component("pdfium") {
+     "fpdfsdk",
+     "fpdfsdk/formfiller",
+     "fxjs",
++    "redstork",
+   ]
+ 
+   public_deps = [
+@@ -422,6 +422,9 @@ component("pdfium") {
        "gdi32.lib",
        "user32.lib",
      ]
@@ -21,11 +29,18 @@ index f27a2f4c1..95eff4106 100644
    }
  
    if (is_mac) {
+@@ -606,3 +609,5 @@ group("gn_check") {
+     deps += [ "//skia" ]
+   }
+ }
++
++group("redstork") { deps = [ "//redstork" ] }
+
 diff --git a/public/fpdfview.h b/public/fpdfview.h
 index 901d7db14..cb0a596f6 100644
 --- a/public/fpdfview.h
 +++ b/public/fpdfview.h
-@@ -175,9 +175,6 @@ typedef int FPDF_ANNOT_APPEARANCEMODE;
+@@ -203,9 +203,6 @@ typedef int FPDF_ANNOT_APPEARANCEMODE;
  // Dictionary value types.
  typedef int FPDF_OBJECT_TYPE;
  

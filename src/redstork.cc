@@ -19,16 +19,16 @@
 #include "core/fpdfapi/parser/cpdf_stream_acc.h"
 #include "core/fpdfapi/parser/cpdf_string.h"
 #include "core/fpdfapi/edit/cpdf_creator.h"
-#include "third_party/base/stl_util.h"
+//#include "third_party/base/stl_util.h"
 
 
-inline const CFX_PathData *CFXPathDataFromFPDFPathData(FPDF_PATHDATA data) {
-  return reinterpret_cast<const CFX_PathData*>(data);
-}
+// inline const CFX_Path *CFXPathDataFromFPDFPathData(FPDF_PATH data) {
+//   return reinterpret_cast<const CFX_Path*>(data);
+// }
 
-inline FPDF_PATHDATA FPDFPathDataFromCFXPathData(const CFX_PathData *pData) {
-  return reinterpret_cast<FPDF_PATHDATA>(pData);
-}
+// inline FPDF_PATHDATA FPDFPathDataFromCFXPathData(const CFX_PathData *pData) {
+//   return reinterpret_cast<FPDF_PATHDATA>(pData);
+// }
 
 FPDF_EXPORT extern "C" const char * FPDF_CALLCONV FPDF_ErrorCodeToString(long err) {
   switch (err) {
@@ -91,15 +91,16 @@ FPDF_EXPORT extern "C" int FPDF_CALLCONV REDTextObject_GetTextMatrix(FPDF_PAGEOB
   return 1;
 }
 
-FPDF_EXPORT extern "C" void FPDF_CALLCONV REDTextObject_GetItemInfo(FPDF_PAGEOBJECT textObj, unsigned int index, FPDF_TEXT_OBJECT_ITEM *pItem) {
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDTextObject_GetItemInfo(FPDF_PAGEOBJECT textObj, unsigned int index, FPDF_TEXT_OBJECT_ITEM *pItem) {
   CPDF_PageObject *pPageObj = CPDFPageObjectFromFPDFPageObject(textObj);
   CPDF_TextObject *pTextObj = pPageObj->AsText();
-  CPDF_TextObjectItem item;
-  pTextObj->GetItemInfo(index, &item);
+  CPDF_TextObject::Item item = pTextObj->GetItemInfo(index);
 
   pItem->charCode = item.m_CharCode;
   pItem->originX  = item.m_Origin.x;
   pItem->originY  = item.m_Origin.y;
+
+  return 1;
 }
 
 FPDF_EXPORT extern "C" unsigned long FPDF_CALLCONV REDFont_GetName(FPDF_FONT font, char *buf, unsigned long buflen) {
@@ -394,10 +395,9 @@ FPDF_EXPORT extern "C" int FPDF_CALLCONV REDDoc_SetMetaItem(FPDF_DOCUMENT docume
   auto bkey = ByteString(key);
 
   if (value == nullptr) {
-    pInfo->SetFor(bkey, nullptr);  // deletes this key
+    pInfo->SetFor(bkey, (RetainPtr<CPDF_Object>) nullptr);  // deletes this key
   } else {
-    auto wide = WideString::FromUTF8(value);
-    pInfo->SetNewFor<CPDF_String>(bkey, wide);
+    pInfo->SetNewFor<CPDF_String>(bkey, value);
   }
   return 1;
 }
@@ -431,51 +431,6 @@ FPDF_EXPORT extern "C" int FPDF_CALLCONV REDFormObject_GetFormMatrix(FPDF_PAGEOB
   return 1;
 }
 
-FPDF_EXPORT extern "C" FPDF_PATHDATA FPDF_CALLCONV REDFont_LoadGlyph(FPDF_FONT font, int char_code) {
-  CPDF_Font *pFont = CPDFFontFromFPDFFont(font);
-  auto pCfxFont = pFont->GetFont();
-  bool bVert = false;
-  unsigned int glyph_index = pFont->GlyphFromCharCode(char_code, &bVert);
-  const CFX_PathData *pPathData = pCfxFont->LoadGlyphPath(glyph_index, 0);
-  return FPDFPathDataFromCFXPathData(pPathData);
-}
-
-FPDF_EXPORT extern "C" int FPDF_CALLCONV REDGlyph_Size(FPDF_PATHDATA path) {
-  const CFX_PathData *pPath = CFXPathDataFromFPDFPathData(path);
-  return pPath->GetPoints().size();
-}
-
-FPDF_EXPORT extern "C" void FPDF_CALLCONV REDGlyph_Get(FPDF_PATHDATA path, int index, FPDF_PATH_POINT *p) {
-  const CFX_PathData *pPath = CFXPathDataFromFPDFPathData(path);
-  auto pPoint = pPath->GetPoints()[index];
-  *p = * ((FPDF_PATH_POINT*) &pPoint);
-}
-
-#define RED_FLT_MAX (1.e8)
-FPDF_EXPORT extern "C" int FPDF_CALLCONV REDGlyph_GetBounds(FPDF_PATHDATA path, FS_RECTF *out) {
-  const CFX_PathData *pPath = CFXPathDataFromFPDFPathData(path);
-  auto points = pPath->GetPoints();
-  if (points.size() < 1) return 0;
-
-  float x0 = RED_FLT_MAX;
-  float y0 = RED_FLT_MAX;
-  float x1 = -RED_FLT_MAX;
-  float y1 = -RED_FLT_MAX;
-  for (std::vector<FX_PATHPOINT>::iterator it = points.begin(); it != points.end(); ++it) {
-    x0 = std::min(x0, it->m_Point.x);
-    y0 = std::min(y0, it->m_Point.y);
-    x1 = std::max(x1, it->m_Point.x);
-    y1 = std::max(y1, it->m_Point.y);
-  }
-
-  out->left = x0;
-  out->bottom = y0;
-  out->right = x1;
-  out->top = y1;
-
-  return 1;
-}
-
 FPDF_EXPORT extern "C" const void * FPDF_CALLCONV REDFont_LoadUnicodeMap(FPDF_FONT font) {
   CPDF_Font *pFont = CPDFFontFromFPDFFont(font);
   auto pDict = pFont->GetFontDict();
@@ -493,7 +448,7 @@ FPDF_EXPORT extern "C" const void * FPDF_CALLCONV REDFont_LoadUnicodeMap(FPDF_FO
   auto span = pAcc->GetSpan();
 
   unsigned int size = span.size();
-  unsigned char *data = span.data();
+  const unsigned char *data = span.data();
   unsigned char *buffer = (unsigned char *) malloc(size + 1);
   if (buffer == nullptr) {
     fprintf(stderr, "Failed to allocate\n");
@@ -508,12 +463,12 @@ FPDF_EXPORT extern "C" const void * FPDF_CALLCONV REDFont_LoadUnicodeMap(FPDF_FO
 
 FPDF_EXPORT extern "C" int FPDF_CALLCONV REDFont_WriteUnicodeMap(FPDF_FONT font, unsigned char *buffer, size_t len) {
   CPDF_Font *pFont = CPDFFontFromFPDFFont(font);
-  auto pDict = pFont->GetFontDict();
+  auto pDict = pFont->GetMutableFontDict();
   if (pDict == nullptr) {
     return 0;
   }
 
-  auto pStream = pDict->GetStreamFor("ToUnicode");
+  auto pStream = pDict->GetMutableStreamFor("ToUnicode");
   if (pStream == nullptr) {
     return 0;
   }
@@ -548,12 +503,12 @@ public:
     Close();
   }
 
-  virtual bool WriteBlock(const void* pData, size_t size) {
-    size_t num = fwrite(pData, 1, size, m_fp);
-    return num == size;
+  virtual bool WriteBlock(pdfium::span<const uint8_t> data) {
+    size_t num = fwrite(data.data(), 1, data.size(), m_fp);
+    return num == data.size();
   }
   virtual bool WriteString(ByteStringView str) {
-    return WriteBlock(str.unterminated_c_str(), str.GetLength());
+    return WriteBlock(pdfium::make_span((const uint8_t *)(str.unterminated_c_str()), str.GetLength()));
   }
 
 private:

@@ -76,7 +76,7 @@ class Font:
             charcode (int): the character code (see :class:`TextObject`)
         '''
         if charcode not in self._glyph_cache:
-            g = so.REDFont_LoadGlyph(self._font, charcode)
+            g = so.FPDFFont_LoadGlyph(self._font, charcode)
             g = Glyph(g, self._font) if g is not None else None
             self._glyph_cache[charcode] = g
         return self._glyph_cache[charcode]

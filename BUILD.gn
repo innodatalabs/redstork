@@ -5,21 +5,16 @@
 import("//build/config/sanitizers/sanitizers.gni")
 import("../pdfium.gni")
 
-shared_library("redstork") {
-  include_dirs = [ "..", "../third_party/freetype/src/include" ]
+source_set("redstork") {
+  include_dirs = [ "..", "../third_party/freetype/src/include", "../third_party/abseil-cpp" ]
   sources = [
     "src/redstork.cc",
+    "src/redstork.h",
   ]
   defines = [
     "PNG_PREFIX",
     "PNG_USE_READ_MACROS",
-  ]
-
-  # Note: One should write programs that depend on ../:pdfium. Whereas this
-  # sample program does not set a good example, and depends on PDFium internals,
-  # as well as test support code, for convenience.
-  deps = [
-    "//:pdfium_public_headers",
-    "//fpdfsdk",
+    "FPDF_IMPLEMENTATION",
   ]
 }
+

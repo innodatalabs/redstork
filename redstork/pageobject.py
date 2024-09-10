@@ -76,10 +76,14 @@ class TextObject(PageObject):
         font = Font(f, parent)
         doc = parent.document
         self.font = doc.fonts.setdefault(font.id, font)  #: :class:`Font` for this text object
-        self.font_size = so.FPDFTextObj_GetFontSize(obj)  #: font size of this text object
+        font_size = c_float()
+        rc = so.FPDFTextObj_GetFontSize(obj, byref(font_size))  #: font size of this text object
+        if not rc:
+            raise RuntimeError('internal')
+        self.font_size = font_size.value
 
         matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)
-        so.FPDFTextObj_GetMatrix(obj, pointer(matrix))
+        so.FPDFPageObj_GetMatrix(obj, pointer(matrix))
         self.matrix = matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f  #: matrix for this page object
 
     def __len__(self):
@@ -194,7 +198,7 @@ class PathObject(PageObject):
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
         matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)
-        so.FPDFPath_GetMatrix(obj, pointer(matrix))
+        so.FPDFPageObj_GetMatrix(obj, pointer(matrix))
         self.matrix = matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f  #: matrix for this page object
 
     def __repr__(self):
@@ -204,17 +208,9 @@ class ImageObject(PageObject):
     '''Represents image on a page.'''
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
-        a = c_float(1.0)
-        b = c_float(0.0)
-        c = c_float(0.0)
-        d = c_float(1.0)
-        e = c_float(0.0)
-        f = c_float(0.0)
-        so.FPDFImageObj_GetMatrix(
-            obj, pointer(a), pointer(b), pointer(c),
-            pointer(c), pointer(c), pointer(c)
-        )
-        self.matrix = a.value, b.value, c.value, d.value, e.value, f.value  #: matrix for this page object
+        matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)
+        so.FPDFPageObj_GetMatrix(obj, pointer(matrix))
+        self.matrix = matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f  #: matrix for this page object
 
     def __repr__(self):
         return '<ImageObject>'
@@ -242,7 +238,7 @@ class FormObject(PageObject):
     def __init__(self, obj, index, typ, parent):
         super().__init__(obj, index, typ, parent)
         matrix = FPDF_MATRIX(1., 0., 0., 1., 0., 0.)
-        so.FPDFFormObj_GetMatrix(obj, pointer(matrix))
+        so.FPDFPageObj_GetMatrix(obj, pointer(matrix))
         self.matrix = (
             matrix.a, matrix.b, matrix.c,
             matrix.d, matrix.e, matrix.f

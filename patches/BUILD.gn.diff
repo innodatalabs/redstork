@@ -2,7 +2,7 @@ diff --git BUILD.gn BUILD.gn
 index 8bfe0ca55..5f9f1152d 100644
 --- BUILD.gn
 +++ BUILD.gn
-@@ -374,3 +374,6 @@ group("pdfium_all") {
+@@ -384,3 +384,6 @@ group("pdfium_all") {
      ]
    }
  }

@@ -11,7 +11,7 @@ def test_font():
     text_objs = [x for x in page if x.type == PageObject.OBJ_TYPE_TEXT]
     font = text_objs[0].font
 
-    assert font.name == 'KQFFMA+NimbusSanL-Regu'
+    assert font.name == 'NimbusSanL-Regu'
     assert font.simple_name == 'NimbusSanL-Regu'
     assert font.id == (53, 0)
     assert font.is_vertical is False

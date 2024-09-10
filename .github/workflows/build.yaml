@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+      - name: Set environment variables
+        run: |
+          steps/00-env.sh
+        shell: bash
+      - name: Install (1/2)
+        run: steps/01-install.sh
+        shell: bash
+      - name: Checkout PDFium
+        run: steps/02-checkout.sh
+        shell: bash
+        timeout-minutes: 15
+      - name: Apply patches
+        run: steps/03-patch.sh
+        shell: bash
+      - name: Install (2/2)
+        run: steps/04-install-extra.sh
+        shell: bash
+      - name: Configure
+        run: |
+          steps/05-configure.sh
+        shell: bash
+      - name: Build
+        run: steps/06-build.sh
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: xxx
+          path: staging/

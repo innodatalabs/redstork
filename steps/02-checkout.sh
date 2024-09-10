@@ -1,0 +1,29 @@
+#!/bin/bash -eux
+
+PDFium_URL='https://pdfium.googlesource.com/pdfium.git'
+OS=${PDFium_TARGET_OS:?}
+
+pushd $PDFium_BUILD_ROOT
+PATH=$PATH:$PWD/depot_tools
+
+CONFIG_ARGS=()
+CONFIG_ARGS+=(
+    --custom-var "checkout_configuration=minimal"
+)
+
+# Clone
+gclient config --unmanaged "$PDFium_URL" "${CONFIG_ARGS[@]-}"
+echo "target_os = [ '$OS' ]" >> .gclient
+
+
+# Reset
+for FOLDER in pdfium pdfium/build pdfium/third_party/libjpeg_turbo pdfium/base/allocator/partition_allocator; do
+    if [ -e "$FOLDER" ]; then
+        git -C $FOLDER reset --hard
+        git -C $FOLDER clean -df
+    fi
+done
+
+gclient sync -r "origin/${PDFium_BRANCH:-main}" --no-history --shallow
+
+popd

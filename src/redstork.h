@@ -28,7 +28,7 @@ typedef struct {
 FPDF_EXPORT void FPDF_CALLCONV RED_InitLibrary(void);
 FPDF_EXPORT int FPDF_CALLCONV REDTextObject_CountItems(FPDF_PAGEOBJECT pObj);
 FPDF_EXPORT FPDF_FONT FPDF_CALLCONV REDTextObject_GetFont(FPDF_PAGEOBJECT pObj);
-FPDF_EXPORT void FPDF_CALLCONV REDTextObject_GetItemInfo(FPDF_PAGEOBJECT pObj, unsigned int index, FPDF_TEXT_OBJECT_ITEM *pItem);
+FPDF_EXPORT int FPDF_CALLCONV REDTextObject_GetItemInfo(FPDF_PAGEOBJECT pObj, unsigned int index, FPDF_TEXT_OBJECT_ITEM *pItem);
 FPDF_EXPORT unsigned long FPDF_CALLCONV REDFont_GetName(FPDF_FONT font, char *buf, unsigned long buflen);
 FPDF_EXPORT int FPDF_CALLCONV REDFont_GetFlags(FPDF_FONT font);
 FPDF_EXPORT int FPDF_CALLCONV REDFont_GetWeight(FPDF_FONT font);
