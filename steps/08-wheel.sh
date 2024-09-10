@@ -20,7 +20,7 @@ pip install pytest wheel pip setuptools -U
 # build Release Python wheel
 [ "$OS" == "linux" ] && cp $BUILD_DIR/lib*.so ./redstork/$OS/
 [ "$OS" == "darwin" ] && cp $BUILD_DIR/lib*.dylib ./redstork/$OS/
-## FIXME: tests are failing die to font/glyph api change
+## FIXME: tests are failing due to font/glyph api change
 # python -m pytest redstork/test
 rm -rf build dist
 python setup.py bdist_wheel

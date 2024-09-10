@@ -2,15 +2,26 @@ name: Build
 
 on:
   workflow_dispatch:
+    inputs:
+      target_os:
+        description: Target OS (android|ios|linux|mac|wasm|win)
+        type: string
+        required: true
+      target_cpu:
+        description: Target (CPU arm|arm64|x64|x86|wasm)
+        type: string
+        required: true
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ${{ (inputs.target_os == 'ios' || inputs.target_os == 'mac') && 'macos-latest' || inputs.target_os == 'win' && 'windows-2022' || 'ubuntu-22.04' }}
     steps:
       - name: Checkout this repo
         uses: actions/checkout@v4
       - name: Set environment variables
         run: |
+          export PDFium_TARGET_CPU=${{ inputs.target_cpu }}
+          export PDFium_TARGET_OS=${{ inputs.target_os }}
           . steps/00-env.sh
           cat >>$GITHUB_ENV <<END
           PDFium_BUILD_ROOT=$PDFium_BUILD_ROOT
@@ -48,5 +59,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: xxx
+          name: redstork-${PDFium_TARGET_OS}-${PDFium_TARGET_CPU}
           path: staging/
