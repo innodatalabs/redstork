@@ -21,7 +21,7 @@ mkdir -p "$BUILD"
   echo "pdf_enable_v8 = $ENABLE_V8"
   echo "pdf_enable_xfa = $ENABLE_V8"
   echo "treat_warnings_as_errors = false"
-  echo "is_component_build = true"
+  echo "is_component_build = false"
 
   if [ "$ENABLE_V8" == "true" ]; then
     echo "v8_use_external_startup_data = false"

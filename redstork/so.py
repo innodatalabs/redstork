@@ -4,11 +4,11 @@ from ctypes import CDLL, pointer, POINTER, Structure, create_string_buffer, crea
 from ctypes import c_int, c_long, c_float, c_void_p, c_char_p, c_uint8, c_bool
 
 if sys.platform == 'linux':
-    so_name = 'linux/libpdfium.so'
+    so_name = 'linux/libredstork.so'
 elif sys.platform == 'win32':
-    so_name = 'win/pdfium.dll'
+    so_name = 'win/redstork.dll'
 elif sys.platform == 'darwin':
-    so_name = 'darwin/libpdfium.dylib'
+    so_name = 'darwin/libredstork.dylib'
 else:
     raise RuntimeError('Unsupported platform: %s' % sys.platform)
 
