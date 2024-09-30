@@ -28,6 +28,7 @@ jobs:
           PDFium_SOURCE_DIR=$PDFium_SOURCE_DIR
           PDFium_BUILD_DIR=$PDFium_BUILD_DIR
           PDFium_TARGET_OS=$PDFium_TARGET_OS
+          PDFium_IS_DEBUG=$PDFium_IS_DEBUG
           OS=$OS
           CURRENT_CPU=$CURRENT_CPU
           PDFium_TARGET_CPU=$PDFium_TARGET_CPU
