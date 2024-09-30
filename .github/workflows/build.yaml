@@ -11,6 +11,10 @@ on:
         description: Target (CPU arm|arm64|x64|x86|wasm)
         type: string
         required: true
+      debug:
+        description: Debug (true|false)
+        type: string
+        required: true
 
 jobs:
   build:
@@ -22,6 +26,7 @@ jobs:
         run: |
           export PDFium_TARGET_CPU=${{ inputs.target_cpu }}
           export PDFium_TARGET_OS=${{ inputs.target_os }}
+          export PDFium_IS_DEBUG=${{ inputs.debug }}
           . steps/00-env.sh
           cat >>$GITHUB_ENV <<END
           PDFium_BUILD_ROOT=$PDFium_BUILD_ROOT
