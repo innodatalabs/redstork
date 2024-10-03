@@ -19,6 +19,7 @@
 #include "core/fpdfapi/parser/cpdf_stream_acc.h"
 #include "core/fpdfapi/parser/cpdf_string.h"
 #include "core/fpdfapi/edit/cpdf_creator.h"
+#include "core/fpdftext/cpdf_textpage.h"
 //#include "third_party/base/stl_util.h"
 
 
