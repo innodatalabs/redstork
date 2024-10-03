@@ -110,7 +110,7 @@ FPDF_EXPORT extern "C" int FPDF_CALLCONV REDText_GetCharCode(FPDF_TEXTPAGE text_
     return 0;
   }
   const CPDF_TextPage::CharInfo& charinfo = textpage->GetCharInfo(index);
-  *pCode = charinfo.m_CharCode;
+  *pCode = charinfo.char_code();
 
   return 1;
 }
