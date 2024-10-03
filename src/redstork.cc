@@ -103,12 +103,13 @@ FPDF_EXPORT extern "C" int FPDF_CALLCONV REDTextObject_GetItemInfo(FPDF_PAGEOBJE
   return 1;
 }
 
-FPDF_EXPORT extern "C" int FPDF_CALLCONV REDText_GetCharCode(FPDF_PAGEOBJECT textObj, unsigned int index, uint32_t *pCode) {
-  CPDF_PageObject *pPageObj = CPDFPageObjectFromFPDFPageObject(textObj);
-  CPDF_TextObject *pTextObj = pPageObj->AsText();
-  CPDF_TextObject::Item item = pTextObj->GetItemInfo(index);
-
-  *pCode = item.m_CharCode;
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDText_GetCharCode(FPDF_TEXTPAGE text_page, unsigned int index, unsigned int *pCode) {
+  CPDF_TextPage* textpage = CPDFTextPageFromFPDFTextPage(text_page);
+  if (index < 0 || static_cast<size_t>(index) >= textpage->size()) {
+    return 0;
+  }
+  const CPDF_TextPage::CharInfo& charinfo = textpage->GetCharInfo(index);
+  *pCode = charinfo.m_CharCode;
 
   return 1;
 }
