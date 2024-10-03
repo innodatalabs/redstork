@@ -103,6 +103,16 @@ FPDF_EXPORT extern "C" int FPDF_CALLCONV REDTextObject_GetItemInfo(FPDF_PAGEOBJE
   return 1;
 }
 
+FPDF_EXPORT extern "C" int FPDF_CALLCONV REDText_GetCharCode(FPDF_PAGEOBJECT textObj, unsigned int index, uint32_t *pCode) {
+  CPDF_PageObject *pPageObj = CPDFPageObjectFromFPDFPageObject(textObj);
+  CPDF_TextObject *pTextObj = pPageObj->AsText();
+  CPDF_TextObject::Item item = pTextObj->GetItemInfo(index);
+
+  *pCode = item.m_CharCode;
+
+  return 1;
+}
+
 FPDF_EXPORT extern "C" unsigned long FPDF_CALLCONV REDFont_GetName(FPDF_FONT font, char *buf, unsigned long buflen) {
   CPDF_Font *pFont = CPDFFontFromFPDFFont(font);
   ByteString basefont = pFont->GetBaseFontName();
