@@ -1,4 +1,5 @@
 #include "redstork.h"
+#include "redstork_version.h"
 
 #include <stdio.h>
 
@@ -541,3 +542,5 @@ FPDF_EXPORT extern "C" int FPDF_CALLCONV REDDoc_Save(FPDF_DOCUMENT document, cha
 
   return creator.Create(0);
 }
+
+FPDF_EXPORT extern "C" const char *__version__ = REDSTORK_VERSION;

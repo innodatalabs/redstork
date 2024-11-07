@@ -121,7 +121,7 @@ git diff --no-prefix >> filename.diff
 
 Use `gn` tool (from Google toolchain) to generate `ninja` files:
 
-```
+```bash
 cd redstork
 mkdir out out/Debug out/Release
 cp src/args.Debug.gn out/Debug/args.gn

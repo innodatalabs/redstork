@@ -1,0 +1,12 @@
+FROM python:3.12-bookworm
+LABEL maintainer='Mike Kroutikov <mkroutikov@innodata.com>'
+
+RUN apt update; apt install -y vim sudo gdb
+
+COPY . /self
+WORKDIR /pdfium/redstork
+
+RUN cd /self; BUILD_ROOT=/home/redstork PDFium_TARGET_OS=linux OS=linux PDFium_TARGET_CPU=x64 PDFium_IS_DEBUG=true bash /self/build_scripts/build.sh
+
+CMD [ "bash" ]
+

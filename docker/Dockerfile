@@ -13,7 +13,7 @@ RUN echo "redstork ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 USER redstork
 WORKDIR /home/redstork
 
-RUN cd /self; BUILD_ROOT=/home/redstork PDFium_TARGET_OS=linux OS=linux PDFium_TARGET_CPU=x64 bash /self/build_scripts/build.sh
+RUN cd /self; BUILD_ROOT=/home/redstork PDFium_TARGET_OS=linux OS=linux PDFium_TARGET_CPU=x64 PDFium_IS_DEBUG=false bash /self/build_scripts/build.sh
 
 CMD [ "bash" ]
 

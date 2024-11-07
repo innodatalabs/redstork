@@ -1,5 +1,5 @@
 # exit on error and do long report
-set -ex
+set -eux
 
 REDSTORK_ROOT=${REDSTORK_ROOT:-.}
 
@@ -11,4 +11,5 @@ $REDSTORK_ROOT/steps/03-patch.sh
 $REDSTORK_ROOT/steps/04-install-extra.sh
 $REDSTORK_ROOT/steps/05-configure.sh
 $REDSTORK_ROOT/steps/06-build.sh
-$REDSTORK_ROOT/steps/07-wheel.sh
+$REDSTORK_ROOT/steps/07-stage.sh
+$REDSTORK_ROOT/steps/08-wheel.sh

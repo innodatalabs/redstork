@@ -2,26 +2,29 @@
 
 BUILD=${PDFium_BUILD_DIR:-pdfium/out}
 
-STAGING=${PDFium_STAGING_DIR:-./staging}
-STAGING_LIB="$STAGING/lib"
-STAGING_BIN="$STAGING/bin"
+STAGING=${PDFium_STAGING_DIR:-./redstork}
+STAGING_LIB="$STAGING/$OS"
+STAGING_BIN="$STAGING/$OS"
 
 mkdir -p "$STAGING"
 mkdir -p "$STAGING_LIB"
 
+echo $STAGING_LIB
+pwd
+
 case "$OS" in
   android|linux)
-    mv "$BUILD/libpdfium.so" "$STAGING_LIB/libredstork.so"
+    cp "$BUILD/libpdfium.so" "$STAGING_LIB/libredstork.so"
     ;;
 
   mac|ios)
-    mv "$BUILD/libpdfium.dylib" "$STAGING_LIB/libredstork.dylib"
+    cp "$BUILD/libpdfium.dylib" "$STAGING_LIB/libredstork.dylib"
     ;;
 
   win)
-    mv "$BUILD/pdfium.dll.lib" "$STAGING_LIB/redstork.dll.lib"
+    cp "$BUILD/pdfium.dll.lib" "$STAGING_LIB/redstork.dll.lib"
     mkdir -p "$STAGING_BIN"
-    mv "$BUILD/pdfium.dll" "$STAGING_BIN/redstork.dll"
+    cp "$BUILD/pdfium.dll" "$STAGING_BIN/redstork.dll"
     # [ "$IS_DEBUG" == "true" ] && mv "$BUILD/pdfium.dll.pdb" "$STAGING_BIN"
     ;;
 esac

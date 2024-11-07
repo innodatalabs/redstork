@@ -13,4 +13,6 @@ mkdir ./redstork
 cp $SRC/BUILD.gn ./redstork/
 cp -r $SRC/src ./redstork/src
 
+echo "#define REDSTORK_VERSION \"$PDFium_BRANCH\"" > ./redstork/src/redstork_version.h
+
 popd

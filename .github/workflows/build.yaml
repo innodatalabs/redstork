@@ -38,6 +38,7 @@ jobs:
           CURRENT_CPU=$CURRENT_CPU
           PDFium_TARGET_CPU=$PDFium_TARGET_CPU
           DEPOT_TOOLS_WIN_TOOLCHAIN=$DEPOT_TOOLS_WIN_TOOLCHAIN
+          PDFium_BRANCH=$PDFium_BRANCH
           END
         shell: bash
       - name: Install (1/2)

@@ -10,6 +10,7 @@ source_set("redstork") {
   sources = [
     "src/redstork.cc",
     "src/redstork.h",
+    "src/redstork_version.h",
   ]
   defines = [
     "PNG_PREFIX",
