@@ -64,7 +64,7 @@ FPDF_EXPORT int FPDF_CALLCONV REDFont_WriteUnicodeMap(FPDF_FONT font, unsigned c
 FPDF_EXPORT void FPDF_CALLCONV REDFont_DestroyUnicodeMap(unsigned char *buffer);
 FPDF_EXPORT int FPDF_CALLCONV REDDoc_Save(FPDF_DOCUMENT document, char const *filename);
 
-FPDF_EXPORT const char *REDSTORK_VERSION;
+FPDF_EXPORT const char *RED_GetVersion(void);
 #ifdef __cplusplus
 }
 #endif

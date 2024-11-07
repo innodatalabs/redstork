@@ -543,4 +543,6 @@ FPDF_EXPORT extern "C" int FPDF_CALLCONV REDDoc_Save(FPDF_DOCUMENT document, cha
   return creator.Create(0);
 }
 
-FPDF_EXPORT extern "C" const char *__version__ = REDSTORK_VERSION;
+FPDF_EXPORT extern "C" const char *RED_GetVersion(void) {
+  return REDSTORK_VERSION;
+}
